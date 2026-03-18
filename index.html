@@ -378,7 +378,9 @@
             <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">{วันที่}</code>
             <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">{จำนวนวัน}</code>
             <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">{ค่าเช่า}</code>
+            <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">{บัญชี}</code>
             <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">{อาคาร}</code>
+            <br><span style="color:var(--accent2)">💡 {บัญชี} ดึงจาก "ข้อมูลผู้ให้เช่า → เลขที่บัญชีธนาคาร" อัตโนมัติ</span>
           </div>
           <div class="form-grid">
             <div class="form-group full">
@@ -392,12 +394,13 @@
             </div>
             <div class="form-group full">
               <label>📨 ข้อความแจ้งเตือนค่าเช่า → ผู้เช่า</label>
-              <textarea id="tmpl-tenant" rows="6" style="font-family:monospace;font-size:12px;line-height:1.7">🏠 แจ้งเตือนค่าเช่า
+              <textarea id="tmpl-tenant" rows="7" style="font-family:monospace;font-size:12px;line-height:1.7">🏠 แจ้งเตือนค่าเช่า
 ────────────────
 เรียน คุณ{ผู้เช่า}
 ค่าเช่าห้อง {ห้อง} ครบกำหนดชำระ
 📅 วันที่: {วันที่} ({จำนวนวัน})
 💰 จำนวน: ฿{ค่าเช่า}
+🏦 โอนเงินมาที่: {บัญชี}
 กรุณาชำระภายในกำหนด ขอบคุณครับ/ค่ะ</textarea>
             </div>
             <div class="form-group full">
@@ -970,7 +973,7 @@ function getBotToken(){return(db.notify||{}).botToken||'';}
 
 var DEFAULT_TEMPLATES={
   owner:'🔔 แจ้งเตือนค่าเช่า\n────────────────\n🚪 ห้อง: {ห้อง}\n👤 ผู้เช่า: {ผู้เช่า}\n📅 ครบกำหนด: {วันที่} ({จำนวนวัน})\n💰 ค่าเช่า: ฿{ค่าเช่า}',
-  tenant:'🏠 แจ้งเตือนค่าเช่า\n────────────────\nเรียน คุณ{ผู้เช่า}\nค่าเช่าห้อง {ห้อง} ครบกำหนดชำระ\n📅 วันที่: {วันที่} ({จำนวนวัน})\n💰 จำนวน: ฿{ค่าเช่า}\nกรุณาชำระภายในกำหนด ขอบคุณครับ/ค่ะ',
+  tenant:'🏠 แจ้งเตือนค่าเช่า\n────────────────\nเรียน คุณ{ผู้เช่า}\nค่าเช่าห้อง {ห้อง} ครบกำหนดชำระ\n📅 วันที่: {วันที่} ({จำนวนวัน})\n💰 จำนวน: ฿{ค่าเช่า}\n🏦 โอนเงินมาที่: {บัญชี}\nกรุณาชำระภายในกำหนด ขอบคุณครับ/ค่ะ',
   expire:'⚠️ สัญญาใกล้หมดอายุ\n────────────────\n🚪 ห้อง: {ห้อง}\n👤 ผู้เช่า: {ผู้เช่า}\n📅 หมดอายุ: {วันที่}\n⏳ เหลือ: {จำนวนวัน} วัน\nกรุณาดำเนินการต่อสัญญา'
 };
 
@@ -981,7 +984,8 @@ function applyTemplate(tmpl,vars){
     .replace(/\{วันที่\}/g,vars.date||'')
     .replace(/\{จำนวนวัน\}/g,vars.diff||'')
     .replace(/\{ค่าเช่า\}/g,vars.rent||'')
-    .replace(/\{อาคาร\}/g,vars.building||'');
+    .replace(/\{อาคาร\}/g,vars.building||'')
+    .replace(/\{บัญชี\}/g,vars.bank||'');
 }
 
 function getTemplates(){
@@ -1214,7 +1218,7 @@ async function sendDueReminders(){
     if(diff<=days&&diff>=0){
       var dueStr=due.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
       var diffTxt=diff===0?'⚠️ ครบกำหนดวันนี้!':'อีก '+diff+' วัน';
-      var vars={room:r.name,tenant:tname,date:dueStr,diff:diffTxt,rent:c.rent.toLocaleString(),building:(db.owner||{}).building||''};
+      var vars={room:r.name,tenant:tname,date:dueStr,diff:diffTxt,rent:c.rent.toLocaleString(),building:(db.owner||{}).building||'',bank:(db.owner||{}).bank||''};
       if(n.ownerChatId){
         var mo=applyTemplate(tmpls.owner,vars);
         promises.push((function(cid,msg,lbl){return tgSend(cid,msg).then(function(res){notifyLog((res.ok?'✅':'❌')+' แจ้งเจ้าของ — '+lbl,res.ok?'ok':'err');});})(n.ownerChatId,mo,r.name+'/'+tname));
@@ -1228,7 +1232,7 @@ async function sendDueReminders(){
     var dl=Math.ceil((ed-today)/864e5);
     if(dl<=30&&dl>=0&&n.ownerChatId){
       var es=ed.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
-      var evars={room:r.name,tenant:tname,date:es,diff:String(dl),rent:c.rent.toLocaleString(),building:(db.owner||{}).building||''};
+      var evars={room:r.name,tenant:tname,date:es,diff:String(dl),rent:c.rent.toLocaleString(),building:(db.owner||{}).building||'',bank:(db.owner||{}).bank||''};
       var me=applyTemplate(tmpls.expire,evars);
       promises.push((function(cid,msg,lbl){return tgSend(cid,msg).then(function(res){notifyLog((res.ok?'✅':'❌')+' สัญญาใกล้หมด — '+lbl,res.ok?'ok':'err');});})(n.ownerChatId,me,r.name));
     }
