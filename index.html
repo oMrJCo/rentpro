@@ -749,7 +749,17 @@ function autoFillRent(){
   var r=db.rooms.find(function(x){return x.id===rid;});
   if(r)document.getElementById('contract-rent').value=r.rent;
 }
-function saveContract(){
+// ล้าง sent flags ของสัญญานั้นทุกครั้งที่มีการแก้ไข
+function clearContractSentFlags(contractId){
+  var types=['advance','due','overdue','expire'];
+  // ลบ keys ทุกวันที่เป็นไปได้ (เดือนนี้และเดือนก่อน)
+  var keys=Object.keys(localStorage);
+  keys.forEach(function(k){
+    if(k.indexOf('rentpro_')===0&&k.indexOf(contractId)>-1){
+      localStorage.removeItem(k);
+    }
+  });
+}
   var id=document.getElementById('contract-id').value;
   var tenantId=document.getElementById('contract-tenant').value;
   var roomId=document.getElementById('contract-room').value;
@@ -758,7 +768,7 @@ function saveContract(){
   if(!tenantId||!roomId||!start||!end)return alert('กรุณากรอกข้อมูลให้ครบ');
   var today=new Date();
   var c={id:id||uid(),tenantId:tenantId,roomId:roomId,startDate:start,endDate:end,rent:parseFloat(document.getElementById('contract-rent').value)||0,deposit:parseFloat(document.getElementById('contract-deposit').value)||0,advance:parseFloat(document.getElementById('contract-advance').value)||0,dueDay:parseInt(document.getElementById('contract-due').value)||1,waterType:document.getElementById('contract-water-type').value,waterRate:document.getElementById('contract-water-rate').value,electricType:document.getElementById('contract-electric-type').value,electricRate:document.getElementById('contract-electric-rate').value,occupants:document.getElementById('contract-occupants').value,purpose:document.getElementById('contract-purpose').value,pet:document.getElementById('contract-pet').value,sublease:document.getElementById('contract-sublease').value,terms:document.getElementById('contract-terms').value,furniture:document.getElementById('contract-furniture').value,status:new Date(end)>=today?'active':'expired'};
-  if(id){var i=db.contracts.findIndex(function(x){return x.id===id;});if(i>=0)db.contracts[i]=c;}else{db.contracts.push(c);}
+  if(id){var i=db.contracts.findIndex(function(x){return x.id===id;});if(i>=0){db.contracts[i]=c;clearContractSentFlags(id);}}else{db.contracts.push(c);}
   updateRoomStatuses();save();renderContracts();closeModal('modal-contract');
 }
 function deleteContract(id){if(!confirm('ลบสัญญา?'))return;db.contracts=db.contracts.filter(function(c){return c.id!==id;});updateRoomStatuses();save();renderContracts();}
