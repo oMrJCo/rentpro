@@ -199,7 +199,7 @@
       <button class="nav-item" onclick="showPage('tenants',this)"><span class="nav-icon">👥</span> ผู้เช่า</button>
       <button class="nav-item" onclick="showPage('contracts',this)"><span class="nav-icon">📄</span> สัญญา</button>
       <button class="nav-item" onclick="showPage('payments',this)"><span class="nav-icon">💰</span> ค่าเช่า</button>
-      <button class="nav-item" onclick="showPage('notify',this)"><span class="nav-icon">💬</span> แจ้งเตือน LINE</button>
+      <button class="nav-item" onclick="showPage('notify',this)"><span class="nav-icon">🤖</span> แจ้งเตือน Telegram</button>
     </nav>
     <div class="sidebar-footer">
       <div class="owner-name" id="sidebar-owner-name">ยังไม่ได้ตั้งค่า</div>
@@ -308,34 +308,34 @@
       </div>
     </div>
 
-    <!-- LINE NOTIFY -->
+    <!-- TELEGRAM NOTIFY -->
     <div id="page-notify" style="display:none">
-      <div class="topbar no-print"><h2>💬 แจ้งเตือนผ่าน LINE Messaging API</h2>
+      <div class="topbar no-print"><h2>🤖 แจ้งเตือนผ่าน Telegram Bot</h2>
         <button class="btn btn-primary" onclick="saveNotifySettings()">💾 บันทึก</button>
       </div>
       <div class="content">
 
         <div class="info-box" style="margin-bottom:16px;line-height:2.1">
-          <strong>📋 วิธีตั้งค่า LINE Messaging API (ฟรี 200 msg/วัน)</strong><br>
-          1. ไปที่ <strong>developers.line.biz</strong> → Log in → Create Provider → Create Channel → <strong>Messaging API</strong><br>
-          2. แท็บ <strong>Basic settings</strong> → คัดลอก <strong>Channel secret</strong><br>
-          3. แท็บ <strong>Messaging API</strong> → กด <strong>Issue</strong> → คัดลอก <strong>Channel access token</strong><br>
-          4. เพิ่มเพื่อน LINE OA (QR code ในแท็บ Messaging API) → ส่งข้อความอะไรก็ได้ 1 ครั้ง<br>
-          5. กด <strong>"📥 ดึง User ID ของฉัน"</strong> ด้านล่าง → บันทึก → ทดสอบส่ง ✅
+          <strong>📋 วิธีสร้าง Telegram Bot (ฟรี ไม่จำกัด ใช้งานได้ทันที)</strong><br>
+          1. เปิด Telegram → ค้นหา <strong>@BotFather</strong> → กด Start<br>
+          2. พิมพ์ <strong>/newbot</strong> → ตั้งชื่อบอท → รับ <strong>Bot Token</strong><br>
+          3. ค้นหาชื่อบอทของคุณใน Telegram → กด <strong>Start</strong> → ส่งข้อความอะไรก็ได้<br>
+          4. วาง Bot Token ด้านล่าง → กด <strong>"📥 รับ Chat ID ของฉัน"</strong> อัตโนมัติ ✅<br>
+          5. สำหรับผู้เช่า: ให้ผู้เช่า Start บอทก่อน → กด <strong>"🔄 ดึง Chat ID ผู้เช่า"</strong>
         </div>
 
         <div class="card" style="padding:24px;margin-bottom:18px">
-          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">🔑 LINE Channel Access Token</div>
+          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">🔑 Telegram Bot Token</div>
           <div class="form-grid">
             <div class="form-group full">
-              <label>Channel Access Token (จาก LINE Developers Console)</label>
-              <input type="text" id="notify-channel-token" placeholder="วาง Channel Access Token ที่ได้จาก developers.line.biz">
+              <label>Bot Token (จาก @BotFather)</label>
+              <input type="text" id="notify-bot-token" placeholder="1234567890:AAxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
             </div>
             <div class="form-group full">
-              <label>User ID ของผู้ให้เช่า (เจ้าของ)</label>
+              <label>Chat ID ของผู้ให้เช่า (เจ้าของ)</label>
               <div style="display:flex;gap:8px">
-                <input type="text" id="notify-owner-uid" placeholder="กด Start OA แล้วส่งข้อความ จากนั้นกดปุ่มขวา" style="flex:1">
-                <button class="btn btn-secondary" onclick="fetchOwnerUserId()" style="white-space:nowrap">📥 ดึง User ID ของฉัน</button>
+                <input type="text" id="notify-owner-chatid" placeholder="กด Start บอทก่อน → ส่งข้อความ → กดปุ่มขวา" style="flex:1">
+                <button class="btn btn-secondary" onclick="fetchOwnerChatId()" style="white-space:nowrap">📥 รับ Chat ID ของฉัน</button>
               </div>
             </div>
             <div class="form-group">
@@ -358,16 +358,16 @@
         </div>
 
         <div class="card" style="padding:24px;margin-bottom:18px">
-          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">👥 User ID ของผู้เช่าแต่ละคน</div>
-          <div style="font-size:12px;color:var(--muted);margin-bottom:14px">ให้ผู้เช่าเพิ่มเพื่อน LINE OA ของคุณ แล้วส่งข้อความ 1 ครั้ง → กด "ดึง User ID ผู้เช่า" → คัดลอกไปวางในช่องด้านล่าง</div>
+          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">👥 Chat ID ของผู้เช่าแต่ละคน</div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:14px">ให้ผู้เช่าค้นหาบอทใน Telegram → กด Start → ส่งข้อความ 1 ครั้ง → กด "ดึง Chat ID ผู้เช่า"</div>
           <div id="tenant-token-list"></div>
-          <button class="btn btn-secondary btn-sm" onclick="fetchRecentUserIds()" style="margin-top:12px">🔄 ดึง User ID ผู้เช่าล่าสุด</button>
+          <button class="btn btn-secondary btn-sm" onclick="fetchTenantChatIds()" style="margin-top:12px">🔄 ดึง Chat ID ผู้เช่าล่าสุด</button>
         </div>
 
         <div class="card" style="padding:20px">
           <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">🧪 ทดสอบและส่งแจ้งเตือน</div>
           <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <button class="btn btn-secondary" onclick="testLineMsg()">📤 ทดสอบส่ง (เจ้าของ)</button>
+            <button class="btn btn-secondary" onclick="testTelegramMsg()">📤 ทดสอบส่ง (เจ้าของ)</button>
             <button class="btn btn-primary" onclick="sendDueReminders()">🔔 ส่งแจ้งเตือนครบกำหนดทั้งหมด</button>
           </div>
           <div id="notify-log" style="margin-top:16px;font-size:13px;color:var(--muted);line-height:1.9;max-height:240px;overflow-y:auto;border-top:1px solid var(--border);padding-top:12px;"></div>
@@ -909,23 +909,22 @@ function printContract(id){
 }
 function closePrint(){document.getElementById('contract-print-view').style.display='none';}
 
-// ===== LINE NOTIFY =====
-// ===== LINE MESSAGING API =====
-// ทำงานได้บน https:// hosting — LINE API รองรับ CORS จาก https domain
-var LINE_BASE='https://api.line.me/v2/bot';
+// ===== TELEGRAM BOT =====
+// ===== TELEGRAM BOT =====
+var TG_API='https://api.telegram.org/bot';
 
-function getLineToken(){return(db.notify||{}).channelToken||'';}
+function getBotToken(){return(db.notify||{}).botToken||'';}
 
 function saveNotifySettings(){
   db.notify={
-    channelToken:document.getElementById('notify-channel-token').value.trim(),
-    ownerUid:document.getElementById('notify-owner-uid').value.trim(),
+    botToken:document.getElementById('notify-bot-token').value.trim(),
+    ownerChatId:document.getElementById('notify-owner-chatid').value.trim(),
     daysBefore:parseInt(document.getElementById('notify-days-before').value)||5,
     auto:document.getElementById('notify-auto').value
   };
   db.tenants.forEach(function(t){
-    var el=document.getElementById('tenant-uid-'+t.id);
-    if(el)t.lineUid=el.value.trim();
+    var el=document.getElementById('tenant-chatid-'+t.id);
+    if(el)t.tgChatId=el.value.trim();
   });
   save();
   alert('บันทึกการตั้งค่าเรียบร้อย ✅');
@@ -933,19 +932,19 @@ function saveNotifySettings(){
 
 function loadNotifyPage(){
   var n=db.notify||{};
-  document.getElementById('notify-channel-token').value=n.channelToken||'';
-  document.getElementById('notify-owner-uid').value=n.ownerUid||'';
+  document.getElementById('notify-bot-token').value=n.botToken||'';
+  document.getElementById('notify-owner-chatid').value=n.ownerChatId||'';
   document.getElementById('notify-days-before').value=n.daysBefore||5;
   document.getElementById('notify-auto').value=n.auto||'startup';
-  renderTenantUidList();
+  renderTenantChatIdList();
 }
 
-function renderTenantUidList(){
+function renderTenantChatIdList(){
   var el=document.getElementById('tenant-token-list');
   if(!db.tenants.length){el.innerHTML='<p style="color:var(--muted);font-size:13px">ยังไม่มีผู้เช่า</p>';return;}
   el.innerHTML='<div class="form-grid">'+db.tenants.map(function(t){
     return '<div class="form-group"><label>'+(t.prefix||'')+t.fname+' '+t.lname+'</label>'
-      +'<input type="text" id="tenant-uid-'+t.id+'" value="'+(t.lineUid||'')+'" placeholder="Uxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"></div>';
+      +'<input type="text" id="tenant-chatid-'+t.id+'" value="'+(t.tgChatId||'')+'" placeholder="Chat ID เช่น 123456789"></div>';
   }).join('')+'</div>';
 }
 
@@ -956,127 +955,116 @@ function notifyLog(msg,type){
   el.innerHTML='<div style="color:'+color+';padding:3px 0">'+new Date().toLocaleTimeString('th-TH')+' — '+msg+'</div>'+el.innerHTML;
 }
 
-// เรียก LINE API ผ่าน corsproxy.io เพื่อแก้ปัญหา CORS
-async function lineAPI(path,method,body){
-  var token=getLineToken();
-  if(!token)return{ok:false,msg:'ไม่มี Channel Access Token'};
+async function tgRequest(method,params){
+  var token=getBotToken();
+  if(!token)return{ok:false,description:'ไม่มี Bot Token'};
   try{
-    var opts={
-      method:method||'GET',
-      headers:{
-        'Authorization':'Bearer '+token,
-        'Content-Type':'application/json'
-      }
-    };
-    if(body)opts.body=JSON.stringify(body);
-    var res=await fetch(LINE_BASE+path,opts);
-    var json={};
-    try{json=await res.json();}catch(e){}
-    return{ok:res.ok,status:res.status,data:json};
-  }catch(e){return{ok:false,msg:e.message};}
+    var res=await fetch(TG_API+token+'/'+method,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(params)
+    });
+    return await res.json();
+  }catch(e){return{ok:false,description:e.message};}
 }
 
-async function lineSendPush(to,text){
-  return lineAPI('/message/push','POST',{
-    to:to,
-    messages:[{type:'text',text:text}]
-  });
+async function tgSend(chatId,text){
+  if(!chatId||!getBotToken())return{ok:false};
+  return tgRequest('sendMessage',{chat_id:chatId,text:text});
 }
 
-// ดึง User ID จาก getFollowersIds
-async function fetchOwnerUserId(){
-  notifyLog('กำลังดึง User ID...');
-  if(!getLineToken()){notifyLog('❌ กรุณากรอก Channel Access Token ก่อน','err');return;}
-  var r=await lineAPI('/followers/ids?limit=10','GET');
-  if(r.ok&&r.data&&r.data.userIds&&r.data.userIds.length){
-    var uid=r.data.userIds[0];
-    document.getElementById('notify-owner-uid').value=uid;
-    notifyLog('✅ User ID: '+uid+' (กด 💾 บันทึกด้วย)','ok');
-  } else {
-    notifyLog('❌ ดึงไม่ได้ — '+(r.data&&r.data.message||r.msg||'กรุณาเพิ่มเพื่อน LINE OA และส่งข้อความก่อน'),'err');
+async function fetchOwnerChatId(){
+  notifyLog('กำลังรับ Chat ID...');
+  if(!getBotToken()){notifyLog('❌ กรุณากรอก Bot Token ก่อน','err');return;}
+  var r=await tgRequest('getUpdates',{limit:10,offset:-10});
+  if(!r.ok){notifyLog('❌ '+(r.description||'ไม่สำเร็จ — ตรวจสอบ Bot Token'),'err');return;}
+  if(!r.result||!r.result.length){
+    notifyLog('❌ ยังไม่มีข้อความ — กรุณาเปิด Telegram ค้นหาบอท แล้วกด Start และส่งข้อความ 1 ครั้ง','err');
+    return;
+  }
+  var chatId='';
+  for(var i=r.result.length-1;i>=0;i--){
+    var msg=r.result[i].message||r.result[i].channel_post;
+    if(msg&&msg.chat&&msg.chat.id){chatId=String(msg.chat.id);break;}
+  }
+  if(chatId){
+    document.getElementById('notify-owner-chatid').value=chatId;
+    notifyLog('✅ Chat ID: '+chatId+' — กด 💾 บันทึกด้วย','ok');
+  }else{
+    notifyLog('❌ ไม่พบ Chat ID — ลองส่งข้อความหาบอทแล้วกดอีกครั้ง','err');
   }
 }
 
-async function fetchRecentUserIds(){
-  notifyLog('กำลังดึง User IDs...');
-  if(!getLineToken()){notifyLog('❌ กรุณากรอก Channel Access Token ก่อน','err');return;}
-  var r=await lineAPI('/followers/ids?limit=50','GET');
-  if(!r.ok){notifyLog('❌ '+(r.data&&r.data.message||r.msg||'ไม่สำเร็จ'),'err');return;}
-  var ids=(r.data&&r.data.userIds)||[];
-  if(!ids.length){notifyLog('ℹ️ ยังไม่มีผู้ติดตาม OA');return;}
-  var msg='User IDs ที่พบ ('+ids.length+' คน):\n\n';
-  ids.forEach(function(id,i){msg+=(i+1)+'. '+id+'\n';});
-  msg+='\nนำ ID ไปวางในช่องผู้เช่าที่ต้องการ';
-  notifyLog('✅ พบ '+ids.length+' User IDs (ดูใน popup)','ok');
-  alert(msg);
+async function fetchTenantChatIds(){
+  notifyLog('กำลังดึง Chat IDs...');
+  if(!getBotToken()){notifyLog('❌ กรุณากรอก Bot Token ก่อน','err');return;}
+  var r=await tgRequest('getUpdates',{limit:50,offset:-50});
+  if(!r.ok){notifyLog('❌ '+(r.description||'ไม่สำเร็จ'),'err');return;}
+  if(!r.result||!r.result.length){notifyLog('ℹ️ ยังไม่มีข้อความเข้า');return;}
+  var chats={};
+  r.result.forEach(function(u){
+    var msg=u.message||u.channel_post;
+    if(msg&&msg.chat){
+      var id=String(msg.chat.id);
+      var name=(msg.chat.first_name||'')+(msg.chat.last_name?' '+msg.chat.last_name:'');
+      if(!chats[id])chats[id]={id:id,name:name};
+    }
+  });
+  var list=Object.values(chats);
+  if(!list.length){notifyLog('ℹ️ ไม่พบผู้ใช้');return;}
+  var popup='📋 Chat IDs ที่พบ:\n\n';
+  list.forEach(function(ch){popup+=ch.id+' — '+ch.name+'\n';});
+  notifyLog('✅ พบ '+list.length+' คน (ดูใน popup)','ok');
+  alert(popup+'\nนำ Chat ID ไปวางในช่องผู้เช่าที่ต้องการ');
 }
 
-async function testLineMsg(){
-  var token=getLineToken();
-  var uid=(db.notify||{}).ownerUid;
-  if(!token){notifyLog('❌ กรุณากรอก Channel Access Token ก่อน','err');return;}
-  if(!uid){notifyLog('❌ กรุณากรอก User ID ของเจ้าของก่อน','err');return;}
+async function testTelegramMsg(){
+  if(!getBotToken()){notifyLog('❌ กรุณากรอก Bot Token ก่อน','err');return;}
+  var chatId=(db.notify||{}).ownerChatId;
+  if(!chatId){notifyLog('❌ กรุณากรอก Chat ID ของเจ้าของก่อน','err');return;}
   notifyLog('กำลังส่งทดสอบ...');
-  var r=await lineSendPush(uid,'🏠 RentPro — ทดสอบระบบแจ้งเตือน\nระบบเชื่อมต่อ LINE Messaging API สำเร็จ ✅\nแจ้งเตือนค่าเช่าพร้อมใช้งาน');
-  if(r.ok)notifyLog('✅ ส่งสำเร็จ! ตรวจสอบ LINE ของคุณ','ok');
-  else notifyLog('❌ ส่งไม่สำเร็จ: '+(r.data&&r.data.message||r.msg||'status '+r.status),'err');
+  var r=await tgSend(chatId,'🏠 RentPro — ทดสอบระบบแจ้งเตือน\nระบบเชื่อมต่อ Telegram Bot สำเร็จ ✅\nแจ้งเตือนค่าเช่าพร้อมใช้งาน');
+  if(r.ok)notifyLog('✅ ส่งสำเร็จ! ตรวจสอบ Telegram ของคุณ','ok');
+  else notifyLog('❌ ส่งไม่สำเร็จ: '+(r.description||'unknown'),'err');
 }
 
 async function sendDueReminders(){
   var n=db.notify||{};
-  if(!n.channelToken){notifyLog('❌ กรุณาตั้งค่า Channel Access Token ก่อน','err');return;}
+  if(!n.botToken){notifyLog('❌ กรุณาตั้งค่า Bot Token ก่อน','err');return;}
   var days=n.daysBefore||5;
   var today=new Date(); today.setHours(0,0,0,0);
   document.getElementById('notify-log').innerHTML='';
   notifyLog('⏳ เริ่มตรวจสอบ...');
   var promises=[];
-
   db.contracts.forEach(function(c){
     if(c.status!=='active')return;
     var t=db.tenants.find(function(x){return x.id===c.tenantId;});
     var r=db.rooms.find(function(x){return x.id===c.roomId;});
     if(!t||!r)return;
-    var tenantName=(t.prefix||'')+t.fname+' '+t.lname;
-
-    // ── ค่าเช่าครบกำหนด ──
+    var tname=(t.prefix||'')+t.fname+' '+t.lname;
     var due=new Date(today.getFullYear(),today.getMonth(),c.dueDay);
     if(due<today)due=new Date(today.getFullYear(),today.getMonth()+1,c.dueDay);
     var diff=Math.ceil((due-today)/864e5);
     if(diff<=days&&diff>=0){
       var dueStr=due.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
       var diffTxt=diff===0?'⚠️ ครบกำหนดวันนี้!':'อีก '+diff+' วัน';
-      if(n.ownerUid){
-        var msgO='🔔 แจ้งเตือนค่าเช่า\n────────────────\n🚪 ห้อง: '+r.name+'\n👤 ผู้เช่า: '+tenantName+'\n📅 ครบกำหนด: '+dueStr+' ('+diffTxt+')\n💰 ค่าเช่า: ฿'+c.rent.toLocaleString();
-        promises.push((function(uid,msg,label){
-          return lineSendPush(uid,msg).then(function(res){
-            notifyLog((res.ok?'✅':'❌')+' แจ้งเจ้าของ — '+label,res.ok?'ok':'err');
-          });
-        })(n.ownerUid,msgO,r.name+' / '+tenantName));
+      if(n.ownerChatId){
+        var mo='🔔 แจ้งเตือนค่าเช่า\n────────────────\n🚪 ห้อง: '+r.name+'\n👤 ผู้เช่า: '+tname+'\n📅 ครบกำหนด: '+dueStr+' ('+diffTxt+')\n💰 ค่าเช่า: ฿'+c.rent.toLocaleString();
+        promises.push((function(cid,msg,lbl){return tgSend(cid,msg).then(function(res){notifyLog((res.ok?'✅':'❌')+' แจ้งเจ้าของ — '+lbl,res.ok?'ok':'err');});})(n.ownerChatId,mo,r.name+'/'+tname));
       }
-      if(t.lineUid){
-        var msgT='🏠 แจ้งเตือนค่าเช่า\n────────────────\nเรียน คุณ'+tenantName+'\nค่าเช่าห้อง '+r.name+'\n📅 ครบกำหนด: '+dueStr+'\n'+diffTxt+'\n💰 จำนวน: ฿'+c.rent.toLocaleString()+'\nกรุณาชำระภายในกำหนด ขอบคุณครับ/ค่ะ';
-        promises.push((function(uid,msg,label){
-          return lineSendPush(uid,msg).then(function(res){
-            notifyLog((res.ok?'✅':'❌')+' แจ้งผู้เช่า — '+label,res.ok?'ok':'err');
-          });
-        })(t.lineUid,msgT,tenantName));
+      if(t.tgChatId){
+        var mt='🏠 แจ้งเตือนค่าเช่า\n────────────────\nเรียน คุณ'+tname+'\nค่าเช่าห้อง '+r.name+'\n📅 ครบกำหนด: '+dueStr+'\n'+diffTxt+'\n💰 จำนวน: ฿'+c.rent.toLocaleString()+'\nกรุณาชำระภายในกำหนด ขอบคุณครับ/ค่ะ';
+        promises.push((function(cid,msg,lbl){return tgSend(cid,msg).then(function(res){notifyLog((res.ok?'✅':'❌')+' แจ้งผู้เช่า — '+lbl,res.ok?'ok':'err');});})(t.tgChatId,mt,tname));
       }
     }
-
-    // ── สัญญาใกล้หมดอายุ ──
-    var endDate=new Date(c.endDate);
-    var daysLeft=Math.ceil((endDate-today)/864e5);
-    if(daysLeft<=30&&daysLeft>=0&&n.ownerUid){
-      var endStr=endDate.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
-      var msgExp='⚠️ สัญญาใกล้หมดอายุ\n────────────────\n🚪 ห้อง: '+r.name+'\n👤 ผู้เช่า: '+tenantName+'\n📅 หมดอายุ: '+endStr+'\n⏳ เหลือ: '+daysLeft+' วัน\nกรุณาดำเนินการต่อสัญญา';
-      promises.push((function(uid,msg,label){
-        return lineSendPush(uid,msg).then(function(res){
-          notifyLog((res.ok?'✅':'❌')+' สัญญาใกล้หมด — '+label,res.ok?'ok':'err');
-        });
-      })(n.ownerUid,msgExp,r.name));
+    var ed=new Date(c.endDate);
+    var dl=Math.ceil((ed-today)/864e5);
+    if(dl<=30&&dl>=0&&n.ownerChatId){
+      var es=ed.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
+      var me='⚠️ สัญญาใกล้หมดอายุ\n────────────────\n🚪 ห้อง: '+r.name+'\n👤 ผู้เช่า: '+tname+'\n📅 หมดอายุ: '+es+'\n⏳ เหลือ: '+dl+' วัน\nกรุณาดำเนินการต่อสัญญา';
+      promises.push((function(cid,msg,lbl){return tgSend(cid,msg).then(function(res){notifyLog((res.ok?'✅':'❌')+' สัญญาใกล้หมด — '+lbl,res.ok?'ok':'err');});})(n.ownerChatId,me,r.name));
     }
   });
-
   if(!promises.length){notifyLog('ℹ️ ไม่มีรายการที่ต้องแจ้งเตือนในขณะนี้');return;}
   await Promise.all(promises);
   notifyLog('── เสร็จสิ้น ──');
@@ -1139,7 +1127,7 @@ updateSidebarOwner();
 initDateInputs();
 // auto notify on startup
 setTimeout(function(){
-  if((db.notify||{}).auto==='startup'&&(db.notify||{}).channelToken&&(db.notify||{}).ownerUid){
+  if((db.notify||{}).auto==='startup'&&(db.notify||{}).botToken&&(db.notify||{}).ownerChatId){
     sendDueReminders();
   }
 },2000);
