@@ -316,16 +316,15 @@
       <div class="content">
 
         <div class="info-box" style="margin-bottom:16px;line-height:2.1">
-          <strong>📋 วิธีสร้าง Telegram Bot (ฟรี ไม่จำกัด ใช้งานได้ทันที)</strong><br>
-          1. เปิด Telegram → ค้นหา <strong>@BotFather</strong> → กด Start<br>
-          2. พิมพ์ <strong>/newbot</strong> → ตั้งชื่อบอท → รับ <strong>Bot Token</strong><br>
-          3. ค้นหาชื่อบอทของคุณใน Telegram → กด <strong>Start</strong> → ส่งข้อความอะไรก็ได้<br>
-          4. วาง Bot Token ด้านล่าง → กด <strong>"📥 รับ Chat ID ของฉัน"</strong> อัตโนมัติ ✅<br>
-          5. สำหรับผู้เช่า: ให้ผู้เช่า Start บอทก่อน → กด <strong>"🔄 ดึง Chat ID ผู้เช่า"</strong>
+          <strong>📋 วิธีสร้าง Bot (ทำครั้งเดียว)</strong><br>
+          1. เปิด Telegram → ค้นหา <strong>@BotFather</strong> → พิมพ์ <strong>/newbot</strong> → รับ <strong>Bot Token</strong><br>
+          2. วาง Token ด้านล่าง → กด <strong>"📥 รับ Chat ID ของฉัน"</strong> (หลัง Start บอทแล้ว)<br>
+          3. กด <strong>"🔄 ตรวจจับผู้เช่า"</strong> — ระบบจับคู่ <strong>ชื่อ/เบอร์โทร</strong> กับข้อมูลในแอปอัตโนมัติ ✅<br>
+          4. ผู้เช่าแค่ Start บอท → พิมพ์ <strong>ชื่อ-นามสกุล</strong> หรือ <strong>เบอร์โทร</strong> → ระบบจำได้เลย
         </div>
 
         <div class="card" style="padding:24px;margin-bottom:18px">
-          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">🔑 Telegram Bot Token</div>
+          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">🔑 Bot Token & เจ้าของ</div>
           <div class="form-grid">
             <div class="form-group full">
               <label>Bot Token (จาก @BotFather)</label>
@@ -335,7 +334,7 @@
               <label>Chat ID ของผู้ให้เช่า (เจ้าของ)</label>
               <div style="display:flex;gap:8px">
                 <input type="text" id="notify-owner-chatid" placeholder="กด Start บอทก่อน → ส่งข้อความ → กดปุ่มขวา" style="flex:1">
-                <button class="btn btn-secondary" onclick="fetchOwnerChatId()" style="white-space:nowrap">📥 รับ Chat ID ของฉัน</button>
+                <button class="btn btn-secondary" onclick="fetchOwnerChatId()" style="white-space:nowrap">📥 รับ Chat ID</button>
               </div>
             </div>
             <div class="form-group">
@@ -358,10 +357,16 @@
         </div>
 
         <div class="card" style="padding:24px;margin-bottom:18px">
-          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">👥 Chat ID ของผู้เช่าแต่ละคน</div>
-          <div style="font-size:12px;color:var(--muted);margin-bottom:14px">ให้ผู้เช่าค้นหาบอทใน Telegram → กด Start → ส่งข้อความ 1 ครั้ง → กด "ดึง Chat ID ผู้เช่า"</div>
+          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">👥 ผู้เช่า — ลงทะเบียนอัตโนมัติ</div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.8">
+            ผู้เช่า Start บอท → พิมพ์ <strong>ชื่อนามสกุล</strong> หรือ <strong>เบอร์โทร</strong> ที่ลงทะเบียนไว้ในแอป<br>
+            กด <strong>"🔄 ตรวจจับผู้เช่า"</strong> ด้านล่าง → ระบบจับคู่และบันทึก Chat ID อัตโนมัติ
+          </div>
           <div id="tenant-token-list"></div>
-          <button class="btn btn-secondary btn-sm" onclick="fetchTenantChatIds()" style="margin-top:12px">🔄 ดึง Chat ID ผู้เช่าล่าสุด</button>
+          <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+            <button class="btn btn-primary btn-sm" onclick="autoMatchTenants()">🔄 ตรวจจับผู้เช่าอัตโนมัติ</button>
+            <button class="btn btn-secondary btn-sm" onclick="fetchTenantChatIds()">📋 ดูรายการที่ส่งข้อความมา</button>
+          </div>
         </div>
 
         <div class="card" style="padding:20px">
@@ -370,7 +375,7 @@
             <button class="btn btn-secondary" onclick="testTelegramMsg()">📤 ทดสอบส่ง (เจ้าของ)</button>
             <button class="btn btn-primary" onclick="sendDueReminders()">🔔 ส่งแจ้งเตือนครบกำหนดทั้งหมด</button>
           </div>
-          <div id="notify-log" style="margin-top:16px;font-size:13px;color:var(--muted);line-height:1.9;max-height:240px;overflow-y:auto;border-top:1px solid var(--border);padding-top:12px;"></div>
+          <div id="notify-log" style="margin-top:16px;font-size:13px;color:var(--muted);line-height:1.9;max-height:260px;overflow-y:auto;border-top:1px solid var(--border);padding-top:12px;"></div>
         </div>
 
       </div>
@@ -927,6 +932,7 @@ function saveNotifySettings(){
     if(el)t.tgChatId=el.value.trim();
   });
   save();
+  renderTenantChatIdList();
   alert('บันทึกการตั้งค่าเรียบร้อย ✅');
 }
 
@@ -943,9 +949,82 @@ function renderTenantChatIdList(){
   var el=document.getElementById('tenant-token-list');
   if(!db.tenants.length){el.innerHTML='<p style="color:var(--muted);font-size:13px">ยังไม่มีผู้เช่า</p>';return;}
   el.innerHTML='<div class="form-grid">'+db.tenants.map(function(t){
-    return '<div class="form-group"><label>'+(t.prefix||'')+t.fname+' '+t.lname+'</label>'
-      +'<input type="text" id="tenant-chatid-'+t.id+'" value="'+(t.tgChatId||'')+'" placeholder="Chat ID เช่น 123456789"></div>';
+    var matched=!!t.tgChatId;
+    var badge=matched
+      ?'<span style="color:var(--accent);font-size:11px;margin-left:6px">✅ ผูกแล้ว</span>'
+      :'<span style="color:var(--muted);font-size:11px;margin-left:6px">⏳ รอลงทะเบียน</span>';
+    return '<div class="form-group">'
+      +'<label>'+(t.prefix||'')+t.fname+' '+t.lname+' '+badge+'</label>'
+      +'<div style="display:flex;gap:6px">'
+      +'<input type="text" id="tenant-chatid-'+t.id+'" value="'+(t.tgChatId||'')+'" placeholder="Chat ID (จะถูกกรอกอัตโนมัติ)" style="flex:1">'
+      +(matched?'<button class="btn btn-danger btn-sm" onclick="clearTenantChatId(\''+t.id+'\')">ล้าง</button>':'')
+      +'</div></div>';
   }).join('')+'</div>';
+}
+
+function clearTenantChatId(id){
+  var t=db.tenants.find(function(x){return x.id===id;});
+  if(t){t.tgChatId='';save();renderTenantChatIdList();notifyLog('ล้าง Chat ID ของ '+t.fname+' แล้ว');}
+}
+
+// ===== AUTO-MATCH TENANTS =====
+// ผู้เช่าพิมพ์ชื่อ/เบอร์ → ระบบจับคู่อัตโนมัติ
+async function autoMatchTenants(){
+  if(!getBotToken()){notifyLog('❌ กรุณากรอก Bot Token ก่อน','err');return;}
+  notifyLog('🔄 กำลังดึงข้อความล่าสุด...');
+  // ดึง updates ล่าสุด (max 100)
+  var r=await tgRequest('getUpdates',{limit:100,offset:-100});
+  if(!r.ok){notifyLog('❌ '+(r.description||'ดึงข้อมูลไม่สำเร็จ'),'err');return;}
+  if(!r.result||!r.result.length){
+    notifyLog('ℹ️ ยังไม่มีข้อความเข้า — ให้ผู้เช่า Start บอทและส่งชื่อหรือเบอร์โทร','err');
+    return;
+  }
+  var matched=0, unmatched=[];
+  // รวบรวม messages ทั้งหมด: {chatId, text, senderName}
+  var msgs=[];
+  r.result.forEach(function(u){
+    var msg=u.message;
+    if(!msg||!msg.text)return;
+    var chatId=String(msg.chat.id);
+    var text=msg.text.trim();
+    var senderFirst=msg.from&&msg.from.first_name||'';
+    var senderLast=msg.from&&msg.from.last_name||'';
+    msgs.push({chatId:chatId,text:text,senderName:(senderFirst+' '+senderLast).trim()});
+  });
+  // จับคู่กับผู้เช่าแต่ละคน
+  db.tenants.forEach(function(t){
+    if(t.tgChatId)return; // ผูกแล้ว ข้ามไป
+    var fullName=((t.fname||'')+(t.lname||'')).replace(/\s/g,'').toLowerCase();
+    var fullNameSpace=((t.prefix||'')+t.fname+' '+t.lname).toLowerCase();
+    var phone=(t.phone||'').replace(/[-\s]/g,'');
+    for(var i=0;i<msgs.length;i++){
+      var m=msgs[i];
+      var txt=m.text.replace(/[-\s]/g,'').toLowerCase();
+      var txtSpace=m.text.toLowerCase();
+      // ตรวจชื่อนามสกุล (ต่อกัน หรือมีช่องว่าง)
+      var nameMatch=fullName&&(txt.includes(fullName)||txtSpace.includes(t.fname.toLowerCase()+''+t.lname.toLowerCase())||txtSpace.includes(t.fname.toLowerCase()+' '+t.lname.toLowerCase()));
+      // ตรวจเบอร์โทร
+      var phoneMatch=phone&&phone.length>=9&&txt.includes(phone);
+      if(nameMatch||phoneMatch){
+        t.tgChatId=m.chatId;
+        matched++;
+        notifyLog('✅ จับคู่: '+t.prefix+t.fname+' '+t.lname+' → Chat ID '+m.chatId+(phoneMatch?' (เบอร์โทร)':' (ชื่อ)'),'ok');
+        // ส่งข้อความยืนยันกลับผู้เช่า
+        tgSend(m.chatId,'✅ ลงทะเบียนสำเร็จ!\nสวัสดีคุณ'+t.prefix+t.fname+' '+t.lname+'\nระบบจะส่งแจ้งเตือนค่าเช่ามาที่นี่ครับ/ค่ะ 🏠');
+        break;
+      }
+    }
+    if(!t.tgChatId){
+      unmatched.push(t.fname+' '+t.lname);
+    }
+  });
+  save();
+  renderTenantChatIdList();
+  if(matched===0&&unmatched.length){
+    notifyLog('⚠️ ยังจับคู่ไม่ได้: '+unmatched.join(', ')+' — ให้ผู้เช่าพิมพ์ชื่อหรือเบอร์โทรที่บันทึกในแอป','err');
+  } else if(matched>0){
+    notifyLog('── จับคู่ได้ '+matched+' คน'+(unmatched.length?' | ยังรอ: '+unmatched.join(', '):'')+ ' ──','ok');
+  }
 }
 
 function notifyLog(msg,type){
