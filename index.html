@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ระบบจัดการค่าเช่า</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117; --surface: #181c27; --surface2: #1e2333;
+    --border: #2a3045; --accent: #4ade80; --accent2: #22d3ee;
+    --warn: #fbbf24; --danger: #f87171; --text: #e2e8f0;
+    --muted: #64748b; --radius: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 15px; }
+  .app { display: flex; min-height: 100vh; }
+  .sidebar { width: 220px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; height: 100vh; z-index: 10; overflow-y: auto; }
+  .logo { padding: 20px; border-bottom: 1px solid var(--border); }
+  .logo h1 { font-size: 17px; font-weight: 700; color: var(--accent); }
+  .logo p { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  nav { padding: 12px; flex: 1; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px; cursor: pointer; margin-bottom: 3px; color: var(--muted); font-size: 13px; font-weight: 500; transition: all .15s; border: none; background: none; width: 100%; text-align: left; font-family: 'Sarabun',sans-serif; }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: rgba(74,222,128,.12); color: var(--accent); }
+  .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+  .main { margin-left: 220px; flex: 1; }
+  .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 5; }
+  .topbar h2 { font-size: 17px; font-weight: 700; }
+  .btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-family: 'Sarabun',sans-serif; font-size: 13px; font-weight: 600; transition: all .15s; }
+  .btn-primary { background: var(--accent); color: #0a1a0a; }
+  .btn-primary:hover { background: #6ee7a0; }
+  .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-danger { background: rgba(248,113,113,.15); color: var(--danger); border: 1px solid rgba(248,113,113,.3); }
+  .btn-danger:hover { background: rgba(248,113,113,.25); }
+  .btn-warn { background: rgba(251,191,36,.15); color: var(--warn); border: 1px solid rgba(251,191,36,.3); }
+  .btn-warn:hover { background: rgba(251,191,36,.25); }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .content { padding: 24px; }
+  .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 24px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+  .stat-label { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+  .stat-value { font-size: 26px; font-weight: 700; margin-top: 6px; font-family: 'IBM Plex Mono',monospace; }
+  .stat-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .green { color: var(--accent); } .warn { color: var(--warn); } .danger { color: var(--danger); } .cyan { color: var(--accent2); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 18px; }
+  .card-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .card-title { font-size: 14px; font-weight: 700; }
+  table { width: 100%; border-collapse: collapse; }
+  th { padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+  td { padding: 12px 14px; border-bottom: 1px solid rgba(42,48,69,.5); font-size: 13px; vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,.02); }
+  .badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .badge-paid { background: rgba(74,222,128,.15); color: var(--accent); }
+  .badge-pending { background: rgba(251,191,36,.15); color: var(--warn); }
+  .badge-overdue { background: rgba(248,113,113,.15); color: var(--danger); }
+  .badge-active { background: rgba(34,211,238,.15); color: var(--accent2); }
+  .badge-expired { background: rgba(100,116,139,.15); color: var(--muted); }
+  .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.75); z-index: 100; align-items: center; justify-content: center; }
+  .overlay.open { display: flex; }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 24px; width: 620px; max-width: 96vw; max-height: 92vh; overflow-y: auto; }
+  .modal h3 { font-size: 17px; font-weight: 700; margin-bottom: 18px; }
+  .modal-section { font-size: 11px; font-weight: 700; color: var(--accent2); text-transform: uppercase; letter-spacing: .8px; margin: 18px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group.full { grid-column: span 2; }
+  label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
+  input, select, textarea { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 9px 11px; color: var(--text); font-family: 'Sarabun',sans-serif; font-size: 13px; outline: none; transition: border .15s; width: 100%; }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  select option { background: var(--surface2); }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+  .empty { text-align: center; padding: 40px; color: var(--muted); }
+  .empty-icon { font-size: 36px; margin-bottom: 10px; }
+  .empty p { font-size: 13px; }
+  .search-bar { display: flex; gap: 10px; margin-bottom: 18px; align-items: center; }
+  .search-bar input { max-width: 280px; }
+  .tab-bar { display: flex; gap: 3px; background: var(--surface2); padding: 4px; border-radius: 8px; margin-bottom: 18px; width: fit-content; }
+  .tab { padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--muted); transition: all .15s; border: none; background: none; font-family: 'Sarabun',sans-serif; }
+  .tab.active { background: var(--surface); color: var(--text); }
+  .actions { display: flex; gap: 5px; flex-wrap: wrap; }
+  .highlight-row td { background: rgba(248,113,113,.04) !important; }
+  .info-box { background: rgba(34,211,238,.07); border: 1px solid rgba(34,211,238,.2); border-radius: 8px; padding: 12px 14px; margin-bottom: 18px; font-size: 12px; color: var(--accent2); line-height: 1.6; }
+  .owner-setup { background: rgba(251,191,36,.08); border: 1px solid rgba(251,191,36,.25); border-radius: 8px; padding: 12px 14px; margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; font-size: 13px; }
+  .sidebar-footer { padding: 14px; border-top: 1px solid var(--border); }
+  .sidebar-footer .owner-name { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sidebar-footer .owner-sub { font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* ===== CONTRACT PRINT ===== */
+  .contract-print {
+    display: none;
+    position: fixed; inset: 0;
+    background: #d0d0d0;
+    z-index: 200;
+    overflow-y: auto;
+    font-family: 'Sarabun', sans-serif;
+  }
+  .print-toolbar {
+    position: fixed; top: 0; left: 0; right: 0;
+    background: #2c2c2c; color: white;
+    padding: 10px 20px;
+    display: flex; align-items: center; gap: 12px;
+    z-index: 220; box-shadow: 0 2px 8px rgba(0,0,0,.4);
+  }
+  .print-toolbar span { font-size: 13px; color: #aaa; margin-right: auto; }
+  .tbtn {
+    padding: 7px 18px; border-radius: 6px; border: none;
+    cursor: pointer; font-family: 'Sarabun',sans-serif; font-size: 13px; font-weight: 600;
+  }
+  .tbtn-green { background: #2e7d52; color: white; }
+  .tbtn-green:hover { background: #3a9e68; }
+  .tbtn-gray { background: #555; color: white; }
+  .tbtn-gray:hover { background: #666; }
+  /* A4 paper simulation */
+  .print-wrap {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 70px auto 40px;
+    background: white;
+    padding: 20mm 22mm 20mm 25mm;
+    box-shadow: 0 4px 24px rgba(0,0,0,.25);
+    font-size: 14.5px;
+    line-height: 1.85;
+    color: #111;
+    box-sizing: border-box;
+  }
+  /* Header */
+  .cp-header { text-align: center; margin-bottom: 6px; border-bottom: 3px double #222; padding-bottom: 14px; }
+  .cp-header .cp-title { font-size: 22px; font-weight: 700; letter-spacing: 2px; color: #000; margin-bottom: 4px; }
+  .cp-header .cp-subtitle { font-size: 13px; color: #444; }
+  .cp-meta { display: flex; justify-content: space-between; margin: 12px 0 18px; font-size: 13px; color: #444; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
+  /* Parties box */
+  .parties-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  .party-box { border: 1px solid #c0c8d8; border-radius: 6px; overflow: hidden; font-size: 13px; }
+  .party-box-header { background: #1a3a6b; color: white; padding: 7px 12px; font-weight: 700; font-size: 13px; }
+  .party-box-header.green { background: #1a5c38; }
+  .party-box table { width: 100%; border-collapse: collapse; }
+  .party-box td { padding: 5px 10px; border-bottom: 1px solid #eef0f5; vertical-align: top; }
+  .party-box td:first-child { width: 120px; color: #555; font-size: 12px; white-space: nowrap; }
+  .party-box td:last-child { font-weight: 500; color: #111; }
+  .party-box tr:last-child td { border-bottom: none; }
+  /* Agree line */
+  .agree-line { text-align: center; font-size: 13px; color: #555; margin: 14px 0; letter-spacing: 1px; }
+  /* Clause */
+  .clause-intro { margin: 14px 0 10px; font-size: 14px; }
+  .cp-clause-group { margin-bottom: 14px; }
+  .cp-clause-title {
+    font-weight: 700; font-size: 14px; color: #1a3a6b;
+    border-left: 4px solid #1a3a6b;
+    padding: 4px 10px; margin: 16px 0 6px;
+    background: #f0f4fb;
+  }
+  .cp-clause-body { padding-left: 8px; font-size: 14px; line-height: 1.9; color: #111; }
+  .cp-clause-body p { margin-bottom: 6px; }
+  /* Signature */
+  .sig-section { margin-top: 40px; border-top: 2px solid #ccc; padding-top: 24px; }
+  .sig-note { font-size: 13px; color: #444; margin-bottom: 28px; text-align: center; }
+  .sig-area { display: flex; justify-content: space-between; gap: 16px; margin-top: 16px; }
+  .sig-box { flex: 1; text-align: center; }
+  .sig-dots { border-bottom: 1px dashed #666; margin: 0 16px 6px; height: 48px; }
+  .sig-label { font-size: 13px; line-height: 1.8; color: #222; }
+  .sig-label strong { display: block; font-size: 12px; color: #666; font-weight: 400; }
+  /* Footer stamp area */
+  .cp-footer { margin-top: 28px; padding-top: 12px; border-top: 1px solid #ddd; display: flex; justify-content: space-between; font-size: 11px; color: #888; }
+  @page {
+    margin: 12mm 10mm;
+  }
+  @media print {
+    .no-print { display: none !important; }
+    .app { display: none !important; }
+    .print-toolbar { display: none !important; }
+    .contract-print {
+      display: block !important;
+      position: static !important;
+      overflow: visible !important;
+      background: white !important;
+    }
+    .print-wrap {
+      width: 100%; margin: 0; padding: 12mm 16mm;
+      box-shadow: none;
+    }
+    .cp-clause-title { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .party-box-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+  .mono { font-family: 'IBM Plex Mono',monospace; }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">
+      <h1>🏠 RentPro</h1>
+      <p>ระบบจัดการค่าเช่า</p>
+    </div>
+    <nav>
+      <button class="nav-item active" onclick="showPage('dashboard',this)"><span class="nav-icon">📊</span> ภาพรวม</button>
+      <button class="nav-item" onclick="showPage('owner',this)"><span class="nav-icon">👤</span> ข้อมูลผู้ให้เช่า</button>
+      <button class="nav-item" onclick="showPage('rooms',this)"><span class="nav-icon">🚪</span> ห้อง/ยูนิต</button>
+      <button class="nav-item" onclick="showPage('tenants',this)"><span class="nav-icon">👥</span> ผู้เช่า</button>
+      <button class="nav-item" onclick="showPage('contracts',this)"><span class="nav-icon">📄</span> สัญญา</button>
+      <button class="nav-item" onclick="showPage('payments',this)"><span class="nav-icon">💰</span> ค่าเช่า</button>
+      <button class="nav-item" onclick="showPage('notify',this)"><span class="nav-icon">💬</span> แจ้งเตือน LINE</button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="owner-name" id="sidebar-owner-name">ยังไม่ได้ตั้งค่า</div>
+      <div class="owner-sub" id="sidebar-owner-sub">กรุณากรอกข้อมูลผู้ให้เช่า</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:6px;">💾 เก็บในเครื่อง • ฟรี 100%</div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <div id="page-dashboard">
+      <div class="topbar no-print">
+        <h2>📊 ภาพรวม</h2>
+        <span id="today-date" style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;"></span>
+      </div>
+      <div class="content">
+        <div id="owner-warning" class="owner-setup" style="display:none">
+          <span>⚠️ ยังไม่ได้กรอกข้อมูลผู้ให้เช่า — จำเป็นสำหรับการพิมพ์สัญญา</span>
+          <button class="btn btn-warn btn-sm" onclick="showPage('owner',document.querySelectorAll('.nav-item')[1])">ตั้งค่าเลย</button>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-label">ห้องทั้งหมด</div><div class="stat-value cyan" id="stat-rooms">0</div><div class="stat-sub" id="stat-rooms-sub">ว่าง 0 ห้อง</div></div>
+          <div class="stat-card"><div class="stat-label">รายได้เดือนนี้</div><div class="stat-value green" id="stat-income">฿0</div><div class="stat-sub" id="stat-income-sub">จ่ายแล้ว 0 รายการ</div></div>
+          <div class="stat-card"><div class="stat-label">ค้างชำระ</div><div class="stat-value warn" id="stat-pending">฿0</div><div class="stat-sub" id="stat-pending-sub">รอชำระ 0 รายการ</div></div>
+          <div class="stat-card"><div class="stat-label">เกินกำหนด</div><div class="stat-value danger" id="stat-overdue">0</div><div class="stat-sub">รายการที่ต้องติดตาม</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">💳 รายการชำระล่าสุด</span></div>
+          <table><thead><tr><th>ผู้เช่า</th><th>ห้อง</th><th>เดือน</th><th>จำนวน</th><th>สถานะ</th></tr></thead>
+          <tbody id="recent-payments"></tbody></table>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">⚠️ สัญญาใกล้หมดอายุ (60 วัน)</span></div>
+          <table><thead><tr><th>ผู้เช่า</th><th>ห้อง</th><th>วันหมดอายุ</th><th>เหลือ</th><th></th></tr></thead>
+          <tbody id="expiring-contracts"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- OWNER -->
+    <div id="page-owner" style="display:none">
+      <div class="topbar no-print">
+        <h2>👤 ข้อมูลผู้ให้เช่า / เจ้าของ</h2>
+        <button class="btn btn-primary" onclick="saveOwner()">💾 บันทึก</button>
+      </div>
+      <div class="content">
+        <div class="info-box">⚖️ ตามประกาศ สคบ. ปี 2562/2568 — สัญญาเช่าต้องระบุรายละเอียดผู้ให้เช่าครบถ้วน ข้อมูลนี้จะปรากฏในสัญญาที่พิมพ์ออกมาทุกฉบับ</div>
+        <div class="card" style="padding:24px">
+          <div class="form-grid">
+            <div class="form-group"><label>ชื่อ-นามสกุล / ชื่อนิติบุคคล *</label><input type="text" id="owner-name" placeholder="ชื่อผู้ให้เช่า"></div>
+            <div class="form-group"><label>เลขบัตรประชาชน / เลขนิติบุคคล</label><input type="text" id="owner-idcard" placeholder="x-xxxx-xxxxx-xx-x"></div>
+            <div class="form-group full"><label>ที่อยู่ผู้ให้เช่า *</label><textarea id="owner-address" rows="2" placeholder="บ้านเลขที่ ถนน ตำบล/แขวง อำเภอ/เขต จังหวัด รหัสไปรษณีย์"></textarea></div>
+            <div class="form-group"><label>เบอร์โทรศัพท์</label><input type="text" id="owner-phone" placeholder="08x-xxx-xxxx"></div>
+            <div class="form-group"><label>อีเมล</label><input type="email" id="owner-email" placeholder="email@example.com"></div>
+            <div class="form-group"><label>ชื่ออาคาร / โครงการ</label><input type="text" id="owner-building" placeholder="เช่น อพาร์ทเม้นท์สุขุมวิท"></div>
+            <div class="form-group"><label>เลขที่บัญชีธนาคาร (สำหรับรับโอน)</label><input type="text" id="owner-bank" placeholder="ธนาคาร / เลขบัญชี / ชื่อบัญชี"></div>
+            <div class="form-group full"><label>ที่ตั้งทรัพย์สิน (ถ้าต่างจากที่อยู่ผู้ให้เช่า)</label><textarea id="owner-property-addr" rows="2" placeholder="ที่อยู่ของอาคาร/หอพัก"></textarea></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROOMS -->
+    <div id="page-rooms" style="display:none">
+      <div class="topbar no-print"><h2>🚪 ห้อง/ยูนิต</h2><button class="btn btn-primary" onclick="openRoomModal()">+ เพิ่มห้อง</button></div>
+      <div class="content">
+        <div class="search-bar"><input type="text" id="room-search" placeholder="ค้นหาห้อง..." oninput="renderRooms()"></div>
+        <div class="card"><table><thead><tr><th>ห้อง/ยูนิต</th><th>ประเภท</th><th>ค่าเช่า/เดือน</th><th>สถานะ</th><th>ผู้เช่าปัจจุบัน</th><th></th></tr></thead><tbody id="rooms-table"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- TENANTS -->
+    <div id="page-tenants" style="display:none">
+      <div class="topbar no-print"><h2>👥 ผู้เช่า</h2><button class="btn btn-primary" onclick="openTenantModal()">+ เพิ่มผู้เช่า</button></div>
+      <div class="content">
+        <div class="search-bar"><input type="text" id="tenant-search" placeholder="ค้นหาชื่อ/เบอร์โทร..." oninput="renderTenants()"></div>
+        <div class="card"><table><thead><tr><th>ชื่อ-นามสกุล</th><th>เบอร์โทร</th><th>เลขบัตร</th><th>อาชีพ</th><th>ห้อง</th><th></th></tr></thead><tbody id="tenants-table"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- CONTRACTS -->
+    <div id="page-contracts" style="display:none">
+      <div class="topbar no-print"><h2>📄 สัญญาเช่า</h2><button class="btn btn-primary" onclick="openContractModal()">+ สร้างสัญญา</button></div>
+      <div class="content">
+        <div class="tab-bar">
+          <button class="tab active" onclick="filterContracts('all',this)">ทั้งหมด</button>
+          <button class="tab" onclick="filterContracts('active',this)">ใช้งาน</button>
+          <button class="tab" onclick="filterContracts('expired',this)">หมดอายุ</button>
+        </div>
+        <div class="card"><table><thead><tr><th>ผู้เช่า</th><th>ห้อง</th><th>วันเริ่ม</th><th>วันสิ้นสุด</th><th>ค่าเช่า</th><th>มัดจำ</th><th>สถานะ</th><th></th></tr></thead><tbody id="contracts-table"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- PAYMENTS -->
+    <div id="page-payments" style="display:none">
+      <div class="topbar no-print"><h2>💰 ค่าเช่า</h2><button class="btn btn-primary" onclick="openPaymentModal()">+ บันทึกชำระ</button></div>
+      <div class="content">
+        <div class="tab-bar">
+          <button class="tab active" onclick="filterPayments('all',this)">ทั้งหมด</button>
+          <button class="tab" onclick="filterPayments('paid',this)">ชำระแล้ว</button>
+          <button class="tab" onclick="filterPayments('pending',this)">รอชำระ</button>
+          <button class="tab" onclick="filterPayments('overdue',this)">เกินกำหนด</button>
+        </div>
+        <div class="card"><table><thead><tr><th>ผู้เช่า</th><th>ห้อง</th><th>เดือน/ปี</th><th>ค่าเช่า</th><th>ค่าน้ำ</th><th>ค่าไฟ</th><th>รวม</th><th>สถานะ</th><th></th></tr></thead><tbody id="payments-table"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- LINE NOTIFY -->
+    <div id="page-notify" style="display:none">
+      <div class="topbar no-print"><h2>💬 แจ้งเตือนผ่าน LINE Messaging API</h2>
+        <button class="btn btn-primary" onclick="saveNotifySettings()">💾 บันทึก</button>
+      </div>
+      <div class="content">
+
+        <div class="info-box" style="margin-bottom:16px;line-height:2.1">
+          <strong>📋 วิธีตั้งค่า LINE Messaging API (ฟรี 200 msg/วัน)</strong><br>
+          1. ไปที่ <strong>developers.line.biz</strong> → Log in → Create Provider → Create Channel → <strong>Messaging API</strong><br>
+          2. แท็บ <strong>Basic settings</strong> → คัดลอก <strong>Channel secret</strong><br>
+          3. แท็บ <strong>Messaging API</strong> → กด <strong>Issue</strong> → คัดลอก <strong>Channel access token</strong><br>
+          4. เพิ่มเพื่อน LINE OA (QR code ในแท็บ Messaging API) → ส่งข้อความอะไรก็ได้ 1 ครั้ง<br>
+          5. กด <strong>"📥 ดึง User ID ของฉัน"</strong> ด้านล่าง → บันทึก → ทดสอบส่ง ✅
+        </div>
+
+        <div class="card" style="padding:24px;margin-bottom:18px">
+          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">🔑 LINE Channel Access Token</div>
+          <div class="form-grid">
+            <div class="form-group full">
+              <label>Channel Access Token (จาก LINE Developers Console)</label>
+              <input type="text" id="notify-channel-token" placeholder="วาง Channel Access Token ที่ได้จาก developers.line.biz">
+            </div>
+            <div class="form-group full">
+              <label>User ID ของผู้ให้เช่า (เจ้าของ)</label>
+              <div style="display:flex;gap:8px">
+                <input type="text" id="notify-owner-uid" placeholder="กด Start OA แล้วส่งข้อความ จากนั้นกดปุ่มขวา" style="flex:1">
+                <button class="btn btn-secondary" onclick="fetchOwnerUserId()" style="white-space:nowrap">📥 ดึง User ID ของฉัน</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>แจ้งเตือนล่วงหน้า (วัน)</label>
+              <select id="notify-days-before">
+                <option value="3">3 วันก่อนครบกำหนด</option>
+                <option value="5" selected>5 วันก่อนครบกำหนด</option>
+                <option value="7">7 วันก่อนครบกำหนด</option>
+                <option value="10">10 วันก่อนครบกำหนด</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>ตรวจสอบอัตโนมัติ</label>
+              <select id="notify-auto">
+                <option value="startup">ทุกครั้งที่เปิดแอป</option>
+                <option value="off">ปิด (กดด้วยตัวเอง)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="padding:24px;margin-bottom:18px">
+          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">👥 User ID ของผู้เช่าแต่ละคน</div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:14px">ให้ผู้เช่าเพิ่มเพื่อน LINE OA ของคุณ แล้วส่งข้อความ 1 ครั้ง → กด "ดึง User ID ผู้เช่า" → คัดลอกไปวางในช่องด้านล่าง</div>
+          <div id="tenant-token-list"></div>
+          <button class="btn btn-secondary btn-sm" onclick="fetchRecentUserIds()" style="margin-top:12px">🔄 ดึง User ID ผู้เช่าล่าสุด</button>
+        </div>
+
+        <div class="card" style="padding:20px">
+          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">🧪 ทดสอบและส่งแจ้งเตือน</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-secondary" onclick="testLineMsg()">📤 ทดสอบส่ง (เจ้าของ)</button>
+            <button class="btn btn-primary" onclick="sendDueReminders()">🔔 ส่งแจ้งเตือนครบกำหนดทั้งหมด</button>
+          </div>
+          <div id="notify-log" style="margin-top:16px;font-size:13px;color:var(--muted);line-height:1.9;max-height:240px;overflow-y:auto;border-top:1px solid var(--border);padding-top:12px;"></div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODALS -->
+<div class="overlay" id="modal-room">
+  <div class="modal">
+    <h3 id="room-modal-title">เพิ่มห้อง/ยูนิต</h3>
+    <input type="hidden" id="room-id">
+    <div class="form-grid">
+      <div class="form-group"><label>ชื่อห้อง *</label><input type="text" id="room-name" placeholder="ห้อง 101"></div>
+      <div class="form-group"><label>ประเภท</label><select id="room-type"><option>ห้องพัก</option><option>คอนโด</option><option>อพาร์ทเม้นท์</option><option>บ้าน</option><option>ออฟฟิศ</option><option>โกดัง</option><option>อื่นๆ</option></select></div>
+      <div class="form-group"><label>ค่าเช่า/เดือน *</label><input type="number" id="room-rent" placeholder="5000"></div>
+      <div class="form-group"><label>ชั้น/อาคาร</label><input type="text" id="room-floor" placeholder="ชั้น 1"></div>
+      <div class="form-group"><label>ขนาด (ตร.ม.)</label><input type="text" id="room-size" placeholder="25"></div>
+      <div class="form-group"><label>ทิศ</label><input type="text" id="room-direction" placeholder="ทิศเหนือ"></div>
+      <div class="form-group full"><label>สิ่งอำนวยความสะดวก</label><input type="text" id="room-facilities" placeholder="แอร์, ตู้เย็น, ที่จอดรถ"></div>
+      <div class="form-group full"><label>รายละเอียดเพิ่มเติม</label><textarea id="room-desc" rows="2"></textarea></div>
+    </div>
+    <div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal('modal-room')">ยกเลิก</button><button class="btn btn-primary" onclick="saveRoom()">บันทึก</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="modal-tenant">
+  <div class="modal">
+    <h3 id="tenant-modal-title">เพิ่มผู้เช่า</h3>
+    <input type="hidden" id="tenant-id">
+    <div class="modal-section">ข้อมูลส่วนตัว</div>
+    <div class="form-grid">
+      <div class="form-group"><label>คำนำหน้า</label><select id="tenant-prefix"><option>นาย</option><option>นาง</option><option>นางสาว</option></select></div>
+      <div class="form-group"><label>ชื่อ *</label><input type="text" id="tenant-fname" placeholder="ชื่อ"></div>
+      <div class="form-group"><label>นามสกุล *</label><input type="text" id="tenant-lname" placeholder="นามสกุล"></div>
+      <div class="form-group"><label>เลขบัตรประชาชน *</label><input type="text" id="tenant-idcard" placeholder="x-xxxx-xxxxx-xx-x" maxlength="17"></div>
+      <div class="form-group"><label>วันเดือนปีเกิด</label><input type="text" class="date-input" id="tenant-dob" placeholder="วว/ดด/ปปปป" maxlength="10"></div>
+      <div class="form-group"><label>สัญชาติ</label><input type="text" id="tenant-nationality" value="ไทย"></div>
+      <div class="form-group"><label>อาชีพ</label><input type="text" id="tenant-job"></div>
+      <div class="form-group"><label>สถานที่ทำงาน</label><input type="text" id="tenant-workplace"></div>
+    </div>
+    <div class="modal-section">ที่อยู่และการติดต่อ</div>
+    <div class="form-grid">
+      <div class="form-group full"><label>ที่อยู่ตามบัตรประชาชน</label><textarea id="tenant-address-id" rows="2" placeholder="บ้านเลขที่ ถนน ตำบล อำเภอ จังหวัด"></textarea></div>
+      <div class="form-group full"><label>ที่อยู่ปัจจุบัน (ถ้าต่างจากบัตร)</label><textarea id="tenant-address" rows="2"></textarea></div>
+      <div class="form-group"><label>เบอร์โทรศัพท์ *</label><input type="text" id="tenant-phone" placeholder="08x-xxx-xxxx"></div>
+      <div class="form-group"><label>อีเมล</label><input type="email" id="tenant-email"></div>
+      <div class="form-group"><label>Line ID</label><input type="text" id="tenant-line"></div>
+      <div class="form-group"><label>ผู้ติดต่อฉุกเฉิน</label><input type="text" id="tenant-emergency" placeholder="ชื่อ / ความสัมพันธ์ / เบอร์โทร"></div>
+    </div>
+    <div class="modal-section">เอกสารยืนยันตัวตน</div>
+    <div class="form-grid">
+      <div class="form-group"><label>ประเภทเอกสาร</label><select id="tenant-doctype"><option>บัตรประชาชน</option><option>หนังสือเดินทาง</option><option>ใบขับขี่</option></select></div>
+      <div class="form-group"><label>เลขที่เอกสาร</label><input type="text" id="tenant-docno"></div>
+    </div>
+    <div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal('modal-tenant')">ยกเลิก</button><button class="btn btn-primary" onclick="saveTenant()">บันทึก</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="modal-contract">
+  <div class="modal">
+    <h3 id="contract-modal-title">สร้างสัญญาเช่า</h3>
+    <input type="hidden" id="contract-id">
+    <div class="modal-section">คู่สัญญาและทรัพย์สิน</div>
+    <div class="form-grid">
+      <div class="form-group"><label>ผู้เช่า *</label><select id="contract-tenant"></select></div>
+      <div class="form-group"><label>ห้อง *</label><select id="contract-room" onchange="autoFillRent()"></select></div>
+    </div>
+    <div class="modal-section">ระยะเวลาและค่าตอบแทน</div>
+    <div class="form-grid">
+      <div class="form-group"><label>วันเริ่มสัญญา *</label><input type="text" class="date-input" id="contract-start" placeholder="วว/ดด/ปปปป" maxlength="10"></div>
+      <div class="form-group"><label>วันสิ้นสุดสัญญา *</label><input type="text" class="date-input" id="contract-end" placeholder="วว/ดด/ปปปป" maxlength="10"></div>
+      <div class="form-group"><label>ค่าเช่า/เดือน *</label><input type="number" id="contract-rent"></div>
+      <div class="form-group"><label>เงินมัดจำ (บาท)</label><input type="number" id="contract-deposit" placeholder="สูงสุด 2 เดือน ตาม สคบ."></div>
+      <div class="form-group"><label>ค่าเช่าล่วงหน้า (บาท)</label><input type="number" id="contract-advance" value="0"></div>
+      <div class="form-group"><label>วันครบกำหนดชำระ (วันที่)</label><input type="number" id="contract-due" value="1" min="1" max="31"></div>
+    </div>
+    <div class="modal-section">ค่าสาธารณูปโภค</div>
+    <div class="form-grid">
+      <div class="form-group"><label>ค่าน้ำ</label><select id="contract-water-type"><option value="actual">ตามจริง (การประปา)</option><option value="unit">คิดต่อหน่วย</option><option value="flat">อัตราเหมา</option></select></div>
+      <div class="form-group"><label>อัตราค่าน้ำ (หน่วยละ/เดือนละ)</label><input type="number" id="contract-water-rate" placeholder="0"></div>
+      <div class="form-group"><label>ค่าไฟ</label><select id="contract-electric-type"><option value="actual">ตามจริง (การไฟฟ้า)</option><option value="unit">คิดต่อหน่วย</option><option value="flat">อัตราเหมา</option></select></div>
+      <div class="form-group"><label>อัตราค่าไฟ (หน่วยละ/เดือนละ)</label><input type="number" id="contract-electric-rate" placeholder="0"></div>
+    </div>
+    <div class="modal-section">เงื่อนไขและข้อกำหนด</div>
+    <div class="form-grid">
+      <div class="form-group"><label>จำนวนผู้พักอาศัย</label><input type="number" id="contract-occupants" placeholder="2" min="1"></div>
+      <div class="form-group"><label>วัตถุประสงค์การเช่า</label><select id="contract-purpose"><option>เพื่ออยู่อาศัย</option><option>เพื่อประกอบธุรกิจ</option><option>สำนักงาน</option></select></div>
+      <div class="form-group"><label>อนุญาตเลี้ยงสัตว์</label><select id="contract-pet"><option value="no">ไม่อนุญาต</option><option value="yes">อนุญาต</option><option value="ask">ขออนุญาตก่อน</option></select></div>
+      <div class="form-group"><label>อนุญาตให้เช่าช่วง</label><select id="contract-sublease"><option value="no">ไม่อนุญาต</option><option value="written">ต้องขออนุญาตเป็นลายลักษณ์อักษร</option></select></div>
+      <div class="form-group full"><label>เงื่อนไขพิเศษ</label><textarea id="contract-terms" rows="2" placeholder="เช่น มีที่จอดรถ 1 คัน, ห้ามปาร์ตี้หลังเที่ยงคืน..."></textarea></div>
+      <div class="form-group full"><label>สิ่งของ/เฟอร์นิเจอร์ที่ให้พร้อมห้อง</label><textarea id="contract-furniture" rows="2" placeholder="แอร์ 1 เครื่อง, ตู้เย็น 1 ใบ, เตียง 1 หลัง..."></textarea></div>
+    </div>
+    <div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal('modal-contract')">ยกเลิก</button><button class="btn btn-primary" onclick="saveContract()">บันทึก</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="modal-payment">
+  <div class="modal">
+    <h3>บันทึกค่าเช่า</h3>
+    <input type="hidden" id="pay-id">
+    <div class="form-grid">
+      <div class="form-group"><label>ผู้เช่า *</label><select id="pay-tenant" onchange="fillPaymentRent()"></select></div>
+      <div class="form-group"><label>ห้อง</label><input type="text" id="pay-room" readonly style="background:var(--bg)"></div>
+      <div class="form-group"><label>เดือน *</label><select id="pay-month"><option value="1">มกราคม</option><option value="2">กุมภาพันธ์</option><option value="3">มีนาคม</option><option value="4">เมษายน</option><option value="5">พฤษภาคม</option><option value="6">มิถุนายน</option><option value="7">กรกฎาคม</option><option value="8">สิงหาคม</option><option value="9">กันยายน</option><option value="10">ตุลาคม</option><option value="11">พฤศจิกายน</option><option value="12">ธันวาคม</option></select></div>
+      <div class="form-group"><label>ปี (พ.ศ.)</label><input type="number" id="pay-year" placeholder="2568"></div>
+      <div class="form-group"><label>ค่าเช่า</label><input type="number" id="pay-rent" placeholder="5000"></div>
+      <div class="form-group"><label>ค่าน้ำ</label><input type="number" id="pay-water" value="0"></div>
+      <div class="form-group"><label>ค่าไฟ</label><input type="number" id="pay-electric" value="0"></div>
+      <div class="form-group"><label>ค่าบริการ/อื่นๆ</label><input type="number" id="pay-other" value="0"></div>
+      <div class="form-group"><label>สถานะ</label><select id="pay-status"><option value="paid">ชำระแล้ว</option><option value="pending">รอชำระ</option><option value="overdue">เกินกำหนด</option></select></div>
+      <div class="form-group"><label>วันที่ชำระ</label><input type="text" class="date-input" id="pay-date" placeholder="วว/ดด/ปปปป" maxlength="10"></div>
+      <div class="form-group full"><label>หมายเหตุ</label><input type="text" id="pay-note"></div>
+    </div>
+    <div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal('modal-payment')">ยกเลิก</button><button class="btn btn-primary" onclick="savePayment()">บันทึก</button></div>
+  </div>
+</div>
+
+<!-- CONTRACT PRINT -->
+<div class="contract-print" id="contract-print-view">
+  <div class="print-toolbar no-print">
+    <span>ตัวอย่างสัญญาก่อนพิมพ์</span>
+    <button class="tbtn tbtn-green" onclick="window.print()">🖨&nbsp; พิมพ์ / บันทึก PDF</button>
+    <button class="tbtn tbtn-gray" onclick="closePrint()">✕&nbsp; ปิด</button>
+  </div>
+  <div class="print-wrap" id="contract-print-content"></div>
+</div>
+
+<script>
+var db={rooms:[],tenants:[],contracts:[],payments:[],owner:{}};
+function load(){try{var s=localStorage.getItem('rentpro_v2');if(s)db=JSON.parse(s);}catch(e){}}
+function save(){localStorage.setItem('rentpro_v2',JSON.stringify(db));}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+
+function showPage(page,el){
+  document.querySelectorAll('[id^="page-"]').forEach(function(x){x.style.display='none';});
+  document.getElementById('page-'+page).style.display='block';
+  document.querySelectorAll('.nav-item').forEach(function(x){x.classList.remove('active');});
+  if(el)el.classList.add('active');
+  if(page==='dashboard')renderDashboard();
+  if(page==='owner')loadOwnerForm();
+  if(page==='rooms')renderRooms();
+  if(page==='tenants')renderTenants();
+  if(page==='contracts')renderContracts();
+  if(page==='payments')renderPayments();
+  if(page==='notify')loadNotifyPage();
+}
+
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.overlay').forEach(function(o){o.addEventListener('click',function(e){if(e.target===o)closeModal(o.id);});});
+
+// OWNER
+function loadOwnerForm(){
+  var o=db.owner||{};
+  document.getElementById('owner-name').value=o.name||'';
+  document.getElementById('owner-idcard').value=o.idcard||'';
+  document.getElementById('owner-address').value=o.address||'';
+  document.getElementById('owner-phone').value=o.phone||'';
+  document.getElementById('owner-email').value=o.email||'';
+  document.getElementById('owner-building').value=o.building||'';
+  document.getElementById('owner-bank').value=o.bank||'';
+  document.getElementById('owner-property-addr').value=o.propertyAddr||'';
+}
+function saveOwner(){
+  db.owner={
+    name:document.getElementById('owner-name').value.trim(),
+    idcard:document.getElementById('owner-idcard').value.trim(),
+    address:document.getElementById('owner-address').value.trim(),
+    phone:document.getElementById('owner-phone').value.trim(),
+    email:document.getElementById('owner-email').value.trim(),
+    building:document.getElementById('owner-building').value.trim(),
+    bank:document.getElementById('owner-bank').value.trim(),
+    propertyAddr:document.getElementById('owner-property-addr').value.trim()
+  };
+  if(!db.owner.name)return alert('กรุณากรอกชื่อผู้ให้เช่า');
+  save();updateSidebarOwner();alert('บันทึกข้อมูลผู้ให้เช่าเรียบร้อย');
+}
+function updateSidebarOwner(){
+  var o=db.owner||{};
+  document.getElementById('sidebar-owner-name').textContent=o.name||'ยังไม่ได้ตั้งค่า';
+  document.getElementById('sidebar-owner-sub').textContent=o.building||o.address||'กรุณากรอกข้อมูลผู้ให้เช่า';
+  var w=document.getElementById('owner-warning');
+  if(w)w.style.display=(!o.name)?'flex':'none';
+}
+
+// ROOMS
+function openRoomModal(id){
+  document.getElementById('room-id').value=id||'';
+  document.getElementById('room-modal-title').textContent=id?'แก้ไขห้อง':'เพิ่มห้อง/ยูนิต';
+  var r=id?db.rooms.find(function(x){return x.id===id;}):{};
+  document.getElementById('room-name').value=r.name||'';
+  document.getElementById('room-type').value=r.type||'ห้องพัก';
+  document.getElementById('room-rent').value=r.rent||'';
+  document.getElementById('room-floor').value=r.floor||'';
+  document.getElementById('room-size').value=r.size||'';
+  document.getElementById('room-direction').value=r.direction||'';
+  document.getElementById('room-facilities').value=r.facilities||'';
+  document.getElementById('room-desc').value=r.desc||'';
+  openModal('modal-room');
+}
+function saveRoom(){
+  var id=document.getElementById('room-id').value;
+  var name=document.getElementById('room-name').value.trim();
+  if(!name)return alert('กรุณากรอกชื่อห้อง');
+  var r={id:id||uid(),name:name,type:document.getElementById('room-type').value,rent:parseFloat(document.getElementById('room-rent').value)||0,floor:document.getElementById('room-floor').value,size:document.getElementById('room-size').value,direction:document.getElementById('room-direction').value,facilities:document.getElementById('room-facilities').value,desc:document.getElementById('room-desc').value};
+  if(id){var i=db.rooms.findIndex(function(x){return x.id===id;});if(i>=0)db.rooms[i]=Object.assign({},db.rooms[i],r);}else{db.rooms.push(r);}
+  updateRoomStatuses();save();renderRooms();closeModal('modal-room');
+}
+function deleteRoom(id){if(!confirm('ลบห้องนี้?'))return;db.rooms=db.rooms.filter(function(r){return r.id!==id;});save();renderRooms();}
+function updateRoomStatuses(){
+  var today=new Date();
+  db.rooms.forEach(function(r){
+    var a=db.contracts.find(function(c){return c.roomId===r.id&&c.status==='active'&&new Date(c.startDate)<=today&&new Date(c.endDate)>=today;});
+    r.status=a?'occupied':'vacant';r.currentTenantId=a?a.tenantId:null;
+  });
+}
+function renderRooms(){
+  var q=(document.getElementById('room-search').value||'').toLowerCase();
+  updateRoomStatuses();
+  var list=db.rooms.filter(function(r){return r.name.toLowerCase().includes(q)||(r.type||'').toLowerCase().includes(q);});
+  var tbody=document.getElementById('rooms-table');
+  if(!list.length){tbody.innerHTML='<tr><td colspan="6"><div class="empty"><div class="empty-icon">🚪</div><p>ยังไม่มีห้อง</p></div></td></tr>';return;}
+  tbody.innerHTML=list.map(function(r){
+    var t=r.currentTenantId?db.tenants.find(function(x){return x.id===r.currentTenantId;}):null;
+    return '<tr><td><strong>'+r.name+'</strong>'+(r.floor?'<br><small style="color:var(--muted)">'+r.floor+'</small>':'')+'</td><td>'+r.type+'</td><td class="mono green">฿'+r.rent.toLocaleString()+'</td><td><span class="badge '+(r.status==='occupied'?'badge-active':'badge-expired')+'">'+(r.status==='occupied'?'มีผู้เช่า':'ว่าง')+'</span></td><td>'+(t?(t.prefix||'')+t.fname+' '+t.lname:'<span style="color:var(--muted)">-</span>')+'</td><td><div class="actions"><button class="btn btn-secondary btn-sm" onclick="openRoomModal(\''+r.id+'\')">แก้ไข</button><button class="btn btn-danger btn-sm" onclick="deleteRoom(\''+r.id+'\')">ลบ</button></div></td></tr>';
+  }).join('');
+}
+
+// TENANTS
+function openTenantModal(id){
+  document.getElementById('tenant-id').value=id||'';
+  document.getElementById('tenant-modal-title').textContent=id?'แก้ไขผู้เช่า':'เพิ่มผู้เช่า';
+  var t=id?db.tenants.find(function(x){return x.id===id;}):{};
+  document.getElementById('tenant-prefix').value=t.prefix||'นาย';
+  document.getElementById('tenant-fname').value=t.fname||'';
+  document.getElementById('tenant-lname').value=t.lname||'';
+  document.getElementById('tenant-idcard').value=t.idcard||'';
+  document.getElementById('tenant-dob').value=formatDate(t.dob||'');
+  document.getElementById('tenant-nationality').value=t.nationality||'ไทย';
+  document.getElementById('tenant-job').value=t.job||'';
+  document.getElementById('tenant-workplace').value=t.workplace||'';
+  document.getElementById('tenant-address-id').value=t.addressId||'';
+  document.getElementById('tenant-address').value=t.address||'';
+  document.getElementById('tenant-phone').value=t.phone||'';
+  document.getElementById('tenant-email').value=t.email||'';
+  document.getElementById('tenant-line').value=t.line||'';
+  document.getElementById('tenant-emergency').value=t.emergency||'';
+  document.getElementById('tenant-doctype').value=t.doctype||'บัตรประชาชน';
+  document.getElementById('tenant-docno').value=t.docno||'';
+  openModal('modal-tenant');
+}
+function saveTenant(){
+  var id=document.getElementById('tenant-id').value;
+  var fname=document.getElementById('tenant-fname').value.trim();
+  var lname=document.getElementById('tenant-lname').value.trim();
+  if(!fname||!lname)return alert('กรุณากรอกชื่อ-นามสกุล');
+  var t={id:id||uid(),prefix:document.getElementById('tenant-prefix').value,fname:fname,lname:lname,idcard:document.getElementById('tenant-idcard').value,dob:parseDate(document.getElementById('tenant-dob').value),nationality:document.getElementById('tenant-nationality').value,job:document.getElementById('tenant-job').value,workplace:document.getElementById('tenant-workplace').value,addressId:document.getElementById('tenant-address-id').value,address:document.getElementById('tenant-address').value,phone:document.getElementById('tenant-phone').value,email:document.getElementById('tenant-email').value,line:document.getElementById('tenant-line').value,emergency:document.getElementById('tenant-emergency').value,doctype:document.getElementById('tenant-doctype').value,docno:document.getElementById('tenant-docno').value};
+  if(id){var i=db.tenants.findIndex(function(x){return x.id===id;});if(i>=0)db.tenants[i]=t;}else{db.tenants.push(t);}
+  save();renderTenants();closeModal('modal-tenant');
+}
+function deleteTenant(id){if(!confirm('ลบผู้เช่า?'))return;db.tenants=db.tenants.filter(function(t){return t.id!==id;});save();renderTenants();}
+function renderTenants(){
+  updateRoomStatuses();
+  var q=(document.getElementById('tenant-search').value||'').toLowerCase();
+  var list=db.tenants.filter(function(t){return(t.fname+t.lname).toLowerCase().includes(q)||(t.phone||'').includes(q);});
+  var tbody=document.getElementById('tenants-table');
+  if(!list.length){tbody.innerHTML='<tr><td colspan="6"><div class="empty"><div class="empty-icon">👤</div><p>ยังไม่มีผู้เช่า</p></div></td></tr>';return;}
+  tbody.innerHTML=list.map(function(t){
+    var room=db.rooms.find(function(r){return r.currentTenantId===t.id;});
+    return '<tr><td><strong>'+(t.prefix||'')+t.fname+' '+t.lname+'</strong></td><td>'+(t.phone||'-')+'</td><td class="mono" style="font-size:12px">'+(t.idcard||'-')+'</td><td>'+(t.job||'-')+'</td><td>'+(room?'<span class="badge badge-active">'+room.name+'</span>':'<span style="color:var(--muted)">-</span>')+'</td><td><div class="actions"><button class="btn btn-secondary btn-sm" onclick="openTenantModal(\''+t.id+'\')">แก้ไข</button><button class="btn btn-danger btn-sm" onclick="deleteTenant(\''+t.id+'\')">ลบ</button></div></td></tr>';
+  }).join('');
+}
+
+// CONTRACTS
+var contractFilter='all';
+function filterContracts(f,el){contractFilter=f;document.querySelectorAll('#page-contracts .tab').forEach(function(t){t.classList.remove('active');});el.classList.add('active');renderContracts();}
+function openContractModal(id){
+  document.getElementById('contract-id').value=id||'';
+  document.getElementById('contract-modal-title').textContent=id?'แก้ไขสัญญา':'สร้างสัญญาเช่า';
+  var ts=document.getElementById('contract-tenant');
+  ts.innerHTML=db.tenants.map(function(t){return'<option value="'+t.id+'">'+(t.prefix||'')+t.fname+' '+t.lname+'</option>';}).join('')||'<option>ไม่มีผู้เช่า</option>';
+  var rs=document.getElementById('contract-room');
+  rs.innerHTML=db.rooms.map(function(r){return'<option value="'+r.id+'">'+r.name+' (฿'+r.rent.toLocaleString()+')</option>';}).join('')||'<option>ไม่มีห้อง</option>';
+  var c=id?db.contracts.find(function(x){return x.id===id;}):null;
+  if(c){
+    document.getElementById('contract-tenant').value=c.tenantId;
+    document.getElementById('contract-room').value=c.roomId;
+    document.getElementById('contract-start').value=formatDate(c.startDate);
+    document.getElementById('contract-end').value=formatDate(c.endDate);
+    document.getElementById('contract-rent').value=c.rent;
+    document.getElementById('contract-deposit').value=c.deposit;
+    document.getElementById('contract-advance').value=c.advance||0;
+    document.getElementById('contract-due').value=c.dueDay||1;
+    document.getElementById('contract-water-type').value=c.waterType||'actual';
+    document.getElementById('contract-water-rate').value=c.waterRate||'';
+    document.getElementById('contract-electric-type').value=c.electricType||'actual';
+    document.getElementById('contract-electric-rate').value=c.electricRate||'';
+    document.getElementById('contract-occupants').value=c.occupants||'';
+    document.getElementById('contract-purpose').value=c.purpose||'เพื่ออยู่อาศัย';
+    document.getElementById('contract-pet').value=c.pet||'no';
+    document.getElementById('contract-sublease').value=c.sublease||'no';
+    document.getElementById('contract-terms').value=c.terms||'';
+    document.getElementById('contract-furniture').value=c.furniture||'';
+  } else {
+    document.getElementById('contract-start').value='';document.getElementById('contract-end').value='';
+    document.getElementById('contract-rent').value='';document.getElementById('contract-deposit').value='';
+    document.getElementById('contract-advance').value=0;document.getElementById('contract-due').value=1;
+    document.getElementById('contract-water-type').value='actual';document.getElementById('contract-water-rate').value='';
+    document.getElementById('contract-electric-type').value='actual';document.getElementById('contract-electric-rate').value='';
+    document.getElementById('contract-occupants').value='';document.getElementById('contract-purpose').value='เพื่ออยู่อาศัย';
+    document.getElementById('contract-pet').value='no';document.getElementById('contract-sublease').value='no';
+    document.getElementById('contract-terms').value='';document.getElementById('contract-furniture').value='';
+  }
+  openModal('modal-contract');
+}
+function autoFillRent(){
+  var rid=document.getElementById('contract-room').value;
+  var r=db.rooms.find(function(x){return x.id===rid;});
+  if(r)document.getElementById('contract-rent').value=r.rent;
+}
+function saveContract(){
+  var id=document.getElementById('contract-id').value;
+  var tenantId=document.getElementById('contract-tenant').value;
+  var roomId=document.getElementById('contract-room').value;
+  var start=parseDate(document.getElementById('contract-start').value);
+  var end=parseDate(document.getElementById('contract-end').value);
+  if(!tenantId||!roomId||!start||!end)return alert('กรุณากรอกข้อมูลให้ครบ');
+  var today=new Date();
+  var c={id:id||uid(),tenantId:tenantId,roomId:roomId,startDate:start,endDate:end,rent:parseFloat(document.getElementById('contract-rent').value)||0,deposit:parseFloat(document.getElementById('contract-deposit').value)||0,advance:parseFloat(document.getElementById('contract-advance').value)||0,dueDay:parseInt(document.getElementById('contract-due').value)||1,waterType:document.getElementById('contract-water-type').value,waterRate:document.getElementById('contract-water-rate').value,electricType:document.getElementById('contract-electric-type').value,electricRate:document.getElementById('contract-electric-rate').value,occupants:document.getElementById('contract-occupants').value,purpose:document.getElementById('contract-purpose').value,pet:document.getElementById('contract-pet').value,sublease:document.getElementById('contract-sublease').value,terms:document.getElementById('contract-terms').value,furniture:document.getElementById('contract-furniture').value,status:new Date(end)>=today?'active':'expired'};
+  if(id){var i=db.contracts.findIndex(function(x){return x.id===id;});if(i>=0)db.contracts[i]=c;}else{db.contracts.push(c);}
+  updateRoomStatuses();save();renderContracts();closeModal('modal-contract');
+}
+function deleteContract(id){if(!confirm('ลบสัญญา?'))return;db.contracts=db.contracts.filter(function(c){return c.id!==id;});updateRoomStatuses();save();renderContracts();}
+function renderContracts(){
+  var today=new Date();
+  var list=db.contracts.map(function(c){c.status=new Date(c.endDate)>=today?'active':'expired';return c;});
+  if(contractFilter!=='all')list=list.filter(function(c){return c.status===contractFilter;});
+  var tbody=document.getElementById('contracts-table');
+  if(!list.length){tbody.innerHTML='<tr><td colspan="8"><div class="empty"><div class="empty-icon">📄</div><p>ไม่มีสัญญา</p></div></td></tr>';return;}
+  tbody.innerHTML=list.map(function(c){
+    var t=db.tenants.find(function(x){return x.id===c.tenantId;});
+    var r=db.rooms.find(function(x){return x.id===c.roomId;});
+    var d=Math.ceil((new Date(c.endDate)-today)/864e5);
+    return '<tr class="'+(d<=30&&d>0?'highlight-row':'')+'"><td>'+(t?(t.prefix||'')+t.fname+' '+t.lname:'?')+'</td><td>'+(r?r.name:'?')+'</td><td class="mono" style="font-size:12px">'+c.startDate+'</td><td class="mono" style="font-size:12px">'+c.endDate+'</td><td class="mono green">฿'+c.rent.toLocaleString()+'</td><td class="mono warn">฿'+c.deposit.toLocaleString()+'</td><td><span class="badge '+(c.status==='active'?'badge-active':'badge-expired')+'">'+(c.status==='active'?'ใช้งาน':'หมดอายุ')+'</span></td><td><div class="actions"><button class="btn btn-warn btn-sm" onclick="printContract(\''+c.id+'\')">🖨 พิมพ์</button><button class="btn btn-secondary btn-sm" onclick="openContractModal(\''+c.id+'\')">แก้ไข</button><button class="btn btn-danger btn-sm" onclick="deleteContract(\''+c.id+'\')">ลบ</button></div></td></tr>';
+  }).join('');
+}
+
+// PAYMENTS
+var paymentFilter='all';
+function filterPayments(f,el){paymentFilter=f;document.querySelectorAll('#page-payments .tab').forEach(function(t){t.classList.remove('active');});el.classList.add('active');renderPayments();}
+function openPaymentModal(){
+  var ts=document.getElementById('pay-tenant');
+  ts.innerHTML=db.tenants.map(function(t){return'<option value="'+t.id+'">'+(t.prefix||'')+t.fname+' '+t.lname+'</option>';}).join('')||'<option>ไม่มีผู้เช่า</option>';
+  var now=new Date();
+  document.getElementById('pay-month').value=now.getMonth()+1;
+  document.getElementById('pay-year').value=now.getFullYear()+543;
+  document.getElementById('pay-id').value='';document.getElementById('pay-date').value=formatDate(now.toISOString().split('T')[0]);
+  document.getElementById('pay-water').value=0;document.getElementById('pay-electric').value=0;document.getElementById('pay-other').value=0;document.getElementById('pay-note').value='';
+  fillPaymentRent();openModal('modal-payment');
+}
+function fillPaymentRent(){
+  var tid=document.getElementById('pay-tenant').value;
+  var c=db.contracts.find(function(x){return x.tenantId===tid&&x.status==='active';});
+  if(c){var r=db.rooms.find(function(x){return x.id===c.roomId;});document.getElementById('pay-rent').value=c.rent;document.getElementById('pay-room').value=r?r.name:'';}
+  else{document.getElementById('pay-rent').value='';document.getElementById('pay-room').value='';}
+}
+function savePayment(){
+  var id=document.getElementById('pay-id').value;
+  var tenantId=document.getElementById('pay-tenant').value;
+  if(!tenantId)return alert('กรุณาเลือกผู้เช่า');
+  var c=db.contracts.find(function(x){return x.tenantId===tenantId;});
+  var rent=parseFloat(document.getElementById('pay-rent').value)||0;
+  var water=parseFloat(document.getElementById('pay-water').value)||0;
+  var electric=parseFloat(document.getElementById('pay-electric').value)||0;
+  var other=parseFloat(document.getElementById('pay-other').value)||0;
+  var p={id:id||uid(),tenantId:tenantId,roomId:c?c.roomId:'',month:parseInt(document.getElementById('pay-month').value),year:parseInt(document.getElementById('pay-year').value),rent:rent,water:water,electric:electric,other:other,total:rent+water+electric+other,status:document.getElementById('pay-status').value,date:parseDate(document.getElementById('pay-date').value),note:document.getElementById('pay-note').value};
+  if(id){var i=db.payments.findIndex(function(x){return x.id===id;});if(i>=0)db.payments[i]=p;}else{db.payments.push(p);}
+  save();renderPayments();closeModal('modal-payment');
+}
+function markPaid(id){var p=db.payments.find(function(x){return x.id===id;});if(p){p.status='paid';p.date=new Date().toISOString().split('T')[0];}save();renderPayments();renderDashboard();}
+function deletePayment(id){if(!confirm('ลบรายการ?'))return;db.payments=db.payments.filter(function(p){return p.id!==id;});save();renderPayments();}
+var MN=['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+function renderPayments(){
+  var list=[].concat(db.payments);
+  if(paymentFilter!=='all')list=list.filter(function(p){return p.status===paymentFilter;});
+  list.sort(function(a,b){return b.year-a.year||b.month-a.month;});
+  var tbody=document.getElementById('payments-table');
+  if(!list.length){tbody.innerHTML='<tr><td colspan="9"><div class="empty"><div class="empty-icon">💰</div><p>ไม่มีรายการ</p></div></td></tr>';return;}
+  tbody.innerHTML=list.map(function(p){
+    var t=db.tenants.find(function(x){return x.id===p.tenantId;});
+    var r=db.rooms.find(function(x){return x.id===p.roomId;});
+    var badge=p.status==='paid'?'badge-paid':p.status==='overdue'?'badge-overdue':'badge-pending';
+    var label=p.status==='paid'?'ชำระแล้ว':p.status==='overdue'?'เกินกำหนด':'รอชำระ';
+    return '<tr><td>'+(t?(t.prefix||'')+t.fname+' '+t.lname:'?')+'</td><td>'+(r?r.name:'-')+'</td><td class="mono">'+MN[p.month]+' '+p.year+'</td><td class="mono">฿'+p.rent.toLocaleString()+'</td><td class="mono">฿'+p.water.toLocaleString()+'</td><td class="mono">฿'+p.electric.toLocaleString()+'</td><td class="mono green"><strong>฿'+p.total.toLocaleString()+'</strong></td><td><span class="badge '+badge+'">'+label+'</span></td><td><div class="actions">'+(p.status!=='paid'?'<button class="btn btn-primary btn-sm" onclick="markPaid(\''+p.id+'\')">✓ รับ</button>':'')+'<button class="btn btn-danger btn-sm" onclick="deletePayment(\''+p.id+'\')">ลบ</button></div></td></tr>';
+  }).join('');
+}
+
+// DASHBOARD
+function renderDashboard(){
+  updateRoomStatuses();
+  var today=new Date();
+  var cm=today.getMonth()+1,cy=today.getFullYear()+543;
+  var occ=db.rooms.filter(function(r){return r.status==='occupied';}).length;
+  document.getElementById('stat-rooms').textContent=db.rooms.length;
+  document.getElementById('stat-rooms-sub').textContent='ว่าง '+(db.rooms.length-occ)+' / มีผู้เช่า '+occ+' ห้อง';
+  var paid=db.payments.filter(function(p){return p.month===cm&&p.year===cy&&p.status==='paid';});
+  document.getElementById('stat-income').textContent='฿'+paid.reduce(function(s,p){return s+p.total;},0).toLocaleString();
+  document.getElementById('stat-income-sub').textContent='จ่ายแล้ว '+paid.length+' รายการ';
+  var pend=db.payments.filter(function(p){return p.status==='pending';});
+  document.getElementById('stat-pending').textContent='฿'+pend.reduce(function(s,p){return s+p.total;},0).toLocaleString();
+  document.getElementById('stat-pending-sub').textContent='รอชำระ '+pend.length+' รายการ';
+  document.getElementById('stat-overdue').textContent=db.payments.filter(function(p){return p.status==='overdue';}).length;
+  var rp=document.getElementById('recent-payments');
+  var rec=[].concat(db.payments).sort(function(a,b){return new Date(b.date||0)-new Date(a.date||0);}).slice(0,6);
+  if(!rec.length)rp.innerHTML='<tr><td colspan="5"><div class="empty"><div class="empty-icon">💳</div><p>ยังไม่มีรายการ</p></div></td></tr>';
+  else rp.innerHTML=rec.map(function(p){var t=db.tenants.find(function(x){return x.id===p.tenantId;});var r=db.rooms.find(function(x){return x.id===p.roomId;});var b=p.status==='paid'?'badge-paid':p.status==='overdue'?'badge-overdue':'badge-pending';return'<tr><td>'+(t?(t.prefix||'')+t.fname+' '+t.lname:'?')+'</td><td>'+(r?r.name:'-')+'</td><td>'+MN[p.month]+' '+p.year+'</td><td class="mono green">฿'+p.total.toLocaleString()+'</td><td><span class="badge '+b+'">'+(p.status==='paid'?'ชำระแล้ว':p.status==='overdue'?'เกินกำหนด':'รอชำระ')+'</span></td></tr>';}).join('');
+  var ec=document.getElementById('expiring-contracts');
+  var exp=db.contracts.filter(function(c){var d=Math.ceil((new Date(c.endDate)-today)/864e5);return d<=60&&d>=0&&c.status==='active';});
+  if(!exp.length)ec.innerHTML='<tr><td colspan="5"><div class="empty"><div class="empty-icon">✅</div><p>ไม่มีสัญญาใกล้หมดอายุ</p></div></td></tr>';
+  else ec.innerHTML=exp.map(function(c){var t=db.tenants.find(function(x){return x.id===c.tenantId;});var r=db.rooms.find(function(x){return x.id===c.roomId;});var d=Math.ceil((new Date(c.endDate)-today)/864e5);return'<tr><td>'+(t?(t.prefix||'')+t.fname+' '+t.lname:'?')+'</td><td>'+(r?r.name:'?')+'</td><td class="mono">'+c.endDate+'</td><td><span class="warn">'+d+' วัน</span></td><td><button class="btn btn-warn btn-sm" onclick="openContractModal(\''+c.id+'\')">ต่อสัญญา</button></td></tr>';}).join('');
+  updateSidebarOwner();
+}
+
+// CONTRACT PRINT
+function printContract(id){
+  var c=db.contracts.find(function(x){return x.id===id;});
+  if(!c)return;
+  var t=db.tenants.find(function(x){return x.id===c.tenantId;});
+  var r=db.rooms.find(function(x){return x.id===c.roomId;});
+  var o=db.owner||{};
+  if(!o.name){alert('กรุณากรอกข้อมูลผู้ให้เช่าก่อนพิมพ์สัญญา');showPage('owner',document.querySelectorAll('.nav-item')[1]);return;}
+  function fmtD(d){return fmtDateTH(d);}
+  function p(txt){return '<p>'+txt+'</p>';}
+  function clause(num,title,body){return '<div class="cp-clause-group"><div class="cp-clause-title">'+num+' '+title+'</div><div class="cp-clause-body">'+body+'</div></div>';}
+  var tenantAddr=t?(t.addressId||t.address||'ไม่ระบุ'):'...............';
+  var waterDesc=c.waterType==='actual'?'ตามอัตราจริงของการประปา':c.waterType==='unit'?'หน่วยละ '+(c.waterRate||'...')+' บาท':'เหมาเดือนละ '+(c.waterRate||'...')+' บาท';
+  var elecDesc=c.electricType==='actual'?'ตามอัตราจริงของการไฟฟ้า':c.electricType==='unit'?'หน่วยละ '+(c.electricRate||'...')+' บาท (ไม่เกินอัตราของการไฟฟ้า)':'เหมาเดือนละ '+(c.electricRate||'...')+' บาท';
+  var petTxt=c.pet==='yes'?'อนุญาตให้เลี้ยงสัตว์ได้':c.pet==='ask'?'ต้องขออนุญาตเป็นลายลักษณ์อักษรก่อน':'ไม่อนุญาตให้เลี้ยงสัตว์ทุกชนิด';
+  var subleaseTxt=c.sublease==='written'?'ต้องได้รับอนุญาตเป็นลายลักษณ์อักษรจากผู้ให้เช่าก่อน':'ห้ามมิให้ผู้เช่านำทรัพย์สินที่เช่าออกให้ผู้อื่นเช่าช่วง หรือทำนิติกรรมใดๆ กับผู้อื่น ไม่ว่าโดยตรงหรือโดยปริยาย';
+  var depositMax=c.rent*2;
+  var roomDetails=[r&&r.size?'ขนาด '+r.size+' ตร.ม.':'',r&&r.direction?'ทิศ'+r.direction:'',r&&r.facilities||'',r&&r.desc||''].filter(Boolean).join('  |  ');
+  var tenantName=t?(t.prefix||'')+t.fname+' '+t.lname:'...............';
+  var ownerName=o.name||'...............';
+  var html='';
+  // Header
+  html+='<div class="cp-header"><div class="cp-title">สัญญาเช่าอาคารเพื่ออยู่อาศัย</div><div class="cp-subtitle">RESIDENTIAL LEASE AGREEMENT</div></div>';
+  html+='<div class="cp-meta"><span>เลขที่สัญญา: <strong>'+c.id.toUpperCase()+'</strong></span><span>ทำขึ้น ณ วันที่ <strong>'+fmtD(c.startDate)+'</strong></span></div>';
+  // Parties side-by-side
+  html+='<div class="parties-wrap">';
+  html+='<div class="party-box"><div class="party-box-header">▌ ผู้ให้เช่า (Lessor)</div><table>';
+  html+='<tr><td>ชื่อ-นามสกุล</td><td><strong>'+ownerName+'</strong></td></tr>';
+  if(o.idcard)html+='<tr><td>เลขบัตร</td><td>'+o.idcard+'</td></tr>';
+  html+='<tr><td>ที่อยู่</td><td>'+(o.address||'—')+'</td></tr>';
+  if(o.phone)html+='<tr><td>โทรศัพท์</td><td>'+o.phone+'</td></tr>';
+  if(o.building)html+='<tr><td>อาคาร</td><td>'+o.building+'</td></tr>';
+  html+='</table></div>';
+  html+='<div class="party-box"><div class="party-box-header green">▌ ผู้เช่า (Lessee)</div><table>';
+  html+='<tr><td>ชื่อ-นามสกุล</td><td><strong>'+tenantName+'</strong></td></tr>';
+  if(t&&t.idcard)html+='<tr><td>เลขบัตร</td><td>'+t.idcard+'</td></tr>';
+  if(t&&t.dob)html+='<tr><td>วันเกิด</td><td>'+fmtD(t.dob)+'</td></tr>';
+  if(t&&t.nationality)html+='<tr><td>สัญชาติ</td><td>'+t.nationality+'</td></tr>';
+  html+='<tr><td>ที่อยู่</td><td>'+tenantAddr+'</td></tr>';
+  if(t&&t.phone)html+='<tr><td>โทรศัพท์</td><td>'+t.phone+'</td></tr>';
+  if(t&&t.job)html+='<tr><td>อาชีพ</td><td>'+t.job+(t.workplace?'  /  '+t.workplace:'')+'</td></tr>';
+  if(t&&t.emergency)html+='<tr><td>ผู้ติดต่อฉุกเฉิน</td><td>'+t.emergency+'</td></tr>';
+  html+='</table></div></div>';
+  html+='<div class="clause-intro">คู่สัญญาทั้งสองฝ่ายได้ตกลงกันโดยสมัครใจ มีข้อความดังต่อไปนี้</div>';
+  // Clauses
+  html+=clause('ข้อ ๑.','ทรัพย์สินที่เช่า',
+    p('ผู้ให้เช่าตกลงให้เช่าและผู้เช่าตกลงเช่า <strong>'+(r?r.name+' ('+r.type+')':'...........')+'</strong>'+(r&&r.floor?' ชั้น '+r.floor:'')+(o.building?' อาคาร '+o.building:'')+' ตั้งอยู่ที่ '+(o.propertyAddr||o.address||'.....................')+' (เรียกว่า "ทรัพย์สิน") เพื่อวัตถุประสงค์<strong>'+(c.purpose||'อยู่อาศัย')+'</strong> จำนวนผู้พักอาศัย <strong>'+(c.occupants||'...')+' คน</strong>')+
+    (roomDetails?p('รายละเอียด: '+roomDetails):'')+
+    (c.furniture?p('สิ่งของที่ให้พร้อมห้อง: '+c.furniture):'')
+  );
+  html+=clause('ข้อ ๒.','ระยะเวลาเช่า',
+    p('ตั้งแต่วันที่ <strong>'+fmtD(c.startDate)+'</strong> ถึงวันที่ <strong>'+fmtD(c.endDate)+'</strong>')+
+    p('หากประสงค์จะเช่าต่อต้องแจ้งเป็นลายลักษณ์อักษรล่วงหน้าไม่น้อยกว่า <strong>๓๐ วัน</strong>')
+  );
+  html+=clause('ข้อ ๓.','ค่าเช่าและการชำระ',
+    p('อัตราค่าเช่าเดือนละ <strong>'+c.rent.toLocaleString()+' บาท</strong> ('+numTH(c.rent)+') ชำระทุกวันที่ <strong>'+c.dueDay+'</strong> ของทุกเดือน'+(o.bank?' โอนเข้าบัญชี <strong>'+o.bank+'</strong>':''))+
+    p('ผู้ให้เช่าส่งใบแจ้งหนี้ล่วงหน้าไม่น้อยกว่า ๓ วัน และต้องออกใบเสร็จรับเงินทุกครั้งที่รับชำระ')+
+    p('อัตราค่าเช่าจะไม่เปลี่ยนแปลงตลอดระยะเวลาสัญญา')
+  );
+  html+=clause('ข้อ ๔.','เงินมัดจำและค่าเช่าล่วงหน้า',
+    p('ผู้เช่าชำระเงินมัดจำ <strong>'+c.deposit.toLocaleString()+' บาท</strong> ('+numTH(c.deposit)+')'+(c.advance&&c.advance>0?' และค่าเช่าล่วงหน้า <strong>'+c.advance.toLocaleString()+' บาท</strong>':'')+' รวม <strong>'+(c.deposit+(c.advance||0)).toLocaleString()+' บาท</strong>')+
+    p('(เงินมัดจำและค่าเช่าล่วงหน้ารวมกันต้องไม่เกิน ๒ เดือน = ไม่เกิน '+depositMax.toLocaleString()+' บาท ตามประกาศ สคบ. ๒๕๖๒)')+
+    p('ผู้ให้เช่าต้องคืนเงินมัดจำภายใน <strong>๗ วัน</strong> นับแต่สัญญาสิ้นสุดและผู้เช่าส่งมอบทรัพย์สินคืนแล้ว โดยหักค่าเสียหาย (ถ้ามี) เท่านั้น')
+  );
+  html+=clause('ข้อ ๕.','ค่าสาธารณูปโภค',
+    p('• ค่าน้ำประปา: '+waterDesc)+
+    p('• ค่าไฟฟ้า: '+elecDesc)+
+    p('ผู้ให้เช่าไม่มีสิทธิเรียกเก็บค่าน้ำ/ค่าไฟเกินกว่าอัตราจริงของการประปาและการไฟฟ้า')
+  );
+  html+=clause('ข้อ ๖.','หน้าที่ผู้เช่า',
+    p('(๑) ดูแลรักษาทรัพย์สินให้อยู่ในสภาพดี ไม่ทำให้เสียหายเกินกว่าการสึกหรอตามปกติ')+
+    p('(๒) รับผิดชอบในความเสียหายที่เกิดจากความผิดของผู้เช่าหรือบริวาร')+
+    p('(๓) ไม่ดัดแปลงหรือต่อเติมโดยไม่ได้รับอนุญาตเป็นลายลักษณ์อักษร')+
+    p('(๔) การเช่าช่วง: '+subleaseTxt)+
+    p('(๕) ปฏิบัติตามกฎระเบียบของอาคารและกฎหมายความสงบเรียบร้อย')+
+    p('(๖) สัตว์เลี้ยง: '+petTxt)+
+    p('(๗) ยินยอมให้ผู้ให้เช่าเข้าตรวจสอบโดยแจ้งล่วงหน้า ๒๔ ชั่วโมง ยกเว้นกรณีฉุกเฉิน')
+  );
+  html+=clause('ข้อ ๗.','หน้าที่ผู้ให้เช่า',
+    p('(๑) ส่งมอบทรัพย์สินในสภาพสมบูรณ์พร้อมใช้งาน')+
+    p('(๒) ซ่อมแซมทรัพย์สินให้ใช้งานได้ตลอดอายุสัญญา')+
+    p('(๓) ไม่ขัดขวางการใช้สอยทรัพย์สินโดยปกติสุข')+
+    p('(๔) ออกใบเสร็จรับเงินทุกครั้งที่รับชำระ')
+  );
+  html+=clause('ข้อ ๘.','การบอกเลิกสัญญา',
+    p('ผู้เช่าบอกเลิกก่อนครบกำหนดต้องแจ้งล่วงหน้าไม่น้อยกว่า <strong>๓๐ วัน</strong> และไม่มียอดค้างชำระ')+
+    p('ผู้ให้เช่าบอกเลิกได้หากผิดนัดเกิน ๑ เดือน หรือฝ่าฝืนข้อสัญญาร้ายแรง โดยแจ้ง ๓๐ วัน | ผิดกฎหมาย: เลิกทันที | กระทบผู้เช่ารายอื่น: แจ้ง ๗ วัน')
+  );
+  html+=clause('ข้อ ๙.','การส่งมอบคืนทรัพย์สิน',p('เมื่อสัญญาสิ้นสุด ผู้เช่าต้องขนย้ายออกและส่งมอบทรัพย์สินในสภาพเรียบร้อยภายใน <strong>๗ วัน</strong>'));
+  html+=clause('ข้อ ๑๐.','ความรับผิดกรณีทรัพย์สินเสียหาย',p('ผู้เช่าต้องชดใช้ค่าเสียหายที่เกิดจากความผิดของตน ไม่รวมความสึกหรอตามปกติ'));
+  html+=clause('ข้อ ๑๑.','ภาษีและค่าใช้จ่าย',p('ภาษีโรงเรือนและค่าธรรมเนียมที่เกี่ยวกับทรัพย์สิน: ผู้ให้เช่าเป็นผู้ชำระ | ค่าซ่อมแซมเล็กน้อยตามปกติ: ผู้เช่าเป็นผู้ชำระ'));
+  html+=clause('ข้อ ๑๒.','ดอกเบี้ยค่าเช่าค้างชำระ',p('หากผิดนัดชำระ ผู้เช่าต้องชำระดอกเบี้ย <strong>ร้อยละ ๗.๕ ต่อปี</strong> นับแต่วันผิดนัด'));
+  html+=clause('ข้อ ๑๓.','เงื่อนไขพิเศษ',p(c.terms||'ไม่มีข้อตกลงพิเศษเพิ่มเติม'));
+  html+=clause('ข้อ ๑๔.','การบังคับตามกฎหมาย',p('สัญญานี้ใช้บังคับตามกฎหมายแห่งราชอาณาจักรไทย หากมีข้อพิพาทให้เจรจาก่อน หากไม่สำเร็จให้นำขึ้นสู่ศาลที่มีเขตอำนาจ'));
+  html+=clause('ข้อ ๑๕.','การแก้ไขสัญญา',p('การแก้ไขเพิ่มเติมต้องทำเป็นลายลักษณ์อักษรและลงนามโดยคู่สัญญาทั้งสองฝ่าย'));
+  // Closing paragraph
+  html+='<p style="margin:20px 0 0;font-size:14px;line-height:1.9;">สัญญาฉบับนี้ทำขึ้น <strong>๒ ฉบับ</strong> มีข้อความตรงกัน คู่สัญญาแต่ละฝ่ายได้อ่านและเข้าใจข้อความโดยตลอดแล้ว เห็นว่าถูกต้องตามเจตนา จึงลงลายมือชื่อไว้เป็นหลักฐาน</p>';
+  // Signatures
+  html+='<div class="sig-section"><div class="sig-area">';
+  html+='<div class="sig-box"><div class="sig-dots"></div><div class="sig-label">ลงชื่อ ..................................<br><strong>('+ownerName+')</strong><br>ผู้ให้เช่า<br><strong>วันที่ ......./......./.........</strong></div></div>';
+  html+='<div class="sig-box"><div class="sig-dots"></div><div class="sig-label">ลงชื่อ ..................................<br><strong>('+tenantName+')</strong><br>ผู้เช่า<br><strong>วันที่ ......./......./.........</strong></div></div>';
+  html+='<div class="sig-box"><div class="sig-dots"></div><div class="sig-label">ลงชื่อ ..................................<br><strong>(....................................)</strong><br>พยาน<br><strong>วันที่ ......./......./.........</strong></div></div>';
+  html+='</div></div>';
+  // Doc footer
+  html+='<div class="cp-footer"><span>เลขที่: '+c.id.toUpperCase()+'</span><span>สัญญาเช่าอาคารเพื่ออยู่อาศัย | อ้างอิง: ประกาศ สคบ. ๒๕๖๒/๒๕๖๘</span></div>';
+
+  document.getElementById('contract-print-content').innerHTML=html;
+  document.getElementById('contract-print-view').style.display='block';
+  window.scrollTo(0,0);
+  setTimeout(function(){window.print();},500);
+}
+function closePrint(){document.getElementById('contract-print-view').style.display='none';}
+
+// ===== LINE NOTIFY =====
+// ===== LINE MESSAGING API =====
+// ทำงานได้บน https:// hosting — LINE API รองรับ CORS จาก https domain
+var LINE_BASE='https://api.line.me/v2/bot';
+
+function getLineToken(){return(db.notify||{}).channelToken||'';}
+
+function saveNotifySettings(){
+  db.notify={
+    channelToken:document.getElementById('notify-channel-token').value.trim(),
+    ownerUid:document.getElementById('notify-owner-uid').value.trim(),
+    daysBefore:parseInt(document.getElementById('notify-days-before').value)||5,
+    auto:document.getElementById('notify-auto').value
+  };
+  db.tenants.forEach(function(t){
+    var el=document.getElementById('tenant-uid-'+t.id);
+    if(el)t.lineUid=el.value.trim();
+  });
+  save();
+  alert('บันทึกการตั้งค่าเรียบร้อย ✅');
+}
+
+function loadNotifyPage(){
+  var n=db.notify||{};
+  document.getElementById('notify-channel-token').value=n.channelToken||'';
+  document.getElementById('notify-owner-uid').value=n.ownerUid||'';
+  document.getElementById('notify-days-before').value=n.daysBefore||5;
+  document.getElementById('notify-auto').value=n.auto||'startup';
+  renderTenantUidList();
+}
+
+function renderTenantUidList(){
+  var el=document.getElementById('tenant-token-list');
+  if(!db.tenants.length){el.innerHTML='<p style="color:var(--muted);font-size:13px">ยังไม่มีผู้เช่า</p>';return;}
+  el.innerHTML='<div class="form-grid">'+db.tenants.map(function(t){
+    return '<div class="form-group"><label>'+(t.prefix||'')+t.fname+' '+t.lname+'</label>'
+      +'<input type="text" id="tenant-uid-'+t.id+'" value="'+(t.lineUid||'')+'" placeholder="Uxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"></div>';
+  }).join('')+'</div>';
+}
+
+function notifyLog(msg,type){
+  var el=document.getElementById('notify-log');
+  if(!el)return;
+  var color=type==='ok'?'var(--accent)':type==='err'?'var(--danger)':'var(--muted)';
+  el.innerHTML='<div style="color:'+color+';padding:3px 0">'+new Date().toLocaleTimeString('th-TH')+' — '+msg+'</div>'+el.innerHTML;
+}
+
+// เรียก LINE API ผ่าน corsproxy.io เพื่อแก้ปัญหา CORS
+async function lineAPI(path,method,body){
+  var token=getLineToken();
+  if(!token)return{ok:false,msg:'ไม่มี Channel Access Token'};
+  try{
+    var opts={
+      method:method||'GET',
+      headers:{
+        'Authorization':'Bearer '+token,
+        'Content-Type':'application/json'
+      }
+    };
+    if(body)opts.body=JSON.stringify(body);
+    var res=await fetch(LINE_BASE+path,opts);
+    var json={};
+    try{json=await res.json();}catch(e){}
+    return{ok:res.ok,status:res.status,data:json};
+  }catch(e){return{ok:false,msg:e.message};}
+}
+
+async function lineSendPush(to,text){
+  return lineAPI('/message/push','POST',{
+    to:to,
+    messages:[{type:'text',text:text}]
+  });
+}
+
+// ดึง User ID จาก getFollowersIds
+async function fetchOwnerUserId(){
+  notifyLog('กำลังดึง User ID...');
+  if(!getLineToken()){notifyLog('❌ กรุณากรอก Channel Access Token ก่อน','err');return;}
+  var r=await lineAPI('/followers/ids?limit=10','GET');
+  if(r.ok&&r.data&&r.data.userIds&&r.data.userIds.length){
+    var uid=r.data.userIds[0];
+    document.getElementById('notify-owner-uid').value=uid;
+    notifyLog('✅ User ID: '+uid+' (กด 💾 บันทึกด้วย)','ok');
+  } else {
+    notifyLog('❌ ดึงไม่ได้ — '+(r.data&&r.data.message||r.msg||'กรุณาเพิ่มเพื่อน LINE OA และส่งข้อความก่อน'),'err');
+  }
+}
+
+async function fetchRecentUserIds(){
+  notifyLog('กำลังดึง User IDs...');
+  if(!getLineToken()){notifyLog('❌ กรุณากรอก Channel Access Token ก่อน','err');return;}
+  var r=await lineAPI('/followers/ids?limit=50','GET');
+  if(!r.ok){notifyLog('❌ '+(r.data&&r.data.message||r.msg||'ไม่สำเร็จ'),'err');return;}
+  var ids=(r.data&&r.data.userIds)||[];
+  if(!ids.length){notifyLog('ℹ️ ยังไม่มีผู้ติดตาม OA');return;}
+  var msg='User IDs ที่พบ ('+ids.length+' คน):\n\n';
+  ids.forEach(function(id,i){msg+=(i+1)+'. '+id+'\n';});
+  msg+='\nนำ ID ไปวางในช่องผู้เช่าที่ต้องการ';
+  notifyLog('✅ พบ '+ids.length+' User IDs (ดูใน popup)','ok');
+  alert(msg);
+}
+
+async function testLineMsg(){
+  var token=getLineToken();
+  var uid=(db.notify||{}).ownerUid;
+  if(!token){notifyLog('❌ กรุณากรอก Channel Access Token ก่อน','err');return;}
+  if(!uid){notifyLog('❌ กรุณากรอก User ID ของเจ้าของก่อน','err');return;}
+  notifyLog('กำลังส่งทดสอบ...');
+  var r=await lineSendPush(uid,'🏠 RentPro — ทดสอบระบบแจ้งเตือน\nระบบเชื่อมต่อ LINE Messaging API สำเร็จ ✅\nแจ้งเตือนค่าเช่าพร้อมใช้งาน');
+  if(r.ok)notifyLog('✅ ส่งสำเร็จ! ตรวจสอบ LINE ของคุณ','ok');
+  else notifyLog('❌ ส่งไม่สำเร็จ: '+(r.data&&r.data.message||r.msg||'status '+r.status),'err');
+}
+
+async function sendDueReminders(){
+  var n=db.notify||{};
+  if(!n.channelToken){notifyLog('❌ กรุณาตั้งค่า Channel Access Token ก่อน','err');return;}
+  var days=n.daysBefore||5;
+  var today=new Date(); today.setHours(0,0,0,0);
+  document.getElementById('notify-log').innerHTML='';
+  notifyLog('⏳ เริ่มตรวจสอบ...');
+  var promises=[];
+
+  db.contracts.forEach(function(c){
+    if(c.status!=='active')return;
+    var t=db.tenants.find(function(x){return x.id===c.tenantId;});
+    var r=db.rooms.find(function(x){return x.id===c.roomId;});
+    if(!t||!r)return;
+    var tenantName=(t.prefix||'')+t.fname+' '+t.lname;
+
+    // ── ค่าเช่าครบกำหนด ──
+    var due=new Date(today.getFullYear(),today.getMonth(),c.dueDay);
+    if(due<today)due=new Date(today.getFullYear(),today.getMonth()+1,c.dueDay);
+    var diff=Math.ceil((due-today)/864e5);
+    if(diff<=days&&diff>=0){
+      var dueStr=due.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
+      var diffTxt=diff===0?'⚠️ ครบกำหนดวันนี้!':'อีก '+diff+' วัน';
+      if(n.ownerUid){
+        var msgO='🔔 แจ้งเตือนค่าเช่า\n────────────────\n🚪 ห้อง: '+r.name+'\n👤 ผู้เช่า: '+tenantName+'\n📅 ครบกำหนด: '+dueStr+' ('+diffTxt+')\n💰 ค่าเช่า: ฿'+c.rent.toLocaleString();
+        promises.push((function(uid,msg,label){
+          return lineSendPush(uid,msg).then(function(res){
+            notifyLog((res.ok?'✅':'❌')+' แจ้งเจ้าของ — '+label,res.ok?'ok':'err');
+          });
+        })(n.ownerUid,msgO,r.name+' / '+tenantName));
+      }
+      if(t.lineUid){
+        var msgT='🏠 แจ้งเตือนค่าเช่า\n────────────────\nเรียน คุณ'+tenantName+'\nค่าเช่าห้อง '+r.name+'\n📅 ครบกำหนด: '+dueStr+'\n'+diffTxt+'\n💰 จำนวน: ฿'+c.rent.toLocaleString()+'\nกรุณาชำระภายในกำหนด ขอบคุณครับ/ค่ะ';
+        promises.push((function(uid,msg,label){
+          return lineSendPush(uid,msg).then(function(res){
+            notifyLog((res.ok?'✅':'❌')+' แจ้งผู้เช่า — '+label,res.ok?'ok':'err');
+          });
+        })(t.lineUid,msgT,tenantName));
+      }
+    }
+
+    // ── สัญญาใกล้หมดอายุ ──
+    var endDate=new Date(c.endDate);
+    var daysLeft=Math.ceil((endDate-today)/864e5);
+    if(daysLeft<=30&&daysLeft>=0&&n.ownerUid){
+      var endStr=endDate.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
+      var msgExp='⚠️ สัญญาใกล้หมดอายุ\n────────────────\n🚪 ห้อง: '+r.name+'\n👤 ผู้เช่า: '+tenantName+'\n📅 หมดอายุ: '+endStr+'\n⏳ เหลือ: '+daysLeft+' วัน\nกรุณาดำเนินการต่อสัญญา';
+      promises.push((function(uid,msg,label){
+        return lineSendPush(uid,msg).then(function(res){
+          notifyLog((res.ok?'✅':'❌')+' สัญญาใกล้หมด — '+label,res.ok?'ok':'err');
+        });
+      })(n.ownerUid,msgExp,r.name));
+    }
+  });
+
+  if(!promises.length){notifyLog('ℹ️ ไม่มีรายการที่ต้องแจ้งเตือนในขณะนี้');return;}
+  await Promise.all(promises);
+  notifyLog('── เสร็จสิ้น ──');
+}
+
+async function checkAndNotify(){sendDueReminders();}
+
+// ===== NUM TO THAI WORDS (supports up to 9,999,999) =====
+function numTH(n){
+  n=parseInt(n);
+  if(isNaN(n)||n===0)return'ศูนย์บาทถ้วน';
+  var ones=['','หนึ่ง','สอง','สาม','สี่','ห้า','หก','เจ็ด','แปด','เก้า'];
+  var tens_w=['','สิบ','ยี่สิบ','สามสิบ','สี่สิบ','ห้าสิบ','หกสิบ','เจ็ดสิบ','แปดสิบ','เก้าสิบ'];
+  function seg(num){
+    var s='';
+    var th=Math.floor(num/1000),hun=Math.floor((num%1000)/100),ten=Math.floor((num%100)/10),one=num%10;
+    if(th){if(th===1)s+='หนึ่งพัน';else s+=ones[th]+'พัน';}
+    if(hun)s+=ones[hun]+'ร้อย';
+    if(ten){if(ten===1&&s!=='')s+='สิบ';else s+=tens_w[ten];}
+    if(one){if(one===1&&ten>0)s+='เอ็ด';else s+=ones[one];}
+    return s;
+  }
+  var s='';
+  var mil=Math.floor(n/1000000),rest=n%1000000;
+  if(mil){s+=seg(mil)+'ล้าน';}
+  var tho=Math.floor(rest/10000),sub=rest%10000;
+  if(tho){if(tho===1)s+='หนึ่งหมื่น';else s+=seg(tho%1000)||ones[tho];}
+  // simpler: just convert full number via segments
+  s='';
+  if(n>=1000000){s+=seg(Math.floor(n/1000000))+'ล้าน';n=n%1000000;}
+  if(n>=100000){s+=ones[Math.floor(n/100000)]+'แสน';n=n%100000;}
+  if(n>=10000){var d=Math.floor(n/10000);s+=(d===1?'หนึ่ง':ones[d])+'หมื่น';n=n%10000;}
+  if(n>=1000){var d=Math.floor(n/1000);s+=(d===1?'หนึ่ง':ones[d])+'พัน';n=n%1000;}
+  if(n>=100){s+=ones[Math.floor(n/100)]+'ร้อย';n=n%100;}
+  if(n>=10){var d=Math.floor(n/10);if(d===1&&s!=='')s+='สิบ';else s+=tens_w[d];n=n%10;}
+  if(n>0){if(n===1&&s!=='')s+='เอ็ด';else s+=ones[n];}
+  return s+'บาทถ้วน';
+}
+// ===== DATE HELPERS dd/mm/yyyy =====
+function parseDate(str){if(!str)return'';if(str.indexOf('/')>-1){var p=str.split('/');if(p.length===3)return p[2]+'-'+p[1].padStart(2,'0')+'-'+p[0].padStart(2,'0');}return str;}
+function formatDate(str){if(!str)return'';if(str.indexOf('-')>-1){var p=str.split('-');if(p.length===3)return p[2]+'/'+p[1]+'/'+p[0];}return str;}
+function fmtDateTH(str){var iso=parseDate(str);if(!iso)return'...............';var d=new Date(iso);if(isNaN(d))return str;return d.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});}
+function initDateInputs(){
+  document.querySelectorAll('.date-input').forEach(function(el){
+    el.addEventListener('input',function(){
+      var v=el.value.replace(/[^0-9]/g,'');
+      if(v.length>2)v=v.slice(0,2)+'/'+v.slice(2);
+      if(v.length>5)v=v.slice(0,5)+'/'+v.slice(5);
+      if(v.length>10)v=v.slice(0,10);
+      el.value=v;
+    });
+  });
+}
+
+// INIT
+load();
+showPage('dashboard',document.querySelector('.nav-item'));
+document.getElementById('today-date').textContent=new Date().toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
+updateSidebarOwner();
+initDateInputs();
+// auto notify on startup
+setTimeout(function(){
+  if((db.notify||{}).auto==='startup'&&(db.notify||{}).channelToken&&(db.notify||{}).ownerUid){
+    sendDueReminders();
+  }
+},2000);
+</script>
+</body>
+</html>
