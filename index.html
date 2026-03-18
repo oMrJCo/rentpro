@@ -165,6 +165,7 @@
   @page {
     margin: 12mm 10mm;
   }
+  @page{margin:12mm 10mm;}
   @media print {
     .no-print { display: none !important; }
     .app { display: none !important; }
@@ -200,6 +201,7 @@
       <button class="nav-item" onclick="showPage('contracts',this)"><span class="nav-icon">📄</span> สัญญา</button>
       <button class="nav-item" onclick="showPage('payments',this)"><span class="nav-icon">💰</span> ค่าเช่า</button>
       <button class="nav-item" onclick="showPage('notify',this)"><span class="nav-icon">🤖</span> แจ้งเตือน Telegram</button>
+      <button class="nav-item" onclick="showPage('notify',this)"><span class="nav-icon">💬</span> แจ้งเตือน LINE</button>
     </nav>
     <div class="sidebar-footer">
       <div class="owner-name" id="sidebar-owner-name">ยังไม่ได้ตั้งค่า</div>
@@ -308,33 +310,34 @@
       </div>
     </div>
 
-    <!-- TELEGRAM NOTIFY -->
+    <!-- LINE NOTIFY -->
     <div id="page-notify" style="display:none">
-      <div class="topbar no-print"><h2>🤖 แจ้งเตือนผ่าน Telegram Bot</h2>
+      <div class="topbar no-print"><h2>💬 แจ้งเตือนผ่าน LINE Messaging API</h2>
         <button class="btn btn-primary" onclick="saveNotifySettings()">💾 บันทึก</button>
       </div>
       <div class="content">
 
         <div class="info-box" style="margin-bottom:16px;line-height:2.1">
-          <strong>📋 วิธีสร้าง Bot (ทำครั้งเดียว)</strong><br>
-          1. เปิด Telegram → ค้นหา <strong>@BotFather</strong> → พิมพ์ <strong>/newbot</strong> → รับ <strong>Bot Token</strong><br>
-          2. วาง Token ด้านล่าง → กด <strong>"📥 รับ Chat ID ของฉัน"</strong> (หลัง Start บอทแล้ว)<br>
-          3. กด <strong>"🔄 ตรวจจับผู้เช่า"</strong> — ระบบจับคู่ <strong>ชื่อ/เบอร์โทร</strong> กับข้อมูลในแอปอัตโนมัติ ✅<br>
-          4. ผู้เช่าแค่ Start บอท → พิมพ์ <strong>ชื่อ-นามสกุล</strong> หรือ <strong>เบอร์โทร</strong> → ระบบจำได้เลย
+          <strong>📋 วิธีตั้งค่า LINE Messaging API (ฟรี 200 msg/วัน)</strong><br>
+          1. ไปที่ <strong>developers.line.biz</strong> → Log in → Create Provider → Create Channel → <strong>Messaging API</strong><br>
+          2. แท็บ <strong>Basic settings</strong> → คัดลอก <strong>Channel secret</strong><br>
+          3. แท็บ <strong>Messaging API</strong> → กด <strong>Issue</strong> → คัดลอก <strong>Channel access token</strong><br>
+          4. เพิ่มเพื่อน LINE OA (QR code ในแท็บ Messaging API) → ส่งข้อความอะไรก็ได้ 1 ครั้ง<br>
+          5. กด <strong>"📥 ดึง User ID ของฉัน"</strong> ด้านล่าง → บันทึก → ทดสอบส่ง ✅
         </div>
 
         <div class="card" style="padding:24px;margin-bottom:18px">
-          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">🔑 Bot Token & เจ้าของ</div>
+          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">🔑 LINE Channel Access Token</div>
           <div class="form-grid">
             <div class="form-group full">
-              <label>Bot Token (จาก @BotFather)</label>
-              <input type="text" id="notify-bot-token" placeholder="1234567890:AAxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+              <label>Channel Access Token (จาก LINE Developers Console)</label>
+              <input type="text" id="notify-channel-token" placeholder="วาง Channel Access Token ที่ได้จาก developers.line.biz">
             </div>
             <div class="form-group full">
-              <label>Chat ID ของผู้ให้เช่า (เจ้าของ)</label>
+              <label>User ID ของผู้ให้เช่า (เจ้าของ)</label>
               <div style="display:flex;gap:8px">
-                <input type="text" id="notify-owner-chatid" placeholder="กด Start บอทก่อน → ส่งข้อความ → กดปุ่มขวา" style="flex:1">
-                <button class="btn btn-secondary" onclick="fetchOwnerChatId()" style="white-space:nowrap">📥 รับ Chat ID</button>
+                <input type="text" id="notify-owner-uid" placeholder="กด Start OA แล้วส่งข้อความ จากนั้นกดปุ่มขวา" style="flex:1">
+                <button class="btn btn-secondary" onclick="fetchOwnerUserId()" style="white-space:nowrap">📥 ดึง User ID ของฉัน</button>
               </div>
             </div>
             <div class="form-group">
@@ -349,30 +352,83 @@
             <div class="form-group">
               <label>ตรวจสอบอัตโนมัติ</label>
               <select id="notify-auto">
-                <option value="startup">เปิด — ส่งอัตโนมัติวันละ 1 ครั้ง</option>
-                <option value="off">ปิด — กดส่งด้วยตัวเอง</option>
+                <option value="startup">ทุกครั้งที่เปิดแอป</option>
+                <option value="off">ปิด (กดด้วยตัวเอง)</option>
               </select>
             </div>
           </div>
         </div>
 
         <div class="card" style="padding:24px;margin-bottom:18px">
-          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">👥 ผู้เช่า — ลงทะเบียนอัตโนมัติ</div>
-          <div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.8">
-            ผู้เช่า Start บอท → พิมพ์ <strong>ชื่อนามสกุล</strong> หรือ <strong>เบอร์โทร</strong> ที่ลงทะเบียนไว้ในแอป<br>
-            กด <strong>"🔄 ตรวจจับผู้เช่า"</strong> ด้านล่าง → ระบบจับคู่และบันทึก Chat ID อัตโนมัติ
-          </div>
+          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">👥 User ID ของผู้เช่าแต่ละคน</div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:14px">ให้ผู้เช่าเพิ่มเพื่อน LINE OA ของคุณ แล้วส่งข้อความ 1 ครั้ง → กด "ดึง User ID ผู้เช่า" → คัดลอกไปวางในช่องด้านล่าง</div>
           <div id="tenant-token-list"></div>
-          <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
-            <button class="btn btn-primary btn-sm" onclick="autoMatchTenants()">🔄 ตรวจจับผู้เช่าอัตโนมัติ</button>
-            <button class="btn btn-secondary btn-sm" onclick="fetchTenantChatIds()">📋 ดูรายการที่ส่งข้อความมา</button>
-          </div>
+          <button class="btn btn-secondary btn-sm" onclick="fetchRecentUserIds()" style="margin-top:12px">🔄 ดึง User ID ผู้เช่าล่าสุด</button>
         </div>
 
-        <div class="card" style="padding:20px;margin-bottom:18px">
-          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">✏️ ตั้งค่าข้อความแจ้งเตือน</div>
+        <div class="card" style="padding:20px">
+          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">🧪 ทดสอบและส่งแจ้งเตือน</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-secondary" onclick="testLineMsg()">📤 ทดสอบส่ง (เจ้าของ)</button>
+            <button class="btn btn-primary" onclick="sendDueReminders()">🔔 ส่งแจ้งเตือนครบกำหนดทั้งหมด</button>
+          </div>
+          <div id="notify-log" style="margin-top:16px;font-size:13px;color:var(--muted);line-height:1.9;max-height:240px;overflow-y:auto;border-top:1px solid var(--border);padding-top:12px;"></div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- TELEGRAM NOTIFY -->
+    <div id="page-notify" style="display:none">
+      <div class="topbar no-print"><h2>🤖 แจ้งเตือนผ่าน Telegram Bot</h2>
+        <button class="btn btn-primary" onclick="saveNotifySettings()">💾 บันทึก</button>
+      </div>
+      <div class="content">
+        <div class="info-box" style="margin-bottom:16px;line-height:2.1">
+          <strong>📋 วิธีสร้าง Telegram Bot (ฟรี ไม่จำกัด)</strong><br>
+          1. เปิด Telegram ค้นหา <strong>@BotFather</strong> พิมพ์ <strong>/newbot</strong> รับ <strong>Bot Token</strong><br>
+          2. วาง Token ด้านล่าง ค้นหาบอทใน Telegram กด Start ส่งข้อความอะไรก็ได้<br>
+          3. กด <strong>รับ Chat ID</strong> กด <strong>บันทึก</strong> กด <strong>ทดสอบส่ง</strong><br>
+          4. ผู้เช่า Start บอท พิมพ์ชื่อหรือเบอร์โทร กด <strong>ตรวจจับผู้เช่า</strong>
+        </div>
+        <div class="card" style="padding:24px;margin-bottom:18px">
+          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:14px">🔑 Bot Token &amp; เจ้าของ</div>
+          <div class="form-grid">
+            <div class="form-group full"><label>Bot Token (จาก @BotFather)</label>
+              <input type="text" id="nb-token" placeholder="1234567890:AAxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"></div>
+            <div class="form-group full"><label>Chat ID ของเจ้าของ</label>
+              <div style="display:flex;gap:8px">
+                <input type="text" id="nb-owner" placeholder="Start บอทก่อน แล้วกดปุ่มขวา" style="flex:1">
+                <button class="btn btn-secondary" onclick="nbFetchOwner()" style="white-space:nowrap">📥 รับ Chat ID</button>
+              </div></div>
+            <div class="form-group"><label>แจ้งเตือนล่วงหน้า (วัน)</label>
+              <select id="nb-days">
+                <option value="3">3 วัน</option><option value="5" selected>5 วัน</option>
+                <option value="7">7 วัน</option><option value="10">10 วัน</option>
+              </select></div>
+            <div class="form-group"><label>ส่งอัตโนมัติ</label>
+              <select id="nb-auto">
+                <option value="on">เปิด (วันละ 1 ครั้ง)</option>
+                <option value="off">ปิด (กดด้วยตัวเอง)</option>
+              </select></div>
+          </div>
+        </div>
+        <div class="card" style="padding:24px;margin-bottom:18px">
+          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:6px">👥 ผู้เช่า — ลงทะเบียนอัตโนมัติ</div>
           <div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.8">
-            ตัวแปรที่ใช้ได้:
+            ผู้เช่า Start บอท พิมพ์ <strong>ชื่อนามสกุล</strong> หรือ <strong>เบอร์โทร</strong> แล้วกดปุ่มด้านล่าง
+          </div>
+          <div id="nb-tenant-list"></div>
+          <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+            <button class="btn btn-primary btn-sm" onclick="nbAutoMatch()">🔄 ตรวจจับผู้เช่าอัตโนมัติ</button>
+            <button class="btn btn-secondary btn-sm" onclick="nbShowUpdates()">📋 ดูรายการที่ส่งข้อความมา</button>
+          </div>
+        </div>
+        <div class="card" style="padding:24px;margin-bottom:18px">
+          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:6px">✏️ ตั้งค่าข้อความแจ้งเตือน</div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.9">
+            ตัวแปร:
             <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">{ห้อง}</code>
             <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">{ผู้เช่า}</code>
             <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">{วันที่}</code>
@@ -380,58 +436,30 @@
             <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">{ค่าเช่า}</code>
             <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">{บัญชี}</code>
             <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">{อาคาร}</code>
-            <br><span style="color:var(--accent2)">💡 {บัญชี} ดึงจาก "ข้อมูลผู้ให้เช่า → เลขที่บัญชีธนาคาร" อัตโนมัติ</span>
+            <br><span style="color:var(--accent2)">💡 {บัญชี} ดึงจากหน้า "ข้อมูลผู้ให้เช่า" อัตโนมัติ</span>
           </div>
           <div class="form-grid">
-            <div class="form-group full">
-              <label>📨 ข้อความแจ้งเตือนค่าเช่า → เจ้าของ</label>
-              <textarea id="tmpl-owner" rows="5" style="font-family:monospace;font-size:12px;line-height:1.7">🔔 แจ้งเตือนค่าเช่า
-────────────────
-🚪 ห้อง: {ห้อง}
-👤 ผู้เช่า: {ผู้เช่า}
-📅 ครบกำหนด: {วันที่} ({จำนวนวัน})
-💰 ค่าเช่า: ฿{ค่าเช่า}</textarea>
-            </div>
-            <div class="form-group full">
-              <label>📨 ข้อความแจ้งเตือนค่าเช่า → ผู้เช่า</label>
-              <textarea id="tmpl-tenant" rows="7" style="font-family:monospace;font-size:12px;line-height:1.7">🏠 แจ้งเตือนค่าเช่า
-────────────────
-เรียน คุณ{ผู้เช่า}
-ค่าเช่าห้อง {ห้อง} ครบกำหนดชำระ
-📅 วันที่: {วันที่} ({จำนวนวัน})
-💰 จำนวน: ฿{ค่าเช่า}
-🏦 โอนเงินมาที่: {บัญชี}
-กรุณาชำระภายในกำหนด ขอบคุณครับ/ค่ะ</textarea>
-            </div>
-            <div class="form-group full">
-              <label>⚠️ ข้อความสัญญาใกล้หมดอายุ → เจ้าของ</label>
-              <textarea id="tmpl-expire" rows="5" style="font-family:monospace;font-size:12px;line-height:1.7">⚠️ สัญญาใกล้หมดอายุ
-────────────────
-🚪 ห้อง: {ห้อง}
-👤 ผู้เช่า: {ผู้เช่า}
-📅 หมดอายุ: {วันที่}
-⏳ เหลือ: {จำนวนวัน} วัน
-กรุณาดำเนินการต่อสัญญา</textarea>
-            </div>
+            <div class="form-group full"><label>ข้อความถึงเจ้าของ (แจ้งเตือนค่าเช่า)</label>
+              <textarea id="nb-tmpl-owner" rows="5" style="font-family:monospace;font-size:12px;line-height:1.7"></textarea></div>
+            <div class="form-group full"><label>ข้อความถึงผู้เช่า (แจ้งเตือนค่าเช่า)</label>
+              <textarea id="nb-tmpl-tenant" rows="7" style="font-family:monospace;font-size:12px;line-height:1.7"></textarea></div>
+            <div class="form-group full"><label>ข้อความสัญญาใกล้หมดอายุ</label>
+              <textarea id="nb-tmpl-expire" rows="5" style="font-family:monospace;font-size:12px;line-height:1.7"></textarea></div>
           </div>
           <div style="margin-top:10px;display:flex;gap:8px">
-            <button class="btn btn-secondary btn-sm" onclick="resetTemplates()">↺ คืนค่าเริ่มต้น</button>
-            <button class="btn btn-primary btn-sm" onclick="saveNotifySettings()">💾 บันทึก</button>
+            <button class="btn btn-secondary btn-sm" onclick="nbResetTemplates()">↺ คืนค่าเริ่มต้น</button>
           </div>
         </div>
-
         <div class="card" style="padding:20px">
-          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">🧪 ทดสอบและส่งแจ้งเตือน</div>
+          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:14px">🧪 ทดสอบและส่งแจ้งเตือน</div>
           <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <button class="btn btn-secondary" onclick="testTelegramMsg()">📤 ทดสอบส่ง (เจ้าของ)</button>
-            <button class="btn btn-primary" onclick="sendDueReminders()">🔔 ส่งแจ้งเตือนครบกำหนดทั้งหมด</button>
+            <button class="btn btn-secondary" onclick="nbTest()">📤 ทดสอบส่ง (เจ้าของ)</button>
+            <button class="btn btn-primary" onclick="nbSendAll()">🔔 ส่งแจ้งเตือนทั้งหมดตอนนี้</button>
           </div>
-          <div id="notify-log" style="margin-top:16px;font-size:13px;color:var(--muted);line-height:1.9;max-height:260px;overflow-y:auto;border-top:1px solid var(--border);padding-top:12px;"></div>
+          <div id="nb-log" style="margin-top:14px;font-size:13px;color:var(--muted);line-height:1.9;max-height:240px;overflow-y:auto;border-top:1px solid var(--border);padding-top:10px;"></div>
         </div>
-
       </div>
     </div>
-
   </main>
 </div>
 
@@ -573,6 +601,7 @@ function showPage(page,el){
   if(page==='tenants')renderTenants();
   if(page==='contracts')renderContracts();
   if(page==='payments')renderPayments();
+  if(page==='notify')nbLoadPage();
   if(page==='notify')loadNotifyPage();
 }
 
@@ -749,15 +778,6 @@ function autoFillRent(){
   var r=db.rooms.find(function(x){return x.id===rid;});
   if(r)document.getElementById('contract-rent').value=r.rent;
 }
-// ล้าง sent flags ของสัญญานั้นทุกครั้งที่มีการแก้ไข
-function clearContractSentFlags(contractId){
-  var keys=Object.keys(localStorage);
-  keys.forEach(function(k){
-    if(k.indexOf('rentpro_')===0&&k.indexOf(contractId)>-1){
-      localStorage.removeItem(k);
-    }
-  });
-}
 function saveContract(){
   var id=document.getElementById('contract-id').value;
   var tenantId=document.getElementById('contract-tenant').value;
@@ -767,7 +787,7 @@ function saveContract(){
   if(!tenantId||!roomId||!start||!end)return alert('กรุณากรอกข้อมูลให้ครบ');
   var today=new Date();
   var c={id:id||uid(),tenantId:tenantId,roomId:roomId,startDate:start,endDate:end,rent:parseFloat(document.getElementById('contract-rent').value)||0,deposit:parseFloat(document.getElementById('contract-deposit').value)||0,advance:parseFloat(document.getElementById('contract-advance').value)||0,dueDay:parseInt(document.getElementById('contract-due').value)||1,waterType:document.getElementById('contract-water-type').value,waterRate:document.getElementById('contract-water-rate').value,electricType:document.getElementById('contract-electric-type').value,electricRate:document.getElementById('contract-electric-rate').value,occupants:document.getElementById('contract-occupants').value,purpose:document.getElementById('contract-purpose').value,pet:document.getElementById('contract-pet').value,sublease:document.getElementById('contract-sublease').value,terms:document.getElementById('contract-terms').value,furniture:document.getElementById('contract-furniture').value,status:new Date(end)>=today?'active':'expired'};
-  if(id){var i=db.contracts.findIndex(function(x){return x.id===id;});if(i>=0){db.contracts[i]=c;clearContractSentFlags(id);}}else{db.contracts.push(c);}
+  if(id){var i=db.contracts.findIndex(function(x){return x.id===id;});if(i>=0){nbClearFlags(id);db.contracts[i]=c;}}else{db.contracts.push(c);}
   updateRoomStatuses();save();renderContracts();closeModal('modal-contract');
 }
 function deleteContract(id){if(!confirm('ลบสัญญา?'))return;db.contracts=db.contracts.filter(function(c){return c.id!==id;});updateRoomStatuses();save();renderContracts();}
@@ -974,156 +994,44 @@ function printContract(id){
 }
 function closePrint(){document.getElementById('contract-print-view').style.display='none';}
 
-// ===== TELEGRAM BOT =====
-// ===== TELEGRAM BOT =====
-var TG_API='https://api.telegram.org/bot';
+// ===== LINE NOTIFY =====
+// ===== LINE MESSAGING API (via CORS proxy) =====
+// LINE API ไม่รองรับ CORS จาก browser โดยตรง → ใช้ corsproxy.io เป็น relay ฟรี
+var LINE_BASE='https://api.line.me/v2/bot';
 
-function getBotToken(){return(db.notify||{}).botToken||'';}
-
-var DEFAULT_TEMPLATES={
-  owner:'🔔 แจ้งเตือนค่าเช่า\n────────────────\n🚪 ห้อง: {ห้อง}\n👤 ผู้เช่า: {ผู้เช่า}\n📅 ครบกำหนด: {วันที่} ({จำนวนวัน})\n💰 ค่าเช่า: ฿{ค่าเช่า}',
-  tenant:'🏠 แจ้งเตือนค่าเช่า\n────────────────\nเรียน คุณ{ผู้เช่า}\nค่าเช่าห้อง {ห้อง} ครบกำหนดชำระ\n📅 วันที่: {วันที่} ({จำนวนวัน})\n💰 จำนวน: ฿{ค่าเช่า}\n🏦 โอนเงินมาที่: {บัญชี}\nกรุณาชำระภายในกำหนด ขอบคุณครับ/ค่ะ',
-  expire:'⚠️ สัญญาใกล้หมดอายุ\n────────────────\n🚪 ห้อง: {ห้อง}\n👤 ผู้เช่า: {ผู้เช่า}\n📅 หมดอายุ: {วันที่}\n⏳ เหลือ: {จำนวนวัน} วัน\nกรุณาดำเนินการต่อสัญญา'
-};
-
-function applyTemplate(tmpl,vars){
-  return tmpl
-    .replace(/\{ห้อง\}/g,vars.room||'')
-    .replace(/\{ผู้เช่า\}/g,vars.tenant||'')
-    .replace(/\{วันที่\}/g,vars.date||'')
-    .replace(/\{จำนวนวัน\}/g,vars.diff||'')
-    .replace(/\{ค่าเช่า\}/g,vars.rent||'')
-    .replace(/\{อาคาร\}/g,vars.building||'')
-    .replace(/\{บัญชี\}/g,vars.bank||'');
-}
-
-function getTemplates(){
-  var n=db.notify||{};
-  return{
-    owner:n.tmplOwner||DEFAULT_TEMPLATES.owner,
-    tenant:n.tmplTenant||DEFAULT_TEMPLATES.tenant,
-    expire:n.tmplExpire||DEFAULT_TEMPLATES.expire
-  };
-}
-
-function resetTemplates(){
-  document.getElementById('tmpl-owner').value=DEFAULT_TEMPLATES.owner;
-  document.getElementById('tmpl-tenant').value=DEFAULT_TEMPLATES.tenant;
-  document.getElementById('tmpl-expire').value=DEFAULT_TEMPLATES.expire;
-  notifyLog('คืนค่า template เริ่มต้นแล้ว — กด 💾 บันทึก');
-}
+function getLineToken(){return(db.notify||{}).channelToken||'';}
 
 function saveNotifySettings(){
-  db.notify=Object.assign(db.notify||{},{
-    botToken:document.getElementById('notify-bot-token').value.trim(),
-    ownerChatId:document.getElementById('notify-owner-chatid').value.trim(),
+  db.notify={
+    channelToken:document.getElementById('notify-channel-token').value.trim(),
+    ownerUid:document.getElementById('notify-owner-uid').value.trim(),
     daysBefore:parseInt(document.getElementById('notify-days-before').value)||5,
-    auto:document.getElementById('notify-auto').value,
-    tmplOwner:document.getElementById('tmpl-owner').value,
-    tmplTenant:document.getElementById('tmpl-tenant').value,
-    tmplExpire:document.getElementById('tmpl-expire').value
-  });
+    auto:document.getElementById('notify-auto').value
+  };
   db.tenants.forEach(function(t){
-    var el=document.getElementById('tenant-chatid-'+t.id);
-    if(el)t.tgChatId=el.value.trim();
+    var el=document.getElementById('tenant-uid-'+t.id);
+    if(el)t.lineUid=el.value.trim();
   });
   save();
-  renderTenantChatIdList();
   alert('บันทึกการตั้งค่าเรียบร้อย ✅');
 }
 
 function loadNotifyPage(){
   var n=db.notify||{};
-  document.getElementById('notify-bot-token').value=n.botToken||'';
-  document.getElementById('notify-owner-chatid').value=n.ownerChatId||'';
+  document.getElementById('notify-channel-token').value=n.channelToken||'';
+  document.getElementById('notify-owner-uid').value=n.ownerUid||'';
   document.getElementById('notify-days-before').value=n.daysBefore||5;
   document.getElementById('notify-auto').value=n.auto||'startup';
-  document.getElementById('tmpl-owner').value=n.tmplOwner||DEFAULT_TEMPLATES.owner;
-  document.getElementById('tmpl-tenant').value=n.tmplTenant||DEFAULT_TEMPLATES.tenant;
-  document.getElementById('tmpl-expire').value=n.tmplExpire||DEFAULT_TEMPLATES.expire;
-  renderTenantChatIdList();
+  renderTenantUidList();
 }
 
-function renderTenantChatIdList(){
+function renderTenantUidList(){
   var el=document.getElementById('tenant-token-list');
   if(!db.tenants.length){el.innerHTML='<p style="color:var(--muted);font-size:13px">ยังไม่มีผู้เช่า</p>';return;}
   el.innerHTML='<div class="form-grid">'+db.tenants.map(function(t){
-    var matched=!!t.tgChatId;
-    var badge=matched
-      ?'<span style="color:var(--accent);font-size:11px;margin-left:6px">✅ ผูกแล้ว</span>'
-      :'<span style="color:var(--muted);font-size:11px;margin-left:6px">⏳ รอลงทะเบียน</span>';
-    return '<div class="form-group">'
-      +'<label>'+(t.prefix||'')+t.fname+' '+t.lname+' '+badge+'</label>'
-      +'<div style="display:flex;gap:6px">'
-      +'<input type="text" id="tenant-chatid-'+t.id+'" value="'+(t.tgChatId||'')+'" placeholder="Chat ID (จะถูกกรอกอัตโนมัติ)" style="flex:1">'
-      +(matched?'<button class="btn btn-danger btn-sm" onclick="clearTenantChatId(\''+t.id+'\')">ล้าง</button>':'')
-      +'</div></div>';
+    return '<div class="form-group"><label>'+(t.prefix||'')+t.fname+' '+t.lname+'</label>'
+      +'<input type="text" id="tenant-uid-'+t.id+'" value="'+(t.lineUid||'')+'" placeholder="Uxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"></div>';
   }).join('')+'</div>';
-}
-
-function clearTenantChatId(id){
-  var t=db.tenants.find(function(x){return x.id===id;});
-  if(t){t.tgChatId='';save();renderTenantChatIdList();notifyLog('ล้าง Chat ID ของ '+t.fname+' แล้ว');}
-}
-
-// ===== AUTO-MATCH TENANTS =====
-// ผู้เช่าพิมพ์ชื่อ/เบอร์ → ระบบจับคู่อัตโนมัติ
-async function autoMatchTenants(){
-  if(!getBotToken()){notifyLog('❌ กรุณากรอก Bot Token ก่อน','err');return;}
-  notifyLog('🔄 กำลังดึงข้อความล่าสุด...');
-  // ดึง updates ล่าสุด (max 100)
-  var r=await tgRequest('getUpdates',{limit:100,offset:-100});
-  if(!r.ok){notifyLog('❌ '+(r.description||'ดึงข้อมูลไม่สำเร็จ'),'err');return;}
-  if(!r.result||!r.result.length){
-    notifyLog('ℹ️ ยังไม่มีข้อความเข้า — ให้ผู้เช่า Start บอทและส่งชื่อหรือเบอร์โทร','err');
-    return;
-  }
-  var matched=0, unmatched=[];
-  // รวบรวม messages ทั้งหมด: {chatId, text, senderName}
-  var msgs=[];
-  r.result.forEach(function(u){
-    var msg=u.message;
-    if(!msg||!msg.text)return;
-    var chatId=String(msg.chat.id);
-    var text=msg.text.trim();
-    var senderFirst=msg.from&&msg.from.first_name||'';
-    var senderLast=msg.from&&msg.from.last_name||'';
-    msgs.push({chatId:chatId,text:text,senderName:(senderFirst+' '+senderLast).trim()});
-  });
-  // จับคู่กับผู้เช่าแต่ละคน
-  db.tenants.forEach(function(t){
-    if(t.tgChatId)return; // ผูกแล้ว ข้ามไป
-    var fullName=((t.fname||'')+(t.lname||'')).replace(/\s/g,'').toLowerCase();
-    var fullNameSpace=((t.prefix||'')+t.fname+' '+t.lname).toLowerCase();
-    var phone=(t.phone||'').replace(/[-\s]/g,'');
-    for(var i=0;i<msgs.length;i++){
-      var m=msgs[i];
-      var txt=m.text.replace(/[-\s]/g,'').toLowerCase();
-      var txtSpace=m.text.toLowerCase();
-      // ตรวจชื่อนามสกุล (ต่อกัน หรือมีช่องว่าง)
-      var nameMatch=fullName&&(txt.includes(fullName)||txtSpace.includes(t.fname.toLowerCase()+''+t.lname.toLowerCase())||txtSpace.includes(t.fname.toLowerCase()+' '+t.lname.toLowerCase()));
-      // ตรวจเบอร์โทร
-      var phoneMatch=phone&&phone.length>=9&&txt.includes(phone);
-      if(nameMatch||phoneMatch){
-        t.tgChatId=m.chatId;
-        matched++;
-        notifyLog('✅ จับคู่: '+t.prefix+t.fname+' '+t.lname+' → Chat ID '+m.chatId+(phoneMatch?' (เบอร์โทร)':' (ชื่อ)'),'ok');
-        // ส่งข้อความยืนยันกลับผู้เช่า
-        tgSend(m.chatId,'✅ ลงทะเบียนสำเร็จ!\nสวัสดีคุณ'+t.prefix+t.fname+' '+t.lname+'\nระบบจะส่งแจ้งเตือนค่าเช่ามาที่นี่ครับ/ค่ะ 🏠');
-        break;
-      }
-    }
-    if(!t.tgChatId){
-      unmatched.push(t.fname+' '+t.lname);
-    }
-  });
-  save();
-  renderTenantChatIdList();
-  if(matched===0&&unmatched.length){
-    notifyLog('⚠️ ยังจับคู่ไม่ได้: '+unmatched.join(', ')+' — ให้ผู้เช่าพิมพ์ชื่อหรือเบอร์โทรที่บันทึกในแอป','err');
-  } else if(matched>0){
-    notifyLog('── จับคู่ได้ '+matched+' คน'+(unmatched.length?' | ยังรอ: '+unmatched.join(', '):'')+ ' ──','ok');
-  }
 }
 
 function notifyLog(msg,type){
@@ -1133,119 +1041,131 @@ function notifyLog(msg,type){
   el.innerHTML='<div style="color:'+color+';padding:3px 0">'+new Date().toLocaleTimeString('th-TH')+' — '+msg+'</div>'+el.innerHTML;
 }
 
-async function tgRequest(method,params){
-  var token=getBotToken();
-  if(!token)return{ok:false,description:'ไม่มี Bot Token'};
+// เรียก LINE API ผ่าน corsproxy.io เพื่อแก้ปัญหา CORS
+async function lineAPI(path,method,body){
+  var token=getLineToken();
+  if(!token)return{ok:false,msg:'ไม่มี Channel Access Token'};
+  // ใช้ corsproxy.io เป็น CORS proxy ฟรี
+  var targetUrl=LINE_BASE+path;
+  var proxyUrl='https://corsproxy.io/?url='+encodeURIComponent(targetUrl);
   try{
-    var res=await fetch(TG_API+token+'/'+method,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(params)
-    });
-    return await res.json();
-  }catch(e){return{ok:false,description:e.message};}
+    var opts={
+      method:method||'GET',
+      headers:{
+        'Authorization':'Bearer '+token,
+        'Content-Type':'application/json',
+        'x-requested-with':'XMLHttpRequest'
+      }
+    };
+    if(body)opts.body=JSON.stringify(body);
+    var res=await fetch(proxyUrl,opts);
+    var json={};
+    try{json=await res.json();}catch(e){}
+    return{ok:res.ok,status:res.status,data:json};
+  }catch(e){return{ok:false,msg:e.message};}
 }
 
-async function tgSend(chatId,text){
-  if(!chatId||!getBotToken())return{ok:false};
-  return tgRequest('sendMessage',{chat_id:chatId,text:text});
-}
-
-async function fetchOwnerChatId(){
-  notifyLog('กำลังรับ Chat ID...');
-  if(!getBotToken()){notifyLog('❌ กรุณากรอก Bot Token ก่อน','err');return;}
-  var r=await tgRequest('getUpdates',{limit:10,offset:-10});
-  if(!r.ok){notifyLog('❌ '+(r.description||'ไม่สำเร็จ — ตรวจสอบ Bot Token'),'err');return;}
-  if(!r.result||!r.result.length){
-    notifyLog('❌ ยังไม่มีข้อความ — กรุณาเปิด Telegram ค้นหาบอท แล้วกด Start และส่งข้อความ 1 ครั้ง','err');
-    return;
-  }
-  var chatId='';
-  for(var i=r.result.length-1;i>=0;i--){
-    var msg=r.result[i].message||r.result[i].channel_post;
-    if(msg&&msg.chat&&msg.chat.id){chatId=String(msg.chat.id);break;}
-  }
-  if(chatId){
-    document.getElementById('notify-owner-chatid').value=chatId;
-    notifyLog('✅ Chat ID: '+chatId+' — กด 💾 บันทึกด้วย','ok');
-  }else{
-    notifyLog('❌ ไม่พบ Chat ID — ลองส่งข้อความหาบอทแล้วกดอีกครั้ง','err');
-  }
-}
-
-async function fetchTenantChatIds(){
-  notifyLog('กำลังดึง Chat IDs...');
-  if(!getBotToken()){notifyLog('❌ กรุณากรอก Bot Token ก่อน','err');return;}
-  var r=await tgRequest('getUpdates',{limit:50,offset:-50});
-  if(!r.ok){notifyLog('❌ '+(r.description||'ไม่สำเร็จ'),'err');return;}
-  if(!r.result||!r.result.length){notifyLog('ℹ️ ยังไม่มีข้อความเข้า');return;}
-  var chats={};
-  r.result.forEach(function(u){
-    var msg=u.message||u.channel_post;
-    if(msg&&msg.chat){
-      var id=String(msg.chat.id);
-      var name=(msg.chat.first_name||'')+(msg.chat.last_name?' '+msg.chat.last_name:'');
-      if(!chats[id])chats[id]={id:id,name:name};
-    }
+async function lineSendPush(to,text){
+  return lineAPI('/message/push','POST',{
+    to:to,
+    messages:[{type:'text',text:text}]
   });
-  var list=Object.values(chats);
-  if(!list.length){notifyLog('ℹ️ ไม่พบผู้ใช้');return;}
-  var popup='📋 Chat IDs ที่พบ:\n\n';
-  list.forEach(function(ch){popup+=ch.id+' — '+ch.name+'\n';});
-  notifyLog('✅ พบ '+list.length+' คน (ดูใน popup)','ok');
-  alert(popup+'\nนำ Chat ID ไปวางในช่องผู้เช่าที่ต้องการ');
 }
 
-async function testTelegramMsg(){
-  if(!getBotToken()){notifyLog('❌ กรุณากรอก Bot Token ก่อน','err');return;}
-  var chatId=(db.notify||{}).ownerChatId;
-  if(!chatId){notifyLog('❌ กรุณากรอก Chat ID ของเจ้าของก่อน','err');return;}
+// ดึง User ID จาก getFollowersIds
+async function fetchOwnerUserId(){
+  notifyLog('กำลังดึง User ID...');
+  if(!getLineToken()){notifyLog('❌ กรุณากรอก Channel Access Token ก่อน','err');return;}
+  var r=await lineAPI('/followers/ids?limit=10','GET');
+  if(r.ok&&r.data&&r.data.userIds&&r.data.userIds.length){
+    var uid=r.data.userIds[0];
+    document.getElementById('notify-owner-uid').value=uid;
+    notifyLog('✅ User ID: '+uid+' (กด 💾 บันทึกด้วย)','ok');
+  } else {
+    notifyLog('❌ ดึงไม่ได้ — '+(r.data&&r.data.message||r.msg||'กรุณาเพิ่มเพื่อน LINE OA และส่งข้อความก่อน'),'err');
+  }
+}
+
+async function fetchRecentUserIds(){
+  notifyLog('กำลังดึง User IDs...');
+  if(!getLineToken()){notifyLog('❌ กรุณากรอก Channel Access Token ก่อน','err');return;}
+  var r=await lineAPI('/followers/ids?limit=50','GET');
+  if(!r.ok){notifyLog('❌ '+(r.data&&r.data.message||r.msg||'ไม่สำเร็จ'),'err');return;}
+  var ids=(r.data&&r.data.userIds)||[];
+  if(!ids.length){notifyLog('ℹ️ ยังไม่มีผู้ติดตาม OA');return;}
+  var msg='User IDs ที่พบ ('+ids.length+' คน):\n\n';
+  ids.forEach(function(id,i){msg+=(i+1)+'. '+id+'\n';});
+  msg+='\nนำ ID ไปวางในช่องผู้เช่าที่ต้องการ';
+  notifyLog('✅ พบ '+ids.length+' User IDs (ดูใน popup)','ok');
+  alert(msg);
+}
+
+async function testLineMsg(){
+  var token=getLineToken();
+  var uid=(db.notify||{}).ownerUid;
+  if(!token){notifyLog('❌ กรุณากรอก Channel Access Token ก่อน','err');return;}
+  if(!uid){notifyLog('❌ กรุณากรอก User ID ของเจ้าของก่อน','err');return;}
   notifyLog('กำลังส่งทดสอบ...');
-  var r=await tgSend(chatId,'🏠 RentPro — ทดสอบระบบแจ้งเตือน\nระบบเชื่อมต่อ Telegram Bot สำเร็จ ✅\nแจ้งเตือนค่าเช่าพร้อมใช้งาน');
-  if(r.ok)notifyLog('✅ ส่งสำเร็จ! ตรวจสอบ Telegram ของคุณ','ok');
-  else notifyLog('❌ ส่งไม่สำเร็จ: '+(r.description||'unknown'),'err');
+  var r=await lineSendPush(uid,'🏠 RentPro — ทดสอบระบบแจ้งเตือน\nระบบเชื่อมต่อ LINE Messaging API สำเร็จ ✅\nแจ้งเตือนค่าเช่าพร้อมใช้งาน');
+  if(r.ok)notifyLog('✅ ส่งสำเร็จ! ตรวจสอบ LINE ของคุณ','ok');
+  else notifyLog('❌ ส่งไม่สำเร็จ: '+(r.data&&r.data.message||r.msg||'status '+r.status),'err');
 }
 
 async function sendDueReminders(){
   var n=db.notify||{};
-  if(!n.botToken){notifyLog('❌ กรุณาตั้งค่า Bot Token ก่อน','err');return;}
+  if(!n.channelToken){notifyLog('❌ กรุณาตั้งค่า Channel Access Token ก่อน','err');return;}
   var days=n.daysBefore||5;
   var today=new Date(); today.setHours(0,0,0,0);
   document.getElementById('notify-log').innerHTML='';
   notifyLog('⏳ เริ่มตรวจสอบ...');
-  var tmpls=getTemplates();
   var promises=[];
+
   db.contracts.forEach(function(c){
     if(c.status!=='active')return;
     var t=db.tenants.find(function(x){return x.id===c.tenantId;});
     var r=db.rooms.find(function(x){return x.id===c.roomId;});
     if(!t||!r)return;
-    var tname=(t.prefix||'')+t.fname+' '+t.lname;
+    var tenantName=(t.prefix||'')+t.fname+' '+t.lname;
+
+    // ── ค่าเช่าครบกำหนด ──
     var due=new Date(today.getFullYear(),today.getMonth(),c.dueDay);
     if(due<today)due=new Date(today.getFullYear(),today.getMonth()+1,c.dueDay);
     var diff=Math.ceil((due-today)/864e5);
     if(diff<=days&&diff>=0){
       var dueStr=due.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
       var diffTxt=diff===0?'⚠️ ครบกำหนดวันนี้!':'อีก '+diff+' วัน';
-      var vars={room:r.name,tenant:tname,date:dueStr,diff:diffTxt,rent:c.rent.toLocaleString(),building:(db.owner||{}).building||'',bank:(db.owner||{}).bank||''};
-      if(n.ownerChatId){
-        var mo=applyTemplate(tmpls.owner,vars);
-        promises.push((function(cid,msg,lbl){return tgSend(cid,msg).then(function(res){notifyLog((res.ok?'✅':'❌')+' แจ้งเจ้าของ — '+lbl,res.ok?'ok':'err');});})(n.ownerChatId,mo,r.name+'/'+tname));
+      if(n.ownerUid){
+        var msgO='🔔 แจ้งเตือนค่าเช่า\n────────────────\n🚪 ห้อง: '+r.name+'\n👤 ผู้เช่า: '+tenantName+'\n📅 ครบกำหนด: '+dueStr+' ('+diffTxt+')\n💰 ค่าเช่า: ฿'+c.rent.toLocaleString();
+        promises.push((function(uid,msg,label){
+          return lineSendPush(uid,msg).then(function(res){
+            notifyLog((res.ok?'✅':'❌')+' แจ้งเจ้าของ — '+label,res.ok?'ok':'err');
+          });
+        })(n.ownerUid,msgO,r.name+' / '+tenantName));
       }
-      if(t.tgChatId){
-        var mt=applyTemplate(tmpls.tenant,vars);
-        promises.push((function(cid,msg,lbl){return tgSend(cid,msg).then(function(res){notifyLog((res.ok?'✅':'❌')+' แจ้งผู้เช่า — '+lbl,res.ok?'ok':'err');});})(t.tgChatId,mt,tname));
+      if(t.lineUid){
+        var msgT='🏠 แจ้งเตือนค่าเช่า\n────────────────\nเรียน คุณ'+tenantName+'\nค่าเช่าห้อง '+r.name+'\n📅 ครบกำหนด: '+dueStr+'\n'+diffTxt+'\n💰 จำนวน: ฿'+c.rent.toLocaleString()+'\nกรุณาชำระภายในกำหนด ขอบคุณครับ/ค่ะ';
+        promises.push((function(uid,msg,label){
+          return lineSendPush(uid,msg).then(function(res){
+            notifyLog((res.ok?'✅':'❌')+' แจ้งผู้เช่า — '+label,res.ok?'ok':'err');
+          });
+        })(t.lineUid,msgT,tenantName));
       }
     }
-    var ed=new Date(c.endDate);
-    var dl=Math.ceil((ed-today)/864e5);
-    if(dl<=30&&dl>=0&&n.ownerChatId){
-      var es=ed.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
-      var evars={room:r.name,tenant:tname,date:es,diff:String(dl),rent:c.rent.toLocaleString(),building:(db.owner||{}).building||'',bank:(db.owner||{}).bank||''};
-      var me=applyTemplate(tmpls.expire,evars);
-      promises.push((function(cid,msg,lbl){return tgSend(cid,msg).then(function(res){notifyLog((res.ok?'✅':'❌')+' สัญญาใกล้หมด — '+lbl,res.ok?'ok':'err');});})(n.ownerChatId,me,r.name));
+
+    // ── สัญญาใกล้หมดอายุ ──
+    var endDate=new Date(c.endDate);
+    var daysLeft=Math.ceil((endDate-today)/864e5);
+    if(daysLeft<=30&&daysLeft>=0&&n.ownerUid){
+      var endStr=endDate.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
+      var msgExp='⚠️ สัญญาใกล้หมดอายุ\n────────────────\n🚪 ห้อง: '+r.name+'\n👤 ผู้เช่า: '+tenantName+'\n📅 หมดอายุ: '+endStr+'\n⏳ เหลือ: '+daysLeft+' วัน\nกรุณาดำเนินการต่อสัญญา';
+      promises.push((function(uid,msg,label){
+        return lineSendPush(uid,msg).then(function(res){
+          notifyLog((res.ok?'✅':'❌')+' สัญญาใกล้หมด — '+label,res.ok?'ok':'err');
+        });
+      })(n.ownerUid,msgExp,r.name));
     }
   });
+
   if(!promises.length){notifyLog('ℹ️ ไม่มีรายการที่ต้องแจ้งเตือนในขณะนี้');return;}
   await Promise.all(promises);
   notifyLog('── เสร็จสิ้น ──');
@@ -1300,120 +1220,249 @@ function initDateInputs(){
   });
 }
 
-// INIT
-load();
-showPage('dashboard',document.querySelector('.nav-item'));
-document.getElementById('today-date').textContent=new Date().toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
-updateSidebarOwner();
-initDateInputs();
-// ===== SMART DAILY SCHEDULER =====
-// ส่งได้วันละ 1 ครั้ง — เช็ควันใน localStorage ไม่ส่งซ้ำถ้าวันนี้ส่งไปแล้ว
-function getTodayKey(){
-  var d=new Date();
-  return 'sent_'+d.getFullYear()+'_'+(d.getMonth()+1)+'_'+d.getDate();
-}
-function hasSentToday(type){
-  // type: 'reminder' | 'overdue'
-  return localStorage.getItem('rentpro_'+type+'_'+getTodayKey())==='1';
-}
-function markSentToday(type){
-  localStorage.setItem('rentpro_'+type+'_'+getTodayKey(),'1');
-}
 
-async function smartScheduler(){
+// ===== TELEGRAM NOTIFY =====
+var NB_API='https://api.telegram.org/bot';
+var NB_DEFAULTS={
+  owner:'🔔 แจ้งเตือนค่าเช่า\n────────────────\n🚪 ห้อง: {ห้อง}\n👤 ผู้เช่า: {ผู้เช่า}\n📅 ครบกำหนด: {วันที่} ({จำนวนวัน})\n💰 ค่าเช่า: \u0e3f{ค่าเช่า}',
+  tenant:'🏠 แจ้งเตือนค่าเช่า\n────────────────\nเรียน คุณ{ผู้เช่า}\nค่าเช่าห้อง {ห้อง} ครบกำหนดชำระ\n📅 วันที่: {วันที่} ({จำนวนวัน})\n💰 จำนวน: \u0e3f{ค่าเช่า}\n🏦 โอนมาที่: {บัญชี}\nกรุณาชำระภายในกำหนด ขอบคุณครับ/ค่ะ',
+  expire:'⚠️ สัญญาใกล้หมดอายุ\n────────────────\n🚪 ห้อง: {ห้อง}\n👤 ผู้เช่า: {ผู้เช่า}\n📅 หมดอายุ: {วันที่}\n⏳ เหลือ: {จำนวนวัน} วัน\nกรุณาดำเนินการต่อสัญญา'
+};
+function nbToken(){return(db.notify||{}).botToken||'';}
+function nbTmpl(k){return(db.notify||{})[k]||NB_DEFAULTS[k.replace('tmpl','').toLowerCase()]||'';}
+function nbApply(tmpl,v){
+  return tmpl.replace(/\{ห้อง\}/g,v.room||'').replace(/\{ผู้เช่า\}/g,v.tenant||'')
+    .replace(/\{วันที่\}/g,v.date||'').replace(/\{จำนวนวัน\}/g,v.diff||'')
+    .replace(/\{ค่าเช่า\}/g,v.rent||'').replace(/\{อาคาร\}/g,v.building||'').replace(/\{บัญชี\}/g,v.bank||'');
+}
+function nbLog(msg,type){
+  var el=document.getElementById('nb-log');if(!el)return;
+  var col=type==='ok'?'var(--accent)':type==='err'?'var(--danger)':'var(--muted)';
+  el.innerHTML='<div style="color:'+col+';padding:2px 0">'+new Date().toLocaleTimeString('th-TH')+' — '+msg+'</div>'+el.innerHTML;
+}
+async function nbReq(method,params){
+  var token=nbToken();if(!token)return{ok:false,description:'ไม่มี Bot Token'};
+  try{
+    var res=await fetch(NB_API+token+'/'+method,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(params)});
+    return await res.json();
+  }catch(e){return{ok:false,description:e.message};}
+}
+async function nbSend(chatId,text){if(!chatId||!nbToken())return{ok:false};return nbReq('sendMessage',{chat_id:chatId,text:text});}
+function nbLoadPage(){
   var n=db.notify||{};
-  if(!n.botToken||!n.ownerChatId)return;
-  if(n.auto==='off')return;
-
-  var today=new Date(); today.setHours(0,0,0,0);
+  document.getElementById('nb-token').value=n.botToken||'';
+  document.getElementById('nb-owner').value=n.ownerChatId||'';
+  document.getElementById('nb-days').value=n.daysBefore||5;
+  document.getElementById('nb-auto').value=n.auto||'on';
+  document.getElementById('nb-tmpl-owner').value=n.tmplOwner||NB_DEFAULTS.owner;
+  document.getElementById('nb-tmpl-tenant').value=n.tmplTenant||NB_DEFAULTS.tenant;
+  document.getElementById('nb-tmpl-expire').value=n.tmplExpire||NB_DEFAULTS.expire;
+  nbRenderTenants();
+}
+function saveNotifySettings(){
+  db.notify=Object.assign(db.notify||{},{
+    botToken:document.getElementById('nb-token').value.trim(),
+    ownerChatId:document.getElementById('nb-owner').value.trim(),
+    daysBefore:parseInt(document.getElementById('nb-days').value)||5,
+    auto:document.getElementById('nb-auto').value,
+    tmplOwner:document.getElementById('nb-tmpl-owner').value,
+    tmplTenant:document.getElementById('nb-tmpl-tenant').value,
+    tmplExpire:document.getElementById('nb-tmpl-expire').value
+  });
+  db.tenants.forEach(function(t){var el=document.getElementById('nb-cid-'+t.id);if(el)t.tgChatId=el.value.trim();});
+  save();nbRenderTenants();alert('บันทึกเรียบร้อย ✅');
+}
+function nbResetTemplates(){
+  document.getElementById('nb-tmpl-owner').value=NB_DEFAULTS.owner;
+  document.getElementById('nb-tmpl-tenant').value=NB_DEFAULTS.tenant;
+  document.getElementById('nb-tmpl-expire').value=NB_DEFAULTS.expire;
+}
+function nbRenderTenants(){
+  var el=document.getElementById('nb-tenant-list');if(!el)return;
+  if(!db.tenants.length){el.innerHTML='<p style="color:var(--muted);font-size:13px">ยังไม่มีผู้เช่า</p>';return;}
+  el.innerHTML='<div class="form-grid">'+db.tenants.map(function(t){
+    var ok=!!t.tgChatId;
+    var badge=ok?'<span style="color:var(--accent);font-size:11px;margin-left:6px">✅ ผูกแล้ว</span>':'<span style="color:var(--muted);font-size:11px;margin-left:6px">⏳ รอ</span>';
+    return '<div class="form-group"><label>'+(t.prefix||'')+t.fname+' '+t.lname+badge+'</label>'
+      +'<div style="display:flex;gap:6px"><input type="text" id="nb-cid-'+t.id+'" value="'+(t.tgChatId||'')+'" placeholder="Chat ID" style="flex:1">'
+      +(ok?'<button class="btn btn-danger btn-sm" onclick="nbClearTenant(\''+t.id+'\')">ล้าง</button>':'')
+      +'</div></div>';
+  }).join('')+'</div>';
+}
+function nbClearTenant(id){var t=db.tenants.find(function(x){return x.id===id;});if(t){t.tgChatId='';save();nbRenderTenants();}}
+async function nbFetchOwner(){
+  if(!nbToken()){nbLog('❌ กรุณากรอก Bot Token ก่อน','err');return;}
+  nbLog('กำลังรับ Chat ID...');
+  var r=await nbReq('getUpdates',{limit:10,offset:-10});
+  if(!r.ok){nbLog('❌ '+(r.description||'ไม่สำเร็จ'),'err');return;}
+  if(!r.result||!r.result.length){nbLog('❌ ยังไม่มีข้อความ — Start บอทแล้วส่งข้อความก่อน','err');return;}
+  var chatId='';
+  for(var i=r.result.length-1;i>=0;i--){var m=r.result[i].message;if(m&&m.chat&&m.chat.id){chatId=String(m.chat.id);break;}}
+  if(chatId){document.getElementById('nb-owner').value=chatId;nbLog('✅ Chat ID: '+chatId+' — กด บันทึก ด้วย','ok');}
+  else nbLog('❌ ไม่พบ Chat ID','err');
+}
+async function nbShowUpdates(){
+  if(!nbToken()){nbLog('❌ กรุณากรอก Bot Token ก่อน','err');return;}
+  var r=await nbReq('getUpdates',{limit:50,offset:-50});
+  if(!r.ok){nbLog('❌ '+(r.description||'ไม่สำเร็จ'),'err');return;}
+  if(!r.result||!r.result.length){nbLog('ℹ️ ยังไม่มีข้อความเข้า');return;}
+  var chats={};
+  r.result.forEach(function(u){var m=u.message;if(m&&m.chat){var id=String(m.chat.id);if(!chats[id])chats[id]=id+' — '+(m.chat.first_name||'')+(m.chat.last_name?' '+m.chat.last_name:'');}});
+  var list=Object.values(chats);
+  nbLog('✅ พบ '+list.length+' คน','ok');
+  alert('Chat IDs:\n\n'+list.join('\n'));
+}
+async function nbAutoMatch(){
+  if(!nbToken()){nbLog('❌ กรุณากรอก Bot Token ก่อน','err');return;}
+  nbLog('🔄 กำลังดึงข้อความล่าสุด...');
+  var r=await nbReq('getUpdates',{limit:100,offset:-100});
+  if(!r.ok){nbLog('❌ '+(r.description||'ไม่สำเร็จ'),'err');return;}
+  if(!r.result||!r.result.length){nbLog('❌ ยังไม่มีข้อความ — ให้ผู้เช่า Start บอทแล้วส่งชื่อหรือเบอร์','err');return;}
+  var msgs=[];
+  r.result.forEach(function(u){var m=u.message;if(m&&m.text)msgs.push({chatId:String(m.chat.id),text:m.text.trim()});});
+  var matched=0,unmatched=[];
+  db.tenants.forEach(function(t){
+    if(t.tgChatId)return;
+    var fn=t.fname.toLowerCase(),ln=t.lname.toLowerCase();
+    var phone=(t.phone||'').replace(/[-\s]/g,'');
+    for(var i=0;i<msgs.length;i++){
+      var m=msgs[i];
+      var txt=m.text.replace(/[-\s]/g,'').toLowerCase();
+      var txts=m.text.toLowerCase();
+      var nameOk=txt.includes(fn+ln)||txts.includes(fn+' '+ln)||txts.includes(fn);
+      var phoneOk=phone&&phone.length>=9&&txt.includes(phone);
+      if(nameOk||phoneOk){
+        t.tgChatId=m.chatId;matched++;
+        nbLog('✅ จับคู่: '+t.fname+' '+t.lname+' → '+m.chatId,'ok');
+        nbSend(m.chatId,'✅ ลงทะเบียนสำเร็จ!\nสวัสดีคุณ'+(t.prefix||'')+t.fname+' '+t.lname+'\nระบบจะส่งแจ้งเตือนค่าเช่ามาที่นี่ 🏠');
+        break;
+      }
+    }
+    if(!t.tgChatId)unmatched.push(t.fname+' '+t.lname);
+  });
+  save();nbRenderTenants();
+  if(!matched)nbLog('⚠️ ยังจับคู่ไม่ได้: '+unmatched.join(', '),'err');
+  else nbLog('── จับคู่ได้ '+matched+' คน'+(unmatched.length?' | รอ: '+unmatched.join(', '):'')+'  ──','ok');
+}
+async function nbTest(){
+  var chatId=(db.notify||{}).ownerChatId;
+  if(!nbToken()){nbLog('❌ กรุณากรอก Bot Token ก่อน','err');return;}
+  if(!chatId){nbLog('❌ กรุณากรอก Chat ID ของเจ้าของก่อน','err');return;}
+  nbLog('กำลังส่งทดสอบ...');
+  var r=await nbSend(chatId,'🏠 RentPro — ทดสอบระบบแจ้งเตือน\nเชื่อมต่อ Telegram Bot สำเร็จ ✅');
+  if(r.ok)nbLog('✅ ส่งสำเร็จ!','ok');else nbLog('❌ ส่งไม่สำเร็จ: '+(r.description||'unknown'),'err');
+}
+async function nbSendAll(){
+  var n=db.notify||{};
+  if(!n.botToken){nbLog('❌ กรุณาตั้งค่า Bot Token ก่อน','err');return;}
   var days=n.daysBefore||5;
-  var tmpls=getTemplates();
+  var today=new Date();today.setHours(0,0,0,0);
+  document.getElementById('nb-log').innerHTML='';
+  nbLog('⏳ เริ่มตรวจสอบ...');
+  var cm=today.getMonth()+1,cy=today.getFullYear()+543;
   var promises=[];
-  var cm=today.getMonth()+1, cy=today.getFullYear()+543;
-
   db.contracts.forEach(function(c){
     if(c.status!=='active')return;
     var t=db.tenants.find(function(x){return x.id===c.tenantId;});
     var r=db.rooms.find(function(x){return x.id===c.roomId;});
     if(!t||!r)return;
     var tname=(t.prefix||'')+t.fname+' '+t.lname;
-    var bank=(db.owner||{}).bank||'';
-    var building=(db.owner||{}).building||'';
-
-    // ── เช็คการชำระเดือนนี้ (ใช้ร่วมทุกกรณี) ──
-    var hasPaidThisMonth=!!db.payments.find(function(p){
-      return p.tenantId===c.tenantId&&p.month===cm&&p.year===cy&&p.status==='paid';
-    });
-
-    // ถ้าชำระแล้ว → ข้ามทุกกรณี ยกเว้นสัญญาหมดอายุ
-    if(hasPaidThisMonth){
-      // ยังเช็คสัญญาหมดอายุได้ (ไม่เกี่ยวกับการชำระ)
-      var ed2=new Date(c.endDate);
-      var dl2=Math.ceil((ed2-today)/864e5);
-      if(dl2<=30&&dl2>=0&&!hasSentToday('expire_'+c.id)){
-        var es2=ed2.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
-        var evars2={room:r.name,tenant:tname,date:es2,diff:String(dl2),rent:c.rent.toLocaleString(),building:building,bank:bank};
-        if(n.ownerChatId)promises.push(tgSend(n.ownerChatId,applyTemplate(tmpls.expire,evars2)));
-        markSentToday('expire_'+c.id);
-      }
-      return; // ชำระแล้ว ข้ามกรณีค่าเช่าทั้งหมด
+    var bank=(db.owner||{}).bank||'',building=(db.owner||{}).building||'';
+    var hasPaid=!!db.payments.find(function(p){return p.tenantId===c.tenantId&&p.month===cm&&p.year===cy&&p.status==='paid';});
+    // สัญญาหมดอายุ ไม่เกี่ยวกับการชำระ
+    var ed=new Date(c.endDate);var dl=Math.ceil((ed-today)/864e5);
+    if(dl<=30&&dl>=0&&n.ownerChatId){
+      var ev={room:r.name,tenant:tname,date:ed.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'}),diff:String(dl),rent:c.rent.toLocaleString(),building:building,bank:bank};
+      promises.push((function(cid,msg,lbl){return nbSend(cid,msg).then(function(res){nbLog((res.ok?'✅':'❌')+' สัญญาหมด — '+lbl,res.ok?'ok':'err');});})(n.ownerChatId,nbApply(n.tmplExpire||NB_DEFAULTS.expire,ev),r.name));
     }
-
+    if(hasPaid)return;
     var due=new Date(today.getFullYear(),today.getMonth(),c.dueDay);
     if(due<today)due=new Date(today.getFullYear(),today.getMonth()+1,c.dueDay);
     var diff=Math.ceil((due-today)/864e5);
-
-    // ── 1. ส่งล่วงหน้าตามจำนวนวันที่ตั้งไว้ ──
-    if(diff===days&&!hasSentToday('advance_'+c.id)){
-      var dueStr=due.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
-      var vars={room:r.name,tenant:tname,date:dueStr,diff:'อีก '+diff+' วัน',rent:c.rent.toLocaleString(),building:building,bank:bank};
-      if(n.ownerChatId)promises.push(tgSend(n.ownerChatId,applyTemplate(tmpls.owner,vars)));
-      if(t.tgChatId)promises.push(tgSend(t.tgChatId,applyTemplate(tmpls.tenant,vars)));
-      markSentToday('advance_'+c.id);
+    if(diff>days)return;
+    var dueStr=due.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
+    var diffTxt=diff===0?'⚠️ ครบกำหนดวันนี้!':'อีก '+diff+' วัน';
+    var v={room:r.name,tenant:tname,date:dueStr,diff:diffTxt,rent:c.rent.toLocaleString(),building:building,bank:bank};
+    if(n.ownerChatId)promises.push((function(cid,msg,lbl){return nbSend(cid,msg).then(function(res){nbLog((res.ok?'✅':'❌')+' เจ้าของ — '+lbl,res.ok?'ok':'err');});})(n.ownerChatId,nbApply(n.tmplOwner||NB_DEFAULTS.owner,v),r.name+'/'+tname));
+    if(t.tgChatId)promises.push((function(cid,msg,lbl){return nbSend(cid,msg).then(function(res){nbLog((res.ok?'✅':'❌')+' ผู้เช่า — '+lbl,res.ok?'ok':'err');});})(t.tgChatId,nbApply(n.tmplTenant||NB_DEFAULTS.tenant,v),tname));
+  });
+  if(!promises.length){nbLog('ℹ️ ไม่มีรายการที่ต้องแจ้งเตือน (หรือทุกคนชำระแล้ว)');return;}
+  await Promise.all(promises);nbLog('── เสร็จสิ้น ──');
+}
+// ===== SMART SCHEDULER (วันละ 1 ครั้ง) =====
+function nbTodayKey(){var d=new Date();return d.getFullYear()+'_'+(d.getMonth()+1)+'_'+d.getDate();}
+function nbSentToday(key){return localStorage.getItem('nb_'+key+'_'+nbTodayKey())==='1';}
+function nbMarkSent(key){localStorage.setItem('nb_'+key+'_'+nbTodayKey(),'1');}
+function nbClearFlags(contractId){
+  Object.keys(localStorage).forEach(function(k){
+    if(k.indexOf('nb_')===0&&k.indexOf(contractId)>-1)localStorage.removeItem(k);
+  });
+}
+async function nbScheduler(){
+  var n=db.notify||{};
+  if(!n.botToken||!n.ownerChatId||n.auto==='off')return;
+  var today=new Date();today.setHours(0,0,0,0);
+  var days=n.daysBefore||5;
+  var cm=today.getMonth()+1,cy=today.getFullYear()+543;
+  var ps=[];
+  db.contracts.forEach(function(c){
+    if(c.status!=='active')return;
+    var t=db.tenants.find(function(x){return x.id===c.tenantId;});
+    var r=db.rooms.find(function(x){return x.id===c.roomId;});
+    if(!t||!r)return;
+    var tname=(t.prefix||'')+t.fname+' '+t.lname;
+    var bank=(db.owner||{}).bank||'',building=(db.owner||{}).building||'';
+    var hasPaid=!!db.payments.find(function(p){return p.tenantId===c.tenantId&&p.month===cm&&p.year===cy&&p.status==='paid';});
+    // สัญญาหมดอายุ
+    var ed=new Date(c.endDate);var dl=Math.ceil((ed-today)/864e5);
+    if(dl<=30&&dl>=0&&!nbSentToday('exp_'+c.id)){
+      var ev={room:r.name,tenant:tname,date:ed.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'}),diff:String(dl),rent:c.rent.toLocaleString(),building:building,bank:bank};
+      ps.push(nbSend(n.ownerChatId,nbApply(n.tmplExpire||NB_DEFAULTS.expire,ev)));
+      nbMarkSent('exp_'+c.id);
     }
-
-    // ── 2. ส่งวันครบกำหนด (diff===0) อัตโนมัติ ──
-    if(diff===0&&!hasSentToday('due_'+c.id)){
-      var dueStr2=due.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
-      var vars2={room:r.name,tenant:tname,date:dueStr2,diff:'⚠️ ครบกำหนดวันนี้!',rent:c.rent.toLocaleString(),building:building,bank:bank};
-      if(n.ownerChatId)promises.push(tgSend(n.ownerChatId,applyTemplate(tmpls.owner,vars2)));
-      if(t.tgChatId)promises.push(tgSend(t.tgChatId,applyTemplate(tmpls.tenant,vars2)));
-      markSentToday('due_'+c.id);
+    if(hasPaid)return;
+    var due=new Date(today.getFullYear(),today.getMonth(),c.dueDay);
+    if(due<today)due=new Date(today.getFullYear(),today.getMonth()+1,c.dueDay);
+    var diff=Math.ceil((due-today)/864e5);
+    var dueStr=due.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
+    // ล่วงหน้า
+    if(diff===days&&!nbSentToday('adv_'+c.id)){
+      var v={room:r.name,tenant:tname,date:dueStr,diff:'อีก '+diff+' วัน',rent:c.rent.toLocaleString(),building:building,bank:bank};
+      if(n.ownerChatId){ps.push(nbSend(n.ownerChatId,nbApply(n.tmplOwner||NB_DEFAULTS.owner,v)));nbMarkSent('adv_'+c.id);}
+      if(t.tgChatId)ps.push(nbSend(t.tgChatId,nbApply(n.tmplTenant||NB_DEFAULTS.tenant,v)));
     }
-
-    // ── 3. ส่งวันละ 1 ครั้ง ถ้าเกินกำหนดชำระ ──
-    var dueThisMonth=new Date(today.getFullYear(),today.getMonth(),c.dueDay);
-    if(today>dueThisMonth&&!hasSentToday('overdue_'+c.id)){
-      var odStr=dueThisMonth.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
-      var overdueDays=Math.ceil((today-dueThisMonth)/864e5);
-      var msgOD='⏰ ค้างชำระค่าเช่า\n────────────────\n🚪 ห้อง: '+r.name+'\n👤 ผู้เช่า: '+tname+'\n📅 ครบกำหนด: '+odStr+'\n⚠️ เกินกำหนด: '+overdueDays+' วัน\n💰 ค่าเช่า: ฿'+c.rent.toLocaleString();
-      var msgODTenant='⏰ แจ้งเตือนค้างชำระ\n────────────────\nเรียน คุณ'+tname+'\nค่าเช่าห้อง '+r.name+' เกินกำหนดชำระ '+overdueDays+' วัน\n💰 จำนวน: ฿'+c.rent.toLocaleString()+(bank?'\n🏦 โอนมาที่: '+bank:'')+'\nกรุณาชำระโดยด่วน ขอบคุณครับ/ค่ะ';
-      if(n.ownerChatId)promises.push(tgSend(n.ownerChatId,msgOD));
-      if(t.tgChatId)promises.push(tgSend(t.tgChatId,msgODTenant));
-      markSentToday('overdue_'+c.id);
+    // ครบกำหนด
+    if(diff===0&&!nbSentToday('due_'+c.id)){
+      var v2={room:r.name,tenant:tname,date:dueStr,diff:'⚠️ ครบกำหนดวันนี้!',rent:c.rent.toLocaleString(),building:building,bank:bank};
+      if(n.ownerChatId){ps.push(nbSend(n.ownerChatId,nbApply(n.tmplOwner||NB_DEFAULTS.owner,v2)));nbMarkSent('due_'+c.id);}
+      if(t.tgChatId)ps.push(nbSend(t.tgChatId,nbApply(n.tmplTenant||NB_DEFAULTS.tenant,v2)));
     }
-
-    // ── 4. สัญญาใกล้หมดอายุ (30 วัน) ──
-    var ed=new Date(c.endDate);
-    var dl=Math.ceil((ed-today)/864e5);
-    if(dl<=30&&dl>=0&&!hasSentToday('expire_'+c.id)){
-      var es=ed.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
-      var evars={room:r.name,tenant:tname,date:es,diff:String(dl),rent:c.rent.toLocaleString(),building:building,bank:bank};
-      if(n.ownerChatId)promises.push(tgSend(n.ownerChatId,applyTemplate(tmpls.expire,evars)));
-      markSentToday('expire_'+c.id);
+    // เกินกำหนด
+    var dtm=new Date(today.getFullYear(),today.getMonth(),c.dueDay);
+    if(today>dtm&&!nbSentToday('ovd_'+c.id)){
+      var od=Math.ceil((today-dtm)/864e5);
+      var odStr=dtm.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
+      var msgO='⏰ ค้างชำระค่าเช่า\n────────────────\n🚪 ห้อง: '+r.name+'\n👤 ผู้เช่า: '+tname+'\n📅 ครบกำหนด: '+odStr+'\n⚠️ เกินกำหนด: '+od+' วัน\n💰 ฿'+c.rent.toLocaleString();
+      var msgT='⏰ แจ้งเตือนค้างชำระ\n────────────────\nเรียน คุณ'+tname+'\nค่าเช่าห้อง '+r.name+' เกินกำหนด '+od+' วัน\n💰 ฿'+c.rent.toLocaleString()+(bank?'\n🏦 โอนมาที่: '+bank:'')+'\nกรุณาชำระโดยด่วน ขอบคุณครับ/ค่ะ';
+      if(n.ownerChatId){ps.push(nbSend(n.ownerChatId,msgO));nbMarkSent('ovd_'+c.id);}
+      if(t.tgChatId)ps.push(nbSend(t.tgChatId,msgT));
     }
   });
-
-  if(promises.length){
-    await Promise.all(promises);
-    console.log('[RentPro] smartScheduler: ส่งแจ้งเตือน '+promises.length+' รายการ');
-  }
+  if(ps.length)await Promise.all(ps);
 }
-
-// รัน scheduler เมื่อเปิดแอป (ไม่ส่งซ้ำถ้าวันนี้ส่งไปแล้ว)
+// INIT
+load();
+showPage('dashboard',document.querySelector('.nav-item'));
+document.getElementById('today-date').textContent=new Date().toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
+updateSidebarOwner();
+setTimeout(function(){nbScheduler();},1500);
+initDateInputs();
+// auto notify on startup
 setTimeout(function(){
-  smartScheduler();
-},1500);
+  if((db.notify||{}).auto==='startup'&&(db.notify||{}).channelToken&&(db.notify||{}).ownerUid){
+    sendDueReminders();
+  }
+},2000);
 </script>
 </body>
 </html>
