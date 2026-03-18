@@ -369,6 +369,54 @@
           </div>
         </div>
 
+        <div class="card" style="padding:20px;margin-bottom:18px">
+          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">✏️ ตั้งค่าข้อความแจ้งเตือน</div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.8">
+            ตัวแปรที่ใช้ได้:
+            <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">{ห้อง}</code>
+            <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">{ผู้เช่า}</code>
+            <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">{วันที่}</code>
+            <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">{จำนวนวัน}</code>
+            <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">{ค่าเช่า}</code>
+            <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">{อาคาร}</code>
+          </div>
+          <div class="form-grid">
+            <div class="form-group full">
+              <label>📨 ข้อความแจ้งเตือนค่าเช่า → เจ้าของ</label>
+              <textarea id="tmpl-owner" rows="5" style="font-family:monospace;font-size:12px;line-height:1.7">🔔 แจ้งเตือนค่าเช่า
+────────────────
+🚪 ห้อง: {ห้อง}
+👤 ผู้เช่า: {ผู้เช่า}
+📅 ครบกำหนด: {วันที่} ({จำนวนวัน})
+💰 ค่าเช่า: ฿{ค่าเช่า}</textarea>
+            </div>
+            <div class="form-group full">
+              <label>📨 ข้อความแจ้งเตือนค่าเช่า → ผู้เช่า</label>
+              <textarea id="tmpl-tenant" rows="6" style="font-family:monospace;font-size:12px;line-height:1.7">🏠 แจ้งเตือนค่าเช่า
+────────────────
+เรียน คุณ{ผู้เช่า}
+ค่าเช่าห้อง {ห้อง} ครบกำหนดชำระ
+📅 วันที่: {วันที่} ({จำนวนวัน})
+💰 จำนวน: ฿{ค่าเช่า}
+กรุณาชำระภายในกำหนด ขอบคุณครับ/ค่ะ</textarea>
+            </div>
+            <div class="form-group full">
+              <label>⚠️ ข้อความสัญญาใกล้หมดอายุ → เจ้าของ</label>
+              <textarea id="tmpl-expire" rows="5" style="font-family:monospace;font-size:12px;line-height:1.7">⚠️ สัญญาใกล้หมดอายุ
+────────────────
+🚪 ห้อง: {ห้อง}
+👤 ผู้เช่า: {ผู้เช่า}
+📅 หมดอายุ: {วันที่}
+⏳ เหลือ: {จำนวนวัน} วัน
+กรุณาดำเนินการต่อสัญญา</textarea>
+            </div>
+          </div>
+          <div style="margin-top:10px;display:flex;gap:8px">
+            <button class="btn btn-secondary btn-sm" onclick="resetTemplates()">↺ คืนค่าเริ่มต้น</button>
+            <button class="btn btn-primary btn-sm" onclick="saveNotifySettings()">💾 บันทึก</button>
+          </div>
+        </div>
+
         <div class="card" style="padding:20px">
           <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">🧪 ทดสอบและส่งแจ้งเตือน</div>
           <div style="display:flex;gap:10px;flex-wrap:wrap">
@@ -920,13 +968,48 @@ var TG_API='https://api.telegram.org/bot';
 
 function getBotToken(){return(db.notify||{}).botToken||'';}
 
+var DEFAULT_TEMPLATES={
+  owner:'🔔 แจ้งเตือนค่าเช่า\n────────────────\n🚪 ห้อง: {ห้อง}\n👤 ผู้เช่า: {ผู้เช่า}\n📅 ครบกำหนด: {วันที่} ({จำนวนวัน})\n💰 ค่าเช่า: ฿{ค่าเช่า}',
+  tenant:'🏠 แจ้งเตือนค่าเช่า\n────────────────\nเรียน คุณ{ผู้เช่า}\nค่าเช่าห้อง {ห้อง} ครบกำหนดชำระ\n📅 วันที่: {วันที่} ({จำนวนวัน})\n💰 จำนวน: ฿{ค่าเช่า}\nกรุณาชำระภายในกำหนด ขอบคุณครับ/ค่ะ',
+  expire:'⚠️ สัญญาใกล้หมดอายุ\n────────────────\n🚪 ห้อง: {ห้อง}\n👤 ผู้เช่า: {ผู้เช่า}\n📅 หมดอายุ: {วันที่}\n⏳ เหลือ: {จำนวนวัน} วัน\nกรุณาดำเนินการต่อสัญญา'
+};
+
+function applyTemplate(tmpl,vars){
+  return tmpl
+    .replace(/\{ห้อง\}/g,vars.room||'')
+    .replace(/\{ผู้เช่า\}/g,vars.tenant||'')
+    .replace(/\{วันที่\}/g,vars.date||'')
+    .replace(/\{จำนวนวัน\}/g,vars.diff||'')
+    .replace(/\{ค่าเช่า\}/g,vars.rent||'')
+    .replace(/\{อาคาร\}/g,vars.building||'');
+}
+
+function getTemplates(){
+  var n=db.notify||{};
+  return{
+    owner:n.tmplOwner||DEFAULT_TEMPLATES.owner,
+    tenant:n.tmplTenant||DEFAULT_TEMPLATES.tenant,
+    expire:n.tmplExpire||DEFAULT_TEMPLATES.expire
+  };
+}
+
+function resetTemplates(){
+  document.getElementById('tmpl-owner').value=DEFAULT_TEMPLATES.owner;
+  document.getElementById('tmpl-tenant').value=DEFAULT_TEMPLATES.tenant;
+  document.getElementById('tmpl-expire').value=DEFAULT_TEMPLATES.expire;
+  notifyLog('คืนค่า template เริ่มต้นแล้ว — กด 💾 บันทึก');
+}
+
 function saveNotifySettings(){
-  db.notify={
+  db.notify=Object.assign(db.notify||{},{
     botToken:document.getElementById('notify-bot-token').value.trim(),
     ownerChatId:document.getElementById('notify-owner-chatid').value.trim(),
     daysBefore:parseInt(document.getElementById('notify-days-before').value)||5,
-    auto:document.getElementById('notify-auto').value
-  };
+    auto:document.getElementById('notify-auto').value,
+    tmplOwner:document.getElementById('tmpl-owner').value,
+    tmplTenant:document.getElementById('tmpl-tenant').value,
+    tmplExpire:document.getElementById('tmpl-expire').value
+  });
   db.tenants.forEach(function(t){
     var el=document.getElementById('tenant-chatid-'+t.id);
     if(el)t.tgChatId=el.value.trim();
@@ -942,6 +1025,9 @@ function loadNotifyPage(){
   document.getElementById('notify-owner-chatid').value=n.ownerChatId||'';
   document.getElementById('notify-days-before').value=n.daysBefore||5;
   document.getElementById('notify-auto').value=n.auto||'startup';
+  document.getElementById('tmpl-owner').value=n.tmplOwner||DEFAULT_TEMPLATES.owner;
+  document.getElementById('tmpl-tenant').value=n.tmplTenant||DEFAULT_TEMPLATES.tenant;
+  document.getElementById('tmpl-expire').value=n.tmplExpire||DEFAULT_TEMPLATES.expire;
   renderTenantChatIdList();
 }
 
@@ -1114,6 +1200,7 @@ async function sendDueReminders(){
   var today=new Date(); today.setHours(0,0,0,0);
   document.getElementById('notify-log').innerHTML='';
   notifyLog('⏳ เริ่มตรวจสอบ...');
+  var tmpls=getTemplates();
   var promises=[];
   db.contracts.forEach(function(c){
     if(c.status!=='active')return;
@@ -1127,12 +1214,13 @@ async function sendDueReminders(){
     if(diff<=days&&diff>=0){
       var dueStr=due.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
       var diffTxt=diff===0?'⚠️ ครบกำหนดวันนี้!':'อีก '+diff+' วัน';
+      var vars={room:r.name,tenant:tname,date:dueStr,diff:diffTxt,rent:c.rent.toLocaleString(),building:(db.owner||{}).building||''};
       if(n.ownerChatId){
-        var mo='🔔 แจ้งเตือนค่าเช่า\n────────────────\n🚪 ห้อง: '+r.name+'\n👤 ผู้เช่า: '+tname+'\n📅 ครบกำหนด: '+dueStr+' ('+diffTxt+')\n💰 ค่าเช่า: ฿'+c.rent.toLocaleString();
+        var mo=applyTemplate(tmpls.owner,vars);
         promises.push((function(cid,msg,lbl){return tgSend(cid,msg).then(function(res){notifyLog((res.ok?'✅':'❌')+' แจ้งเจ้าของ — '+lbl,res.ok?'ok':'err');});})(n.ownerChatId,mo,r.name+'/'+tname));
       }
       if(t.tgChatId){
-        var mt='🏠 แจ้งเตือนค่าเช่า\n────────────────\nเรียน คุณ'+tname+'\nค่าเช่าห้อง '+r.name+'\n📅 ครบกำหนด: '+dueStr+'\n'+diffTxt+'\n💰 จำนวน: ฿'+c.rent.toLocaleString()+'\nกรุณาชำระภายในกำหนด ขอบคุณครับ/ค่ะ';
+        var mt=applyTemplate(tmpls.tenant,vars);
         promises.push((function(cid,msg,lbl){return tgSend(cid,msg).then(function(res){notifyLog((res.ok?'✅':'❌')+' แจ้งผู้เช่า — '+lbl,res.ok?'ok':'err');});})(t.tgChatId,mt,tname));
       }
     }
@@ -1140,7 +1228,8 @@ async function sendDueReminders(){
     var dl=Math.ceil((ed-today)/864e5);
     if(dl<=30&&dl>=0&&n.ownerChatId){
       var es=ed.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
-      var me='⚠️ สัญญาใกล้หมดอายุ\n────────────────\n🚪 ห้อง: '+r.name+'\n👤 ผู้เช่า: '+tname+'\n📅 หมดอายุ: '+es+'\n⏳ เหลือ: '+dl+' วัน\nกรุณาดำเนินการต่อสัญญา';
+      var evars={room:r.name,tenant:tname,date:es,diff:String(dl),rent:c.rent.toLocaleString(),building:(db.owner||{}).building||''};
+      var me=applyTemplate(tmpls.expire,evars);
       promises.push((function(cid,msg,lbl){return tgSend(cid,msg).then(function(res){notifyLog((res.ok?'✅':'❌')+' สัญญาใกล้หมด — '+lbl,res.ok?'ok':'err');});})(n.ownerChatId,me,r.name));
     }
   });
