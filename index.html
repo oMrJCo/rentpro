@@ -1313,13 +1313,14 @@ function markSentToday(type){
 
 async function smartScheduler(){
   var n=db.notify||{};
-  if(!n.botToken||!n.ownerChatId)return; // ยังไม่ตั้งค่า
-  if(n.auto==='off')return; // ปิดระบบอัตโนมัติ
+  if(!n.botToken||!n.ownerChatId)return;
+  if(n.auto==='off')return;
 
   var today=new Date(); today.setHours(0,0,0,0);
   var days=n.daysBefore||5;
   var tmpls=getTemplates();
   var promises=[];
+  var cm=today.getMonth()+1, cy=today.getFullYear()+543;
 
   db.contracts.forEach(function(c){
     if(c.status!=='active')return;
@@ -1327,13 +1328,33 @@ async function smartScheduler(){
     var r=db.rooms.find(function(x){return x.id===c.roomId;});
     if(!t||!r)return;
     var tname=(t.prefix||'')+t.fname+' '+t.lname;
-    var due=new Date(today.getFullYear(),today.getMonth(),c.dueDay);
-    if(due<today)due=new Date(today.getFullYear(),today.getMonth()+1,c.dueDay);
-    var diff=Math.ceil((due-today)/864e5);
     var bank=(db.owner||{}).bank||'';
     var building=(db.owner||{}).building||'';
 
-    // ── 1. ส่งล่วงหน้าตามจำนวนวันที่ตั้งไว้ (ส่งครั้งเดียวต่อวัน) ──
+    // ── เช็คการชำระเดือนนี้ (ใช้ร่วมทุกกรณี) ──
+    var hasPaidThisMonth=!!db.payments.find(function(p){
+      return p.tenantId===c.tenantId&&p.month===cm&&p.year===cy&&p.status==='paid';
+    });
+
+    // ถ้าชำระแล้ว → ข้ามทุกกรณี ยกเว้นสัญญาหมดอายุ
+    if(hasPaidThisMonth){
+      // ยังเช็คสัญญาหมดอายุได้ (ไม่เกี่ยวกับการชำระ)
+      var ed2=new Date(c.endDate);
+      var dl2=Math.ceil((ed2-today)/864e5);
+      if(dl2<=30&&dl2>=0&&!hasSentToday('expire_'+c.id)){
+        var es2=ed2.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
+        var evars2={room:r.name,tenant:tname,date:es2,diff:String(dl2),rent:c.rent.toLocaleString(),building:building,bank:bank};
+        if(n.ownerChatId)promises.push(tgSend(n.ownerChatId,applyTemplate(tmpls.expire,evars2)));
+        markSentToday('expire_'+c.id);
+      }
+      return; // ชำระแล้ว ข้ามกรณีค่าเช่าทั้งหมด
+    }
+
+    var due=new Date(today.getFullYear(),today.getMonth(),c.dueDay);
+    if(due<today)due=new Date(today.getFullYear(),today.getMonth()+1,c.dueDay);
+    var diff=Math.ceil((due-today)/864e5);
+
+    // ── 1. ส่งล่วงหน้าตามจำนวนวันที่ตั้งไว้ ──
     if(diff===days&&!hasSentToday('advance_'+c.id)){
       var dueStr=due.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
       var vars={room:r.name,tenant:tname,date:dueStr,diff:'อีก '+diff+' วัน',rent:c.rent.toLocaleString(),building:building,bank:bank};
@@ -1351,27 +1372,19 @@ async function smartScheduler(){
       markSentToday('due_'+c.id);
     }
 
-    // ── 3. ส่งวันละ 1 ครั้ง ถ้าเกินกำหนดชำระ (ยังไม่มีรายการชำระ) ──
+    // ── 3. ส่งวันละ 1 ครั้ง ถ้าเกินกำหนดชำระ ──
     var dueThisMonth=new Date(today.getFullYear(),today.getMonth(),c.dueDay);
-    var isOverdue=today>dueThisMonth;
-    if(isOverdue){
-      // เช็คว่ามีการชำระแล้วหรือยังในเดือนนี้
-      var cm=today.getMonth()+1, cy=today.getFullYear()+543;
-      var paid=db.payments.find(function(p){
-        return p.tenantId===c.tenantId&&p.month===cm&&p.year===cy&&p.status==='paid';
-      });
-      if(!paid&&!hasSentToday('overdue_'+c.id)){
-        var odStr=dueThisMonth.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
-        var overdueDays=Math.ceil((today-dueThisMonth)/864e5);
-        var msgOD='⏰ ค้างชำระค่าเช่า\n────────────────\n🚪 ห้อง: '+r.name+'\n👤 ผู้เช่า: '+tname+'\n📅 ครบกำหนด: '+odStr+'\n⚠️ เกินกำหนด: '+overdueDays+' วัน\n💰 ค่าเช่า: ฿'+c.rent.toLocaleString();
-        var msgODTenant='⏰ แจ้งเตือนค้างชำระ\n────────────────\nเรียน คุณ'+tname+'\nค่าเช่าห้อง '+r.name+' เกินกำหนดชำระ '+overdueDays+' วัน\n💰 จำนวน: ฿'+c.rent.toLocaleString()+(bank?'\n🏦 โอนมาที่: '+bank:'')+'\nกรุณาชำระโดยด่วน ขอบคุณครับ/ค่ะ';
-        if(n.ownerChatId)promises.push(tgSend(n.ownerChatId,msgOD));
-        if(t.tgChatId)promises.push(tgSend(t.tgChatId,msgODTenant));
-        markSentToday('overdue_'+c.id);
-      }
+    if(today>dueThisMonth&&!hasSentToday('overdue_'+c.id)){
+      var odStr=dueThisMonth.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
+      var overdueDays=Math.ceil((today-dueThisMonth)/864e5);
+      var msgOD='⏰ ค้างชำระค่าเช่า\n────────────────\n🚪 ห้อง: '+r.name+'\n👤 ผู้เช่า: '+tname+'\n📅 ครบกำหนด: '+odStr+'\n⚠️ เกินกำหนด: '+overdueDays+' วัน\n💰 ค่าเช่า: ฿'+c.rent.toLocaleString();
+      var msgODTenant='⏰ แจ้งเตือนค้างชำระ\n────────────────\nเรียน คุณ'+tname+'\nค่าเช่าห้อง '+r.name+' เกินกำหนดชำระ '+overdueDays+' วัน\n💰 จำนวน: ฿'+c.rent.toLocaleString()+(bank?'\n🏦 โอนมาที่: '+bank:'')+'\nกรุณาชำระโดยด่วน ขอบคุณครับ/ค่ะ';
+      if(n.ownerChatId)promises.push(tgSend(n.ownerChatId,msgOD));
+      if(t.tgChatId)promises.push(tgSend(t.tgChatId,msgODTenant));
+      markSentToday('overdue_'+c.id);
     }
 
-    // ── 4. สัญญาใกล้หมดอายุ (30 วัน) วันละ 1 ครั้ง ──
+    // ── 4. สัญญาใกล้หมดอายุ (30 วัน) ──
     var ed=new Date(c.endDate);
     var dl=Math.ceil((ed-today)/864e5);
     if(dl<=30&&dl>=0&&!hasSentToday('expire_'+c.id)){
