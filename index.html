@@ -751,8 +751,6 @@ function autoFillRent(){
 }
 // ล้าง sent flags ของสัญญานั้นทุกครั้งที่มีการแก้ไข
 function clearContractSentFlags(contractId){
-  var types=['advance','due','overdue','expire'];
-  // ลบ keys ทุกวันที่เป็นไปได้ (เดือนนี้และเดือนก่อน)
   var keys=Object.keys(localStorage);
   keys.forEach(function(k){
     if(k.indexOf('rentpro_')===0&&k.indexOf(contractId)>-1){
@@ -760,6 +758,7 @@ function clearContractSentFlags(contractId){
     }
   });
 }
+function saveContract(){
   var id=document.getElementById('contract-id').value;
   var tenantId=document.getElementById('contract-tenant').value;
   var roomId=document.getElementById('contract-room').value;
