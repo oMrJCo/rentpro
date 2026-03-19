@@ -201,6 +201,8 @@
       <button class="nav-item" onclick="showPage('contracts',this)"><span class="nav-icon">📄</span> สัญญา</button>
       <button class="nav-item" onclick="showPage('payments',this)"><span class="nav-icon">💰</span> ค่าเช่า</button>
       <button class="nav-item" onclick="showPage('notify',this)"><span class="nav-icon">🤖</span> แจ้งเตือน Telegram</button>
+      <button class="nav-item" onclick="showPage('gsheets',this)"><span class="nav-icon">🔗</span> Google Sheets</button>
+      <button class="nav-item" onclick="showPage('firebase',this)"><span class="nav-icon">🔥</span> Firebase Sync</button>
       <button class="nav-item" onclick="showPage('notify',this)"><span class="nav-icon">💬</span> แจ้งเตือน LINE</button>
     </nav>
     <div class="sidebar-footer">
@@ -379,85 +381,282 @@
     </div>
 
 
-    <!-- TELEGRAM NOTIFY -->
+    <!-- NOTIFY PAGE: LINE + TELEGRAM -->
     <div id="page-notify" style="display:none">
-      <div class="topbar no-print"><h2>🤖 แจ้งเตือนผ่าน Telegram Bot</h2>
+      <div class="topbar no-print">
+        <h2 id="notify-page-title">🔔 แจ้งเตือน</h2>
         <button class="btn btn-primary" onclick="saveNotifySettings()">💾 บันทึก</button>
       </div>
       <div class="content">
-        <div class="info-box" style="margin-bottom:16px;line-height:2.1">
-          <strong>📋 วิธีสร้าง Telegram Bot (ฟรี ไม่จำกัด)</strong><br>
-          1. เปิด Telegram ค้นหา <strong>@BotFather</strong> พิมพ์ <strong>/newbot</strong> รับ <strong>Bot Token</strong><br>
-          2. วาง Token ด้านล่าง ค้นหาบอทใน Telegram กด Start ส่งข้อความอะไรก็ได้<br>
-          3. กด <strong>รับ Chat ID</strong> กด <strong>บันทึก</strong> กด <strong>ทดสอบส่ง</strong><br>
-          4. ผู้เช่า Start บอท พิมพ์ชื่อหรือเบอร์โทร กด <strong>ตรวจจับผู้เช่า</strong>
+
+        <!-- Tab bar -->
+        <div class="tab-bar" style="margin-bottom:20px">
+          <button class="tab active" id="tab-line" onclick="switchNotifyTab('line',this)">💬 LINE</button>
+          <button class="tab" id="tab-tg" onclick="switchNotifyTab('tg',this)">🤖 Telegram</button>
         </div>
+
+        <!-- ===== LINE PANEL ===== -->
+        <div id="panel-line">
+          <div class="info-box" style="margin-bottom:16px;line-height:2.1">
+            <strong>📋 วิธีตั้งค่า LINE (ผ่าน Cloudflare Workers Proxy)</strong><br>
+            1. สมัคร <strong>cloudflare.com</strong> ฟรี → Workers &amp; Pages → Create Worker<br>
+            2. วางโค้ด Worker ด้านล่าง → Deploy → คัดลอก URL<br>
+            3. ไปที่ <strong>developers.line.biz</strong> → สร้าง Messaging API → คัดลอก Channel Access Token<br>
+            4. วาง Worker URL + Token ด้านล่าง → กด <strong>ทดสอบ</strong> ✅
+          </div>
+
+          <div class="card" style="padding:24px;margin-bottom:18px">
+            <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">🔑 LINE + Cloudflare Worker</div>
+            <div class="form-grid">
+              <div class="form-group full">
+                <label>Cloudflare Worker URL</label>
+                <div style="display:flex;gap:8px">
+                  <input type="text" id="line-worker-url" placeholder="https://line-proxy.yourname.workers.dev" style="flex:1">
+                  <button class="btn btn-secondary" onclick="lineTestWorker()" style="white-space:nowrap">🔌 ทดสอบ</button>
+                </div>
+              </div>
+              <div class="form-group full">
+                <label>Channel Access Token (จาก LINE Developers)</label>
+                <input type="text" id="line-token" placeholder="วาง Channel Access Token">
+              </div>
+              <div class="form-group full">
+                <label>User ID ของเจ้าของ</label>
+                <div style="display:flex;gap:8px">
+                  <input type="text" id="line-owner-uid" placeholder="Uxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" style="flex:1">
+                  <button class="btn btn-secondary" onclick="lineFetchOwner()" style="white-space:nowrap">📥 ดึง User ID</button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>แจ้งเตือนล่วงหน้า (วัน)</label>
+                <select id="line-days">
+                  <option value="3">3 วัน</option><option value="5" selected>5 วัน</option>
+                  <option value="7">7 วัน</option><option value="10">10 วัน</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>ส่งอัตโนมัติ</label>
+                <select id="line-auto">
+                  <option value="on">เปิด (วันละ 1 ครั้ง)</option>
+                  <option value="off">ปิด</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="padding:24px;margin-bottom:18px">
+            <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">👥 User ID ผู้เช่า</div>
+            <div style="font-size:12px;color:var(--muted);margin-bottom:14px">ผู้เช่าเพิ่มเพื่อน LINE OA แล้วส่งข้อความ → กด "ดึง User ID"</div>
+            <div id="line-tenant-list"></div>
+            <button class="btn btn-secondary btn-sm" onclick="lineFetchTenants()" style="margin-top:10px">🔄 ดึง User ID ผู้เช่าล่าสุด</button>
+          </div>
+
+          <div class="card" style="padding:24px;margin-bottom:18px">
+            <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">✏️ ตั้งค่าข้อความ</div>
+            <div style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.8">
+              ตัวแปร: <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">{ห้อง}</code> <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">{ผู้เช่า}</code> <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">{วันที่}</code> <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">{จำนวนวัน}</code> <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">{ค่าเช่า}</code> <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">{บัญชี}</code>
+            </div>
+            <div class="form-grid">
+              <div class="form-group full"><label>ข้อความถึงเจ้าของ</label>
+                <textarea id="line-tmpl-owner" rows="5" style="font-family:monospace;font-size:12px;line-height:1.7"></textarea></div>
+              <div class="form-group full"><label>ข้อความถึงผู้เช่า</label>
+                <textarea id="line-tmpl-tenant" rows="7" style="font-family:monospace;font-size:12px;line-height:1.7"></textarea></div>
+              <div class="form-group full"><label>ข้อความสัญญาใกล้หมด</label>
+                <textarea id="line-tmpl-expire" rows="5" style="font-family:monospace;font-size:12px;line-height:1.7"></textarea></div>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="lineResetTemplates()" style="margin-top:8px">↺ คืนค่าเริ่มต้น</button>
+          </div>
+
+          <div class="card" style="padding:20px;margin-bottom:18px">
+            <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px">📝 โค้ด Cloudflare Worker</div>
+            <div style="font-size:12px;color:var(--muted);margin-bottom:8px">คัดลอกโค้ดนี้ไปวางใน Cloudflare Worker Editor แล้วกด Deploy</div>
+            <textarea id="cf-worker-code" rows="14" readonly onclick="this.select()" style="font-family:monospace;font-size:11px;line-height:1.6;background:var(--bg);color:#a8d8a8;cursor:pointer"></textarea>
+            <button class="btn btn-secondary btn-sm" onclick="copyCFCode()" style="margin-top:8px">📋 คัดลอกโค้ด Worker</button>
+          </div>
+
+          <div class="card" style="padding:20px">
+            <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">🧪 ทดสอบและส่ง</div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <button class="btn btn-secondary" onclick="lineTest()">📤 ทดสอบส่ง (เจ้าของ)</button>
+              <button class="btn btn-primary" onclick="lineSendAll()">🔔 ส่งแจ้งเตือนทั้งหมดตอนนี้</button>
+            </div>
+            <div id="line-log" style="margin-top:14px;font-size:13px;color:var(--muted);line-height:1.9;max-height:200px;overflow-y:auto;border-top:1px solid var(--border);padding-top:10px;"></div>
+          </div>
+        </div>
+
+        <!-- ===== TELEGRAM PANEL ===== -->
+        <div id="panel-tg" style="display:none">
+          <div class="info-box" style="margin-bottom:16px;line-height:2.1">
+            <strong>📋 วิธีสร้าง Telegram Bot (ฟรี ไม่จำกัด)</strong><br>
+            1. เปิด Telegram ค้นหา <strong>@BotFather</strong> พิมพ์ <strong>/newbot</strong> รับ <strong>Bot Token</strong><br>
+            2. วาง Token ด้านล่าง ค้นหาบอทใน Telegram กด Start ส่งข้อความอะไรก็ได้<br>
+            3. กด <strong>รับ Chat ID</strong> กด <strong>บันทึก</strong> กด <strong>ทดสอบส่ง</strong>
+          </div>
+          <div class="card" style="padding:24px;margin-bottom:18px">
+            <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">🔑 Bot Token & เจ้าของ</div>
+            <div class="form-grid">
+              <div class="form-group full"><label>Bot Token (จาก @BotFather)</label>
+                <input type="text" id="nb-token" placeholder="1234567890:AAxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"></div>
+              <div class="form-group full"><label>Chat ID ของเจ้าของ</label>
+                <div style="display:flex;gap:8px">
+                  <input type="text" id="nb-owner" placeholder="Start บอทก่อน แล้วกดปุ่มขวา" style="flex:1">
+                  <button class="btn btn-secondary" onclick="nbFetchOwner()" style="white-space:nowrap">📥 รับ Chat ID</button>
+                </div></div>
+              <div class="form-group"><label>แจ้งเตือนล่วงหน้า (วัน)</label>
+                <select id="nb-days">
+                  <option value="3">3 วัน</option><option value="5" selected>5 วัน</option>
+                  <option value="7">7 วัน</option><option value="10">10 วัน</option>
+                </select></div>
+              <div class="form-group"><label>ส่งอัตโนมัติ</label>
+                <select id="nb-auto">
+                  <option value="on">เปิด (วันละ 1 ครั้ง)</option>
+                  <option value="off">ปิด</option>
+                </select></div>
+            </div>
+          </div>
+          <div class="card" style="padding:24px;margin-bottom:18px">
+            <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">👥 ผู้เช่า — ลงทะเบียนอัตโนมัติ</div>
+            <div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.8">
+              ผู้เช่า Start บอท พิมพ์ <strong>ชื่อนามสกุล</strong> หรือ <strong>เบอร์โทร</strong> แล้วกดปุ่มด้านล่าง
+            </div>
+            <div id="nb-tenant-list"></div>
+            <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+              <button class="btn btn-primary btn-sm" onclick="nbAutoMatch()">🔄 ตรวจจับผู้เช่าอัตโนมัติ</button>
+              <button class="btn btn-secondary btn-sm" onclick="nbShowUpdates()">📋 ดูรายการที่ส่งข้อความมา</button>
+            </div>
+          </div>
+          <div class="card" style="padding:20px">
+            <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">🧪 ทดสอบและส่งแจ้งเตือน</div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <button class="btn btn-secondary" onclick="nbTest()">📤 ทดสอบส่ง (เจ้าของ)</button>
+              <button class="btn btn-primary" onclick="nbSendAll()">🔔 ส่งแจ้งเตือนทั้งหมดตอนนี้</button>
+            </div>
+            <div id="nb-log" style="margin-top:14px;font-size:13px;color:var(--muted);line-height:1.9;max-height:200px;overflow-y:auto;border-top:1px solid var(--border);padding-top:10px;"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- GOOGLE SHEETS SYNC -->
+    <div id="page-gsheets" style="display:none">
+      <div class="topbar no-print"><h2>🔗 ซิงค์ข้อมูลกับ Google Sheets</h2>
+        <button class="btn btn-primary" onclick="gsSave()">💾 บันทึกการตั้งค่า</button>
+      </div>
+      <div class="content">
+
+        <div class="info-box" style="margin-bottom:16px;line-height:2.2">
+          <strong>📋 วิธีตั้งค่า (ทำครั้งเดียว ~10 นาที)</strong><br>
+          1. ไปที่ <strong>script.google.com</strong> → New Project → วางโค้ด Apps Script ที่แสดงด้านล่าง<br>
+          2. กด <strong>Deploy → New deployment → Web app</strong><br>
+          3. Execute as: <strong>Me</strong> | Who has access: <strong>Anyone</strong> → Deploy → Copy URL<br>
+          4. วาง URL ด้านล่าง → กด <strong>ทดสอบเชื่อมต่อ</strong> → กด <strong>โหลดข้อมูล</strong> ✅
+        </div>
+
         <div class="card" style="padding:24px;margin-bottom:18px">
-          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:14px">🔑 Bot Token &amp; เจ้าของ</div>
+          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">🔑 Apps Script Web App URL</div>
           <div class="form-grid">
-            <div class="form-group full"><label>Bot Token (จาก @BotFather)</label>
-              <input type="text" id="nb-token" placeholder="1234567890:AAxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"></div>
-            <div class="form-group full"><label>Chat ID ของเจ้าของ</label>
+            <div class="form-group full">
+              <label>Web App URL (จาก Google Apps Script)</label>
               <div style="display:flex;gap:8px">
-                <input type="text" id="nb-owner" placeholder="Start บอทก่อน แล้วกดปุ่มขวา" style="flex:1">
-                <button class="btn btn-secondary" onclick="nbFetchOwner()" style="white-space:nowrap">📥 รับ Chat ID</button>
-              </div></div>
-            <div class="form-group"><label>แจ้งเตือนล่วงหน้า (วัน)</label>
-              <select id="nb-days">
-                <option value="3">3 วัน</option><option value="5" selected>5 วัน</option>
-                <option value="7">7 วัน</option><option value="10">10 วัน</option>
-              </select></div>
-            <div class="form-group"><label>ส่งอัตโนมัติ</label>
-              <select id="nb-auto">
-                <option value="on">เปิด (วันละ 1 ครั้ง)</option>
-                <option value="off">ปิด (กดด้วยตัวเอง)</option>
-              </select></div>
+                <input type="text" id="gs-url" placeholder="https://script.google.com/macros/s/xxxx/exec" style="flex:1">
+                <button class="btn btn-secondary" onclick="gsTest()" style="white-space:nowrap">🔌 ทดสอบ</button>
+              </div>
+            </div>
+            <div class="form-group"><label>ซิงค์อัตโนมัติ</label>
+              <select id="gs-auto">
+                <option value="on">เปิด — ซิงค์ทุกครั้งที่บันทึก</option>
+                <option value="off">ปิด — กดซิงค์ด้วยตัวเอง</option>
+              </select>
+            </div>
+            <div class="form-group"><label>สถานะ</label>
+              <div id="gs-status" style="padding:9px 11px;background:var(--surface2);border-radius:8px;font-size:13px;color:var(--muted)">ยังไม่ได้เชื่อมต่อ</div>
+            </div>
           </div>
         </div>
+
         <div class="card" style="padding:24px;margin-bottom:18px">
-          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:6px">👥 ผู้เช่า — ลงทะเบียนอัตโนมัติ</div>
-          <div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.8">
-            ผู้เช่า Start บอท พิมพ์ <strong>ชื่อนามสกุล</strong> หรือ <strong>เบอร์โทร</strong> แล้วกดปุ่มด้านล่าง
-          </div>
-          <div id="nb-tenant-list"></div>
-          <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
-            <button class="btn btn-primary btn-sm" onclick="nbAutoMatch()">🔄 ตรวจจับผู้เช่าอัตโนมัติ</button>
-            <button class="btn btn-secondary btn-sm" onclick="nbShowUpdates()">📋 ดูรายการที่ส่งข้อความมา</button>
-          </div>
-        </div>
-        <div class="card" style="padding:24px;margin-bottom:18px">
-          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:6px">✏️ ตั้งค่าข้อความแจ้งเตือน</div>
-          <div style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.9">
-            ตัวแปร:
-            <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">{ห้อง}</code>
-            <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">{ผู้เช่า}</code>
-            <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">{วันที่}</code>
-            <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">{จำนวนวัน}</code>
-            <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">{ค่าเช่า}</code>
-            <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">{บัญชี}</code>
-            <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">{อาคาร}</code>
-            <br><span style="color:var(--accent2)">💡 {บัญชี} ดึงจากหน้า "ข้อมูลผู้ให้เช่า" อัตโนมัติ</span>
-          </div>
-          <div class="form-grid">
-            <div class="form-group full"><label>ข้อความถึงเจ้าของ (แจ้งเตือนค่าเช่า)</label>
-              <textarea id="nb-tmpl-owner" rows="5" style="font-family:monospace;font-size:12px;line-height:1.7"></textarea></div>
-            <div class="form-group full"><label>ข้อความถึงผู้เช่า (แจ้งเตือนค่าเช่า)</label>
-              <textarea id="nb-tmpl-tenant" rows="7" style="font-family:monospace;font-size:12px;line-height:1.7"></textarea></div>
-            <div class="form-group full"><label>ข้อความสัญญาใกล้หมดอายุ</label>
-              <textarea id="nb-tmpl-expire" rows="5" style="font-family:monospace;font-size:12px;line-height:1.7"></textarea></div>
-          </div>
-          <div style="margin-top:10px;display:flex;gap:8px">
-            <button class="btn btn-secondary btn-sm" onclick="nbResetTemplates()">↺ คืนค่าเริ่มต้น</button>
-          </div>
-        </div>
-        <div class="card" style="padding:20px">
-          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:14px">🧪 ทดสอบและส่งแจ้งเตือน</div>
+          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">📊 จัดการข้อมูล</div>
           <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <button class="btn btn-secondary" onclick="nbTest()">📤 ทดสอบส่ง (เจ้าของ)</button>
-            <button class="btn btn-primary" onclick="nbSendAll()">🔔 ส่งแจ้งเตือนทั้งหมดตอนนี้</button>
+            <button class="btn btn-primary" onclick="gsPush()">☁️ อัปโหลดข้อมูลขึ้น Sheets</button>
+            <button class="btn btn-secondary" onclick="gsPull()">📥 โหลดข้อมูลจาก Sheets</button>
           </div>
-          <div id="nb-log" style="margin-top:14px;font-size:13px;color:var(--muted);line-height:1.9;max-height:240px;overflow-y:auto;border-top:1px solid var(--border);padding-top:10px;"></div>
+          <div style="font-size:12px;color:var(--muted);margin-top:10px;line-height:1.7">
+            ☁️ <strong>อัปโหลด</strong> — ส่งข้อมูลในเครื่องขึ้น Google Sheets (เขียนทับ)<br>
+            📥 <strong>โหลด</strong> — ดึงข้อมูลจาก Google Sheets มาใช้ในเครื่องนี้ (เขียนทับ)
+          </div>
+          <div id="gs-log" style="margin-top:14px;font-size:13px;color:var(--muted);line-height:1.9;max-height:200px;overflow-y:auto;border-top:1px solid var(--border);padding-top:10px;"></div>
         </div>
+
+        <div class="card" style="padding:24px">
+          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">📝 โค้ด Apps Script (คัดลอกไปวาง)</div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:10px">คัดลอกโค้ดนี้ไปวางใน script.google.com แล้ว Deploy เป็น Web App</div>
+          <textarea id="gs-code-display" rows="16" readonly onclick="this.select()" style="font-family:monospace;font-size:11px;line-height:1.6;background:var(--bg);color:#a8d8a8;cursor:pointer"></textarea>
+          <button class="btn btn-secondary btn-sm" style="margin-top:8px" onclick="gsCopyCode()">📋 คัดลอกโค้ด</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- FIREBASE SYNC -->
+    <div id="page-firebase" style="display:none">
+      <div class="topbar no-print"><h2>🔥 ซิงค์ข้อมูล Firebase Realtime</h2>
+        <button class="btn btn-primary" onclick="fbSaveConfig()">💾 บันทึก</button>
+      </div>
+      <div class="content">
+
+        <div class="info-box" style="margin-bottom:16px;line-height:2.2">
+          <strong>📋 วิธีตั้งค่า Firebase (ฟรี Spark Plan)</strong><br>
+          1. ไปที่ <strong>console.firebase.google.com</strong> → Create project → ตั้งชื่อ → Continue<br>
+          2. เมนูซ้าย <strong>Build → Firestore Database</strong> → Create database → Start in test mode → Enable<br>
+          3. เมนูซ้าย <strong>Project settings</strong> (⚙️) → Your apps → กด <strong>&lt;/&gt;</strong> (Web) → Register app<br>
+          4. คัดลอก <strong>firebaseConfig</strong> → วางในช่องด้านล่าง → กด <strong>บันทึก</strong> → <strong>ทดสอบเชื่อมต่อ</strong> ✅
+        </div>
+
+        <div class="card" style="padding:24px;margin-bottom:18px">
+          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">🔑 Firebase Configuration</div>
+          <div class="form-grid">
+            <div class="form-group full">
+              <label>API Key</label>
+              <input type="text" id="fb-apikey" placeholder="AIzaSy...">
+            </div>
+            <div class="form-group full">
+              <label>Auth Domain</label>
+              <input type="text" id="fb-authdomain" placeholder="your-project.firebaseapp.com">
+            </div>
+            <div class="form-group full">
+              <label>Project ID</label>
+              <input type="text" id="fb-projectid" placeholder="your-project-id">
+            </div>
+            <div class="form-group">
+              <label>ซิงค์อัตโนมัติ</label>
+              <select id="fb-auto">
+                <option value="on">เปิด — ซิงค์ทุกครั้งที่บันทึก</option>
+                <option value="realtime">Realtime — sync อัตโนมัติ 2 ทาง</option>
+                <option value="off">ปิด — กดซิงค์ด้วยตัวเอง</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>สถานะ</label>
+              <div id="fb-status" style="padding:9px 11px;background:var(--surface2);border-radius:8px;font-size:13px;color:var(--muted)">ยังไม่ได้เชื่อมต่อ</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="padding:24px;margin-bottom:18px">
+          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">📊 จัดการข้อมูล</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-secondary" onclick="fbTest()">🔌 ทดสอบเชื่อมต่อ</button>
+            <button class="btn btn-primary" onclick="fbPush()">☁️ อัปโหลดขึ้น Firebase</button>
+            <button class="btn btn-secondary" onclick="fbPull()">📥 โหลดจาก Firebase</button>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-top:10px;line-height:1.7">
+            ☁️ <strong>อัปโหลด</strong> — ส่งข้อมูลในเครื่องขึ้น Firebase (เขียนทับ cloud)<br>
+            📥 <strong>โหลด</strong> — ดึงข้อมูลจาก Firebase มาใช้ในเครื่องนี้ (เขียนทับ local)<br>
+            🔄 <strong>Realtime mode</strong> — ข้อมูลอัปเดตอัตโนมัติทุกอุปกรณ์แบบ live
+          </div>
+          <div id="fb-log" style="margin-top:14px;font-size:13px;color:var(--muted);line-height:1.9;max-height:200px;overflow-y:auto;border-top:1px solid var(--border);padding-top:10px;"></div>
+        </div>
+
       </div>
     </div>
   </main>
@@ -587,7 +786,12 @@
 <script>
 var db={rooms:[],tenants:[],contracts:[],payments:[],owner:{}};
 function load(){try{var s=localStorage.getItem('rentpro_v2');if(s)db=JSON.parse(s);}catch(e){}}
-function save(){localStorage.setItem('rentpro_v2',JSON.stringify(db));}
+function save(){
+  localStorage.setItem('rentpro_v2',JSON.stringify(db));
+  if((db.gsync||{}).url&&(db.gsync||{}).auto==='on') gsPushSilent();
+  if((db.fbcfg||{}).projectId&&(db.fbcfg||{}).auto!=='off') fbPushSilent();
+  if((db.lineNotify||{}).workerUrl&&(db.lineNotify||{}).auto==='on') { /* auto sync triggers on scheduler */ }
+}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
 
 function showPage(page,el){
@@ -601,7 +805,9 @@ function showPage(page,el){
   if(page==='tenants')renderTenants();
   if(page==='contracts')renderContracts();
   if(page==='payments')renderPayments();
-  if(page==='notify')nbLoadPage();
+  if(page==='notify'){nbLoadPage();lineLoadPage();}
+  if(page==='gsheets')gsLoadPage();
+  if(page==='firebase')fbLoadPage();
   if(page==='notify')loadNotifyPage();
 }
 
@@ -1002,18 +1208,27 @@ var LINE_BASE='https://api.line.me/v2/bot';
 function getLineToken(){return(db.notify||{}).channelToken||'';}
 
 function saveNotifySettings(){
-  db.notify={
-    channelToken:document.getElementById('notify-channel-token').value.trim(),
-    ownerUid:document.getElementById('notify-owner-uid').value.trim(),
-    daysBefore:parseInt(document.getElementById('notify-days-before').value)||5,
-    auto:document.getElementById('notify-auto').value
-  };
-  db.tenants.forEach(function(t){
-    var el=document.getElementById('tenant-uid-'+t.id);
-    if(el)t.lineUid=el.value.trim();
+  // Telegram
+  db.notify=Object.assign(db.notify||{},{
+    botToken:(document.getElementById('nb-token')||{value:''}).value.trim(),
+    ownerChatId:(document.getElementById('nb-owner')||{value:''}).value.trim(),
+    daysBefore:parseInt((document.getElementById('nb-days')||{value:5}).value)||5,
+    auto:(document.getElementById('nb-auto')||{value:'on'}).value
   });
-  save();
-  alert('บันทึกการตั้งค่าเรียบร้อย ✅');
+  db.tenants.forEach(function(t){var el=document.getElementById('tenant-chatid-'+t.id);if(el)t.tgChatId=el.value.trim();});
+  // LINE
+  db.lineNotify=Object.assign(db.lineNotify||{},{
+    workerUrl:(document.getElementById('line-worker-url')||{value:''}).value.trim(),
+    token:(document.getElementById('line-token')||{value:''}).value.trim(),
+    ownerUid:(document.getElementById('line-owner-uid')||{value:''}).value.trim(),
+    daysBefore:parseInt((document.getElementById('line-days')||{value:5}).value)||5,
+    auto:(document.getElementById('line-auto')||{value:'on'}).value,
+    tmplOwner:(document.getElementById('line-tmpl-owner')||{value:LINE_DEFAULTS.owner}).value,
+    tmplTenant:(document.getElementById('line-tmpl-tenant')||{value:LINE_DEFAULTS.tenant}).value,
+    tmplExpire:(document.getElementById('line-tmpl-expire')||{value:LINE_DEFAULTS.expire}).value
+  });
+  db.tenants.forEach(function(t){var el=document.getElementById('line-uid-'+t.id);if(el)t.lineUid=el.value.trim();});
+  save();nbRenderTenants();lineRenderTenants();alert('บันทึกเรียบร้อย ✅');
 }
 
 function loadNotifyPage(){
@@ -1222,6 +1437,114 @@ function initDateInputs(){
 
 
 // ===== TELEGRAM NOTIFY =====
+// ===== LINE NOTIFY (via Cloudflare Worker proxy) =====
+var CF_WORKER_CODE = "// Cloudflare Worker — LINE Proxy for RentPro\n// วาง script นี้ใน Cloudflare Workers Editor แล้วกด Deploy\n\nexport default {\n  async fetch(request, env) {\n    const cors = {\n      'Access-Control-Allow-Origin': '*',\n      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',\n      'Access-Control-Allow-Headers': 'Content-Type',\n    };\n    if (request.method === 'OPTIONS') return new Response(null, { headers: cors });\n    try {\n      const body = await request.json();\n      const res = await fetch('https://api.line.me/v2/bot/message/push', {\n        method: 'POST',\n        headers: { 'Authorization': 'Bearer ' + body.token, 'Content-Type': 'application/json' },\n        body: JSON.stringify({ to: body.to, messages: [{ type: 'text', text: body.text }] }),\n      });\n      const data = await res.json();\n      return new Response(JSON.stringify({ ok: res.ok, status: res.status, data }), {\n        headers: { ...cors, 'Content-Type': 'application/json' },\n      });\n    } catch (e) {\n      return new Response(JSON.stringify({ ok: false, error: e.message }), {\n        headers: { ...cors, 'Content-Type': 'application/json' },\n      });\n    }\n  },\n};";
+
+var LINE_DEFAULTS={
+  owner:'🔔 แจ้งเตือนค่าเช่า\n────────────────\n🚪 ห้อง: {ห้อง}\n👤 ผู้เช่า: {ผู้เช่า}\n📅 ครบกำหนด: {วันที่} ({จำนวนวัน})\n💰 ค่าเช่า: \u0e3f{ค่าเช่า}',
+  tenant:'🏠 แจ้งเตือนค่าเช่า\n────────────────\nเรียน คุณ{ผู้เช่า}\nค่าเช่าห้อง {ห้อง} ครบกำหนดชำระ\n📅 วันที่: {วันที่} ({จำนวนวัน})\n💰 จำนวน: \u0e3f{ค่าเช่า}\n🏦 โอนมาที่: {บัญชี}\nกรุณาชำระภายในกำหนด ขอบคุณครับ/ค่ะ',
+  expire:'⚠️ สัญญาใกล้หมดอายุ\n────────────────\n🚪 ห้อง: {ห้อง}\n👤 ผู้เช่า: {ผู้เช่า}\n📅 หมดอายุ: {วันที่}\n⏳ เหลือ: {จำนวนวัน} วัน\nกรุณาดำเนินการต่อสัญญา'
+};
+function lineLog(msg,type){var el=document.getElementById('line-log');if(!el)return;var col=type==='ok'?'var(--accent)':type==='err'?'var(--danger)':'var(--muted)';el.innerHTML='<div style="color:'+col+';padding:2px 0">'+new Date().toLocaleTimeString('th-TH')+' — '+msg+'</div>'+el.innerHTML;}
+function switchNotifyTab(tab,el){document.getElementById('panel-line').style.display=tab==='line'?'':'none';document.getElementById('panel-tg').style.display=tab==='tg'?'':'none';document.querySelectorAll('.tab-bar .tab').forEach(function(t){t.classList.remove('active');});el.classList.add('active');}
+function lineLoadPage(){
+  var n=db.lineNotify||{},el;
+  el=document.getElementById('line-worker-url');if(el)el.value=n.workerUrl||'';
+  el=document.getElementById('line-token');if(el)el.value=n.token||'';
+  el=document.getElementById('line-owner-uid');if(el)el.value=n.ownerUid||'';
+  el=document.getElementById('line-days');if(el)el.value=n.daysBefore||5;
+  el=document.getElementById('line-auto');if(el)el.value=n.auto||'on';
+  el=document.getElementById('line-tmpl-owner');if(el)el.value=n.tmplOwner||LINE_DEFAULTS.owner;
+  el=document.getElementById('line-tmpl-tenant');if(el)el.value=n.tmplTenant||LINE_DEFAULTS.tenant;
+  el=document.getElementById('line-tmpl-expire');if(el)el.value=n.tmplExpire||LINE_DEFAULTS.expire;
+  el=document.getElementById('cf-worker-code');if(el)el.value=CF_WORKER_CODE;
+  lineRenderTenants();
+}
+function lineRenderTenants(){
+  var el=document.getElementById('line-tenant-list');if(!el)return;
+  if(!db.tenants.length){el.innerHTML='<p style="color:var(--muted);font-size:13px">ยังไม่มีผู้เช่า</p>';return;}
+  el.innerHTML='<div class="form-grid">'+db.tenants.map(function(t){
+    var ok=!!t.lineUid;var badge=ok?'<span style="color:var(--accent);font-size:11px;margin-left:6px">✅ มี ID</span>':'<span style="color:var(--muted);font-size:11px;margin-left:6px">⏳ รอ</span>';
+    return '<div class="form-group"><label>'+(t.prefix||'')+t.fname+' '+t.lname+badge+'</label><input type="text" id="line-uid-'+t.id+'" value="'+(t.lineUid||'')+'" placeholder="Uxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"></div>';
+  }).join('')+'</div>';
+}
+function lineResetTemplates(){document.getElementById('line-tmpl-owner').value=LINE_DEFAULTS.owner;document.getElementById('line-tmpl-tenant').value=LINE_DEFAULTS.tenant;document.getElementById('line-tmpl-expire').value=LINE_DEFAULTS.expire;}
+function copyCFCode(){document.getElementById('cf-worker-code').select();document.execCommand('copy');alert('คัดลอกโค้ด Cloudflare Worker แล้ว!\nไปวางใน Workers Editor แล้วกด Deploy');}
+function lineGetCfg(){return db.lineNotify||{};}
+async function lineSendMsg(uid,text){
+  var n=lineGetCfg();if(!n.workerUrl||!n.token||!uid)return{ok:false};
+  try{var res=await fetch(n.workerUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:n.token,to:uid,text:text})});return await res.json();}
+  catch(e){return{ok:false,error:e.message};}
+}
+async function lineTestWorker(){
+  var url=document.getElementById('line-worker-url').value.trim();
+  if(!url){lineLog('❌ กรุณากรอก Worker URL','err');return;}
+  lineLog('กำลังทดสอบ Worker...');
+  try{
+    var r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:'test',to:'test',text:'ping'})});
+    var d=await r.json();
+    lineLog((d.status===400||d.status===401||d.ok)?'✅ Worker ทำงานได้!':'✅ Worker ตอบสนองได้ ('+d.status+')','ok');
+  }catch(e){lineLog('❌ Worker ไม่ตอบสนอง: '+e.message,'err');}
+}
+async function lineFetchOwner(){lineLog('ℹ️ กรุณากรอก User ID เอง (ดูได้จาก LINE Developers Console → Messaging API → Recent messages หรือ Webhook logs)');}
+async function lineFetchTenants(){lineLog('ℹ️ กรุณากรอก User ID ผู้เช่าเอง (ดูใน LINE Developers Console)');}
+async function lineTest(){
+  var n=lineGetCfg();
+  if(!n.workerUrl){lineLog('❌ กรุณากรอก Worker URL ก่อน','err');return;}
+  if(!n.token){lineLog('❌ กรุณากรอก Channel Access Token ก่อน','err');return;}
+  if(!n.ownerUid){lineLog('❌ กรุณากรอก User ID ของเจ้าของก่อน','err');return;}
+  lineLog('กำลังส่งทดสอบ...');
+  var r=await lineSendMsg(n.ownerUid,'🏠 RentPro — ทดสอบระบบแจ้งเตือน LINE\nระบบเชื่อมต่อผ่าน Cloudflare Worker สำเร็จ ✅');
+  if(r.ok)lineLog('✅ ส่งสำเร็จ! ตรวจสอบ LINE','ok');
+  else lineLog('❌ ส่งไม่สำเร็จ: '+(r.error||JSON.stringify(r.data||'')),'err');
+}
+function lineApply(tmpl,v){return tmpl.replace(/\{ห้อง\}/g,v.room||'').replace(/\{ผู้เช่า\}/g,v.tenant||'').replace(/\{วันที่\}/g,v.date||'').replace(/\{จำนวนวัน\}/g,v.diff||'').replace(/\{ค่าเช่า\}/g,v.rent||'').replace(/\{บัญชี\}/g,v.bank||'').replace(/\{อาคาร\}/g,v.building||'');}
+async function lineSendAll(){
+  var n=lineGetCfg();
+  if(!n.workerUrl||!n.token){lineLog('❌ กรุณาตั้งค่า Worker URL และ Token ก่อน','err');return;}
+  var days=n.daysBefore||5,today=new Date();today.setHours(0,0,0,0);
+  document.getElementById('line-log').innerHTML='';lineLog('⏳ เริ่มตรวจสอบ...');
+  var cm=today.getMonth()+1,cy=today.getFullYear()+543,ps=[];
+  db.contracts.forEach(function(c){
+    if(c.status!=='active')return;
+    var t=db.tenants.find(function(x){return x.id===c.tenantId;});var r=db.rooms.find(function(x){return x.id===c.roomId;});if(!t||!r)return;
+    var tname=(t.prefix||'')+t.fname+' '+t.lname,bank=(db.owner||{}).bank||'',building=(db.owner||{}).building||'';
+    var hasPaid=!!db.payments.find(function(p){return p.tenantId===c.tenantId&&p.month===cm&&p.year===cy&&p.status==='paid';});
+    var ed=new Date(c.endDate);var dl=Math.ceil((ed-today)/864e5);
+    if(dl<=30&&dl>=0&&n.ownerUid){var ev={room:r.name,tenant:tname,date:ed.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'}),diff:String(dl),rent:c.rent.toLocaleString(),bank:bank,building:building};ps.push((function(uid,msg,lbl){return lineSendMsg(uid,msg).then(function(res){lineLog((res.ok?'✅':'❌')+' สัญญาหมด — '+lbl,res.ok?'ok':'err');});})(n.ownerUid,lineApply(n.tmplExpire||LINE_DEFAULTS.expire,ev),r.name));}
+    if(hasPaid)return;
+    var due=new Date(today.getFullYear(),today.getMonth(),c.dueDay);if(due<today)due=new Date(today.getFullYear(),today.getMonth()+1,c.dueDay);
+    var diff=Math.ceil((due-today)/864e5);if(diff>days)return;
+    var dueStr=due.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'}),diffTxt=diff===0?'⚠️ ครบกำหนดวันนี้!':'อีก '+diff+' วัน';
+    var v={room:r.name,tenant:tname,date:dueStr,diff:diffTxt,rent:c.rent.toLocaleString(),bank:bank,building:building};
+    if(n.ownerUid)ps.push((function(uid,msg,lbl){return lineSendMsg(uid,msg).then(function(res){lineLog((res.ok?'✅':'❌')+' เจ้าของ — '+lbl,res.ok?'ok':'err');});})(n.ownerUid,lineApply(n.tmplOwner||LINE_DEFAULTS.owner,v),r.name+'/'+tname));
+    if(t.lineUid)ps.push((function(uid,msg,lbl){return lineSendMsg(uid,msg).then(function(res){lineLog((res.ok?'✅':'❌')+' ผู้เช่า — '+lbl,res.ok?'ok':'err');});})(t.lineUid,lineApply(n.tmplTenant||LINE_DEFAULTS.tenant,v),tname));
+  });
+  if(!ps.length){lineLog('ℹ️ ไม่มีรายการที่ต้องแจ้งเตือน');return;}
+  await Promise.all(ps);lineLog('── เสร็จสิ้น ──');
+}
+async function lineScheduler(){
+  var n=db.lineNotify||{};if(!n.workerUrl||!n.token||!n.ownerUid||n.auto==='off')return;
+  var today=new Date();today.setHours(0,0,0,0);var days=n.daysBefore||5;
+  var cm=today.getMonth()+1,cy=today.getFullYear()+543,ps=[];
+  db.contracts.forEach(function(c){
+    if(c.status!=='active')return;
+    var t=db.tenants.find(function(x){return x.id===c.tenantId;});var r=db.rooms.find(function(x){return x.id===c.roomId;});if(!t||!r)return;
+    var tname=(t.prefix||'')+t.fname+' '+t.lname,bank=(db.owner||{}).bank||'',building=(db.owner||{}).building||'';
+    var hasPaid=!!db.payments.find(function(p){return p.tenantId===c.tenantId&&p.month===cm&&p.year===cy&&p.status==='paid';});
+    var ed=new Date(c.endDate);var dl=Math.ceil((ed-today)/864e5);
+    if(dl<=30&&dl>=0&&!nbSentToday('ln_exp_'+c.id)&&n.ownerUid){var ev={room:r.name,tenant:tname,date:ed.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'}),diff:String(dl),rent:c.rent.toLocaleString(),bank:bank,building:building};ps.push(lineSendMsg(n.ownerUid,lineApply(n.tmplExpire||LINE_DEFAULTS.expire,ev)));nbMarkSent('ln_exp_'+c.id);}
+    if(hasPaid)return;
+    var due=new Date(today.getFullYear(),today.getMonth(),c.dueDay);if(due<today)due=new Date(today.getFullYear(),today.getMonth()+1,c.dueDay);
+    var diff=Math.ceil((due-today)/864e5),dueStr=due.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
+    if(diff===days&&!nbSentToday('ln_adv_'+c.id)){var v={room:r.name,tenant:tname,date:dueStr,diff:'อีก '+diff+' วัน',rent:c.rent.toLocaleString(),bank:bank,building:building};if(n.ownerUid){ps.push(lineSendMsg(n.ownerUid,lineApply(n.tmplOwner||LINE_DEFAULTS.owner,v)));nbMarkSent('ln_adv_'+c.id);}if(t.lineUid)ps.push(lineSendMsg(t.lineUid,lineApply(n.tmplTenant||LINE_DEFAULTS.tenant,v)));}
+    if(diff===0&&!nbSentToday('ln_due_'+c.id)){var v2={room:r.name,tenant:tname,date:dueStr,diff:'⚠️ ครบกำหนดวันนี้!',rent:c.rent.toLocaleString(),bank:bank,building:building};if(n.ownerUid){ps.push(lineSendMsg(n.ownerUid,lineApply(n.tmplOwner||LINE_DEFAULTS.owner,v2)));nbMarkSent('ln_due_'+c.id);}if(t.lineUid)ps.push(lineSendMsg(t.lineUid,lineApply(n.tmplTenant||LINE_DEFAULTS.tenant,v2)));}
+    var dtm=new Date(today.getFullYear(),today.getMonth(),c.dueDay);
+    if(today>dtm&&!nbSentToday('ln_ovd_'+c.id)){var od=Math.ceil((today-dtm)/864e5);var msgO='⏰ ค้างชำระ\n🚪 '+r.name+'\n👤 '+tname+'\n⚠️ เกินกำหนด '+od+' วัน\n💰 ฿'+c.rent.toLocaleString();var msgT='⏰ ค้างชำระ\nเรียน คุณ'+tname+'\nค่าเช่า '+r.name+' เกินกำหนด '+od+' วัน\n💰 ฿'+c.rent.toLocaleString()+(bank?'\n🏦 '+bank:'');if(n.ownerUid){ps.push(lineSendMsg(n.ownerUid,msgO));nbMarkSent('ln_ovd_'+c.id);}if(t.lineUid)ps.push(lineSendMsg(t.lineUid,msgT));}
+  });
+  if(ps.length)await Promise.all(ps);
+}
+
 var NB_API='https://api.telegram.org/bot';
 var NB_DEFAULTS={
   owner:'🔔 แจ้งเตือนค่าเช่า\n────────────────\n🚪 ห้อง: {ห้อง}\n👤 ผู้เช่า: {ผู้เช่า}\n📅 ครบกำหนด: {วันที่} ({จำนวนวัน})\n💰 ค่าเช่า: \u0e3f{ค่าเช่า}',
@@ -1249,6 +1572,7 @@ async function nbReq(method,params){
 }
 async function nbSend(chatId,text){if(!chatId||!nbToken())return{ok:false};return nbReq('sendMessage',{chat_id:chatId,text:text});}
 function nbLoadPage(){
+  lineLoadPage();
   var n=db.notify||{};
   document.getElementById('nb-token').value=n.botToken||'';
   document.getElementById('nb-owner').value=n.ownerChatId||'';
@@ -1450,12 +1774,431 @@ async function nbScheduler(){
   });
   if(ps.length)await Promise.all(ps);
 }
+
+// ===== FIREBASE FIRESTORE SYNC =====
+var fbApp=null, fbDb=null, fbUnsubscribe=null;
+
+function fbLog(msg,type){
+  var el=document.getElementById('fb-log');if(!el)return;
+  var col=type==='ok'?'var(--accent)':type==='err'?'var(--danger)':'var(--muted)';
+  el.innerHTML='<div style="color:'+col+';padding:2px 0">'+new Date().toLocaleTimeString('th-TH')+' — '+msg+'</div>'+el.innerHTML;
+}
+function fbStatus(msg,ok){
+  var el=document.getElementById('fb-status');if(!el)return;
+  el.textContent=msg;
+  el.style.color=ok===true?'var(--accent)':ok===false?'var(--danger)':'var(--muted)';
+}
+function fbLoadPage(){
+  var cfg=db.fbcfg||{};
+  document.getElementById('fb-apikey').value=cfg.apiKey||'';
+  document.getElementById('fb-authdomain').value=cfg.authDomain||'';
+  document.getElementById('fb-projectid').value=cfg.projectId||'';
+  document.getElementById('fb-auto').value=cfg.auto||'on';
+  if(cfg.projectId) fbStatus('⚙️ ตั้งค่าแล้ว กด "ทดสอบ" เพื่อเชื่อมต่อ',null);
+}
+function fbSaveConfig(){
+  db.fbcfg={
+    apiKey:document.getElementById('fb-apikey').value.trim(),
+    authDomain:document.getElementById('fb-authdomain').value.trim(),
+    projectId:document.getElementById('fb-projectid').value.trim(),
+    auto:document.getElementById('fb-auto').value
+  };
+  localStorage.setItem('rentpro_v2',JSON.stringify(db));
+  alert('บันทึกการตั้งค่า Firebase เรียบร้อย ✅');
+}
+
+// Load Firebase SDK dynamically
+function fbLoadSDK(){
+  return new Promise(function(resolve,reject){
+    if(window.firebase){resolve();return;}
+    // Load Firebase v9 compat (CDN)
+    var s1=document.createElement('script');
+    s1.src='https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js';
+    s1.onload=function(){
+      var s2=document.createElement('script');
+      s2.src='https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js';
+      s2.onload=function(){resolve();};
+      s2.onerror=reject;
+      document.head.appendChild(s2);
+    };
+    s1.onerror=reject;
+    document.head.appendChild(s1);
+  });
+}
+
+async function fbInit(){
+  var cfg=db.fbcfg||{};
+  if(!cfg.projectId)return false;
+  try{
+    await fbLoadSDK();
+    if(!fbApp){
+      var firebaseConfig={
+        apiKey:cfg.apiKey,
+        authDomain:cfg.authDomain,
+        projectId:cfg.projectId
+      };
+      // Check if already initialized
+      if(window.firebase.apps&&window.firebase.apps.length>0){
+        fbApp=window.firebase.apps[0];
+      } else {
+        fbApp=window.firebase.initializeApp(firebaseConfig);
+      }
+      fbDb=window.firebase.firestore(fbApp);
+    }
+    return true;
+  }catch(e){
+    console.error('Firebase init error:',e);
+    return false;
+  }
+}
+
+async function fbTest(){
+  fbSaveConfig();
+  fbLog('กำลังเชื่อมต่อ Firebase...');
+  var ok=await fbInit();
+  if(!ok){fbLog('❌ ไม่สามารถ init Firebase ได้ ตรวจสอบ config','err');fbStatus('❌ เชื่อมต่อไม่ได้',false);return;}
+  try{
+    // Try a simple read to verify connection
+    await fbDb.collection('rentpro').doc('ping').set({ts:Date.now()});
+    fbLog('✅ เชื่อมต่อ Firebase สำเร็จ!','ok');
+    fbStatus('✅ เชื่อมต่อแล้ว',true);
+  }catch(e){
+    fbLog('❌ เชื่อมต่อไม่ได้: '+e.message,'err');
+    fbStatus('❌ '+e.message,false);
+  }
+}
+
+async function fbPush(){
+  var ok=await fbInit();
+  if(!ok){fbLog('❌ กรุณาตั้งค่า Firebase ก่อน','err');return;}
+  fbLog('☁️ กำลังอัปโหลดข้อมูลขึ้น Firebase...');
+  try{
+    // Store as chunks if needed (Firestore 1MB doc limit)
+    var payload={
+      data:JSON.stringify(db),
+      updatedAt:new Date().toISOString(),
+      device:navigator.userAgent.slice(0,50)
+    };
+    await fbDb.collection('rentpro').doc('main').set(payload);
+    var kb=(payload.data.length/1024).toFixed(1);
+    fbLog('✅ อัปโหลดสำเร็จ! ('+kb+' KB)','ok');
+    fbStatus('✅ ซิงค์แล้ว '+new Date().toLocaleTimeString('th-TH'),true);
+  }catch(e){
+    fbLog('❌ อัปโหลดไม่สำเร็จ: '+e.message,'err');
+  }
+}
+
+async function fbPushSilent(){
+  var ok=await fbInit();
+  if(!ok)return;
+  try{
+    await fbDb.collection('rentpro').doc('main').set({
+      data:JSON.stringify(db),
+      updatedAt:new Date().toISOString()
+    });
+    fbStatus('✅ ซิงค์ '+new Date().toLocaleTimeString('th-TH'),true);
+  }catch(e){/* silent */}
+}
+
+async function fbPull(){
+  var ok=await fbInit();
+  if(!ok){fbLog('❌ กรุณาตั้งค่า Firebase ก่อน','err');return;}
+  fbLog('📥 กำลังโหลดข้อมูลจาก Firebase...');
+  try{
+    var doc=await fbDb.collection('rentpro').doc('main').get();
+    if(!doc.exists||!doc.data().data){
+      fbLog('ℹ️ ยังไม่มีข้อมูลใน Firebase — กด "อัปโหลด" เพื่อบันทึกครั้งแรก');
+      return;
+    }
+    var remote=JSON.parse(doc.data().data);
+    remote.fbcfg=db.fbcfg; // keep local config
+    remote.gsync=db.gsync;
+    remote.notify=db.notify;
+    db=remote;
+    localStorage.setItem('rentpro_v2',JSON.stringify(db));
+    fbLog('✅ โหลดสำเร็จ! (อัปเดต: '+doc.data().updatedAt+')','ok');
+    fbStatus('✅ โหลดแล้ว '+new Date().toLocaleTimeString('th-TH'),true);
+    renderDashboard();
+    // Subscribe realtime if mode=realtime
+    if((db.fbcfg||{}).auto==='realtime') fbSubscribe();
+    alert('โหลดข้อมูลสำเร็จ ✅\nข้อมูลอัปเดตแล้ว');
+  }catch(e){
+    fbLog('❌ โหลดไม่สำเร็จ: '+e.message,'err');
+  }
+}
+
+// Realtime listener — sync ทุกอุปกรณ์แบบ live
+var _fbListening=false;
+async function fbSubscribe(){
+  if(_fbListening)return;
+  var ok=await fbInit();
+  if(!ok)return;
+  _fbListening=true;
+  fbUnsubscribe=fbDb.collection('rentpro').doc('main').onSnapshot(function(doc){
+    if(!doc.exists||!doc.data().data)return;
+    try{
+      var remote=JSON.parse(doc.data().data);
+      remote.fbcfg=db.fbcfg;
+      remote.gsync=db.gsync;
+      remote.notify=db.notify;
+      db=remote;
+      localStorage.setItem('rentpro_v2',JSON.stringify(db));
+      fbStatus('🔄 Realtime sync '+new Date().toLocaleTimeString('th-TH'),true);
+      renderDashboard();
+    }catch(e){}
+  });
+  fbLog('🔄 เปิด Realtime sync แล้ว — ข้อมูลจะอัปเดตอัตโนมัติ','ok');
+}
+
+// Auto-init Firebase on startup
+async function fbAutoInit(){
+  var cfg=db.fbcfg||{};
+  if(!cfg.projectId)return;
+  var ok=await fbInit();
+  if(!ok)return;
+  if(cfg.auto==='realtime'){
+    fbSubscribe();
+  } else {
+    // Auto-pull on startup to get latest data
+    try{
+      var doc=await fbDb.collection('rentpro').doc('main').get();
+      if(doc.exists&&doc.data().data){
+        var remote=JSON.parse(doc.data().data);
+        // Only update if remote is larger (more data)
+        if(doc.data().data.length>JSON.stringify(db).length){
+          remote.fbcfg=db.fbcfg;
+          remote.gsync=db.gsync;
+          remote.notify=db.notify;
+          db=remote;
+          localStorage.setItem('rentpro_v2',JSON.stringify(db));
+          renderDashboard();
+          console.log('[RentPro] Firebase auto-loaded');
+        }
+      }
+    }catch(e){}
+  }
+}
+
 // INIT
 load();
 showPage('dashboard',document.querySelector('.nav-item'));
 document.getElementById('today-date').textContent=new Date().toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
 updateSidebarOwner();
-setTimeout(function(){nbScheduler();},1500);
+
+// ===== GOOGLE SHEETS SYNC =====
+var GS_APPS_SCRIPT_CODE = `// RentPro — Google Apps Script Backend
+// วาง script นี้ใน script.google.com แล้ว Deploy เป็น Web App
+
+var SHEET_NAME = 'RentProData';
+
+function doGet(e) {
+  return handleRequest(e);
+}
+
+function doPost(e) {
+  return handleRequest(e);
+}
+
+function handleRequest(e) {
+  var headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Content-Type': 'application/json'
+  };
+  try {
+    var action = (e.parameter && e.parameter.action) || 'get';
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName(SHEET_NAME);
+    if (!sheet) {
+      sheet = ss.insertSheet(SHEET_NAME);
+      sheet.getRange('A1').setValue('data');
+      sheet.getRange('B1').setValue('updated');
+    }
+    if (action === 'get') {
+      var val = sheet.getRange('A2').getValue();
+      var upd = sheet.getRange('B2').getValue();
+      return ContentService
+        .createTextOutput(JSON.stringify({ok:true, data:val, updated:String(upd)}))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+    if (action === 'set') {
+      var body = e.postData ? e.postData.contents : '';
+      var payload = JSON.parse(body);
+      sheet.getRange('A2').setValue(payload.data);
+      sheet.getRange('B2').setValue(new Date().toISOString());
+      return ContentService
+        .createTextOutput(JSON.stringify({ok:true}))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+    if (action === 'ping') {
+      return ContentService
+        .createTextOutput(JSON.stringify({ok:true, msg:'RentPro connected!'}))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+  } catch(err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ok:false, error:err.message}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}`;
+
+function gsLog(msg, type) {
+  var el = document.getElementById('gs-log');
+  if (!el) return;
+  var col = type==='ok' ? 'var(--accent)' : type==='err' ? 'var(--danger)' : 'var(--muted)';
+  el.innerHTML = '<div style="color:'+col+';padding:2px 0">' + new Date().toLocaleTimeString('th-TH') + ' — ' + msg + '</div>' + el.innerHTML;
+}
+
+function gsStatus(msg, ok) {
+  var el = document.getElementById('gs-status');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.color = ok ? 'var(--accent)' : ok===false ? 'var(--danger)' : 'var(--muted)';
+}
+
+function gsLoadPage() {
+  var g = db.gsync || {};
+  document.getElementById('gs-url').value = g.url || '';
+  document.getElementById('gs-auto').value = g.auto || 'on';
+  document.getElementById('gs-code-display').value = GS_APPS_SCRIPT_CODE;
+  if (g.url) gsStatus('URL บันทึกแล้ว', null);
+}
+
+function gsSave() {
+  db.gsync = {
+    url: document.getElementById('gs-url').value.trim(),
+    auto: document.getElementById('gs-auto').value
+  };
+  localStorage.setItem('rentpro_v2', JSON.stringify(db));
+  alert('บันทึกการตั้งค่าเรียบร้อย ✅');
+}
+
+function gsCopyCode() {
+  var el = document.getElementById('gs-code-display');
+  el.select();
+  document.execCommand('copy');
+  alert('คัดลอกโค้ดแล้ว! ไปวางใน script.google.com');
+}
+
+async function gsCall(action, payload) {
+  var url = (db.gsync || {}).url;
+  if (!url) return { ok: false, error: 'ไม่มี URL' };
+  try {
+    var opts = { method: 'GET' };
+    if (payload) {
+      opts = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      };
+      url = url + '?action=' + action;
+    } else {
+      url = url + '?action=' + action;
+    }
+    var res = await fetch(url, opts);
+    return await res.json();
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+}
+
+async function gsTest() {
+  var url = document.getElementById('gs-url').value.trim();
+  if (!url) { gsLog('❌ กรุณากรอก URL ก่อน', 'err'); return; }
+  db.gsync = Object.assign(db.gsync || {}, { url: url });
+  gsLog('กำลังทดสอบเชื่อมต่อ...');
+  var r = await gsCall('ping');
+  if (r.ok) {
+    gsLog('✅ เชื่อมต่อสำเร็จ! ' + (r.msg || ''), 'ok');
+    gsStatus('✅ เชื่อมต่อแล้ว', true);
+  } else {
+    gsLog('❌ เชื่อมต่อไม่ได้: ' + (r.error || 'unknown'), 'err');
+    gsStatus('❌ เชื่อมต่อไม่ได้', false);
+  }
+}
+
+async function gsPush() {
+  var url = (db.gsync || {}).url;
+  if (!url) { gsLog('❌ กรุณาตั้งค่า URL ก่อน', 'err'); return; }
+  gsLog('☁️ กำลังอัปโหลดข้อมูลขึ้น Sheets...');
+  var data = JSON.stringify(db);
+  var r = await gsCall('set', { data: data });
+  if (r.ok) {
+    gsLog('✅ อัปโหลดสำเร็จ! (' + (data.length/1024).toFixed(1) + ' KB)', 'ok');
+    gsStatus('✅ ซิงค์แล้ว ' + new Date().toLocaleTimeString('th-TH'), true);
+  } else {
+    gsLog('❌ อัปโหลดไม่สำเร็จ: ' + (r.error || 'unknown'), 'err');
+  }
+}
+
+async function gsPushSilent() {
+  // silent push (ไม่แสดง log) สำหรับ auto-sync
+  var url = (db.gsync || {}).url;
+  if (!url) return;
+  try {
+    var u = url + '?action=set';
+    await fetch(u, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: JSON.stringify(db) })
+    });
+  } catch (e) { /* silent fail */ }
+}
+
+async function gsPull() {
+  var url = (db.gsync || {}).url;
+  if (!url) { gsLog('❌ กรุณาตั้งค่า URL ก่อน', 'err'); return; }
+  gsLog('📥 กำลังโหลดข้อมูลจาก Sheets...');
+  var r = await gsCall('get');
+  if (r.ok && r.data) {
+    try {
+      var remote = JSON.parse(r.data);
+      // Merge gsync settings from local (don't overwrite)
+      remote.gsync = db.gsync;
+      db = remote;
+      localStorage.setItem('rentpro_v2', JSON.stringify(db));
+      gsLog('✅ โหลดข้อมูลสำเร็จ! (อัปเดตล่าสุด: ' + (r.updated||'?') + ')', 'ok');
+      gsStatus('✅ โหลดแล้ว ' + new Date().toLocaleTimeString('th-TH'), true);
+      // Re-render all pages
+      renderDashboard();
+      alert('โหลดข้อมูลสำเร็จ ✅\nข้อมูลอัปเดตแล้ว กรุณา refresh หน้าถ้าต้องการ');
+    } catch(e) {
+      gsLog('❌ แปลงข้อมูลไม่ได้: ' + e.message, 'err');
+    }
+  } else if (r.ok && !r.data) {
+    gsLog('ℹ️ ยังไม่มีข้อมูลใน Sheets — กด "อัปโหลด" เพื่อบันทึกข้อมูลครั้งแรก', null);
+  } else {
+    gsLog('❌ โหลดไม่สำเร็จ: ' + (r.error || 'unknown'), 'err');
+  }
+}
+
+// Auto-pull on startup if configured
+async function gsAutoLoad() {
+  var g = db.gsync || {};
+  if (!g.url) return;
+  try {
+    var u = g.url + '?action=get';
+    var res = await fetch(u);
+    var r = await res.json();
+    if (r.ok && r.data) {
+      var remote = JSON.parse(r.data);
+      // Check if remote is newer by comparing last modified (use payments count as simple heuristic)
+      var remoteSize = r.data.length;
+      var localSize = JSON.stringify(db).length;
+      if (remoteSize > localSize) {
+        remote.gsync = db.gsync;
+        db = remote;
+        localStorage.setItem('rentpro_v2', JSON.stringify(db));
+        console.log('[RentPro] Auto-loaded from Sheets (' + (remoteSize/1024).toFixed(1) + ' KB)');
+      }
+    }
+  } catch(e) { /* silent */ }
+}
+
+setTimeout(function(){nbScheduler();lineScheduler();},1500);
+gsAutoLoad();
+fbAutoInit();
 initDateInputs();
 // auto notify on startup
 setTimeout(function(){
