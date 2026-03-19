@@ -184,6 +184,12 @@
     .party-box-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   }
   .mono { font-family: 'IBM Plex Mono',monospace; }
+
+  /* Notify tabs */
+  .tab-bar{display:flex;gap:8px;border-bottom:2px solid var(--border);padding-bottom:0;margin-bottom:20px;}
+  .tab{background:none;border:none;padding:10px 20px;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:14px;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-2px;font-weight:600;transition:all .2s;}
+  .tab:hover{color:var(--text);}
+  .tab.active{color:var(--accent);border-bottom:2px solid var(--accent);}
 </style>
 </head>
 <body>
@@ -200,10 +206,9 @@
       <button class="nav-item" onclick="showPage('tenants',this)"><span class="nav-icon">👥</span> ผู้เช่า</button>
       <button class="nav-item" onclick="showPage('contracts',this)"><span class="nav-icon">📄</span> สัญญา</button>
       <button class="nav-item" onclick="showPage('payments',this)"><span class="nav-icon">💰</span> ค่าเช่า</button>
-      <button class="nav-item" onclick="showPage('notify',this)"><span class="nav-icon">🤖</span> แจ้งเตือน Telegram</button>
+      <button class="nav-item" onclick="showPage('notify',this)"><span class="nav-icon">🔔</span> แจ้งเตือน</button>
       <button class="nav-item" onclick="showPage('gsheets',this)"><span class="nav-icon">🔗</span> Google Sheets</button>
       <button class="nav-item" onclick="showPage('firebase',this)"><span class="nav-icon">🔥</span> Firebase Sync</button>
-      <button class="nav-item" onclick="showPage('notify',this)"><span class="nav-icon">💬</span> แจ้งเตือน LINE</button>
     </nav>
     <div class="sidebar-footer">
       <div class="owner-name" id="sidebar-owner-name">ยังไม่ได้ตั้งค่า</div>
@@ -1326,7 +1331,6 @@ async function nbReq(method,params){
 }
 async function nbSend(chatId,text){if(!chatId||!nbToken())return{ok:false};return nbReq('sendMessage',{chat_id:chatId,text:text});}
 function nbLoadPage(){
-  lineLoadPage();
   var n=db.notify||{};
   document.getElementById('nb-token').value=n.botToken||'';
   document.getElementById('nb-owner').value=n.ownerChatId||'';
