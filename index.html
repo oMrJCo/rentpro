@@ -313,72 +313,6 @@
     </div>
 
     <!-- LINE NOTIFY -->
-    <div id="page-notify" style="display:none">
-      <div class="topbar no-print"><h2>💬 แจ้งเตือนผ่าน LINE Messaging API</h2>
-        <button class="btn btn-primary" onclick="saveNotifySettings()">💾 บันทึก</button>
-      </div>
-      <div class="content">
-
-        <div class="info-box" style="margin-bottom:16px;line-height:2.1">
-          <strong>📋 วิธีตั้งค่า LINE Messaging API (ฟรี 200 msg/วัน)</strong><br>
-          1. ไปที่ <strong>developers.line.biz</strong> → Log in → Create Provider → Create Channel → <strong>Messaging API</strong><br>
-          2. แท็บ <strong>Basic settings</strong> → คัดลอก <strong>Channel secret</strong><br>
-          3. แท็บ <strong>Messaging API</strong> → กด <strong>Issue</strong> → คัดลอก <strong>Channel access token</strong><br>
-          4. เพิ่มเพื่อน LINE OA (QR code ในแท็บ Messaging API) → ส่งข้อความอะไรก็ได้ 1 ครั้ง<br>
-          5. กด <strong>"📥 ดึง User ID ของฉัน"</strong> ด้านล่าง → บันทึก → ทดสอบส่ง ✅
-        </div>
-
-        <div class="card" style="padding:24px;margin-bottom:18px">
-          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">🔑 LINE Channel Access Token</div>
-          <div class="form-grid">
-            <div class="form-group full">
-              <label>Channel Access Token (จาก LINE Developers Console)</label>
-              <input type="text" id="notify-channel-token" placeholder="วาง Channel Access Token ที่ได้จาก developers.line.biz">
-            </div>
-            <div class="form-group full">
-              <label>User ID ของผู้ให้เช่า (เจ้าของ)</label>
-              <div style="display:flex;gap:8px">
-                <input type="text" id="notify-owner-uid" placeholder="กด Start OA แล้วส่งข้อความ จากนั้นกดปุ่มขวา" style="flex:1">
-                <button class="btn btn-secondary" onclick="fetchOwnerUserId()" style="white-space:nowrap">📥 ดึง User ID ของฉัน</button>
-              </div>
-            </div>
-            <div class="form-group">
-              <label>แจ้งเตือนล่วงหน้า (วัน)</label>
-              <select id="notify-days-before">
-                <option value="3">3 วันก่อนครบกำหนด</option>
-                <option value="5" selected>5 วันก่อนครบกำหนด</option>
-                <option value="7">7 วันก่อนครบกำหนด</option>
-                <option value="10">10 วันก่อนครบกำหนด</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>ตรวจสอบอัตโนมัติ</label>
-              <select id="notify-auto">
-                <option value="startup">ทุกครั้งที่เปิดแอป</option>
-                <option value="off">ปิด (กดด้วยตัวเอง)</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div class="card" style="padding:24px;margin-bottom:18px">
-          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">👥 User ID ของผู้เช่าแต่ละคน</div>
-          <div style="font-size:12px;color:var(--muted);margin-bottom:14px">ให้ผู้เช่าเพิ่มเพื่อน LINE OA ของคุณ แล้วส่งข้อความ 1 ครั้ง → กด "ดึง User ID ผู้เช่า" → คัดลอกไปวางในช่องด้านล่าง</div>
-          <div id="tenant-token-list"></div>
-          <button class="btn btn-secondary btn-sm" onclick="fetchRecentUserIds()" style="margin-top:12px">🔄 ดึง User ID ผู้เช่าล่าสุด</button>
-        </div>
-
-        <div class="card" style="padding:20px">
-          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px">🧪 ทดสอบและส่งแจ้งเตือน</div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <button class="btn btn-secondary" onclick="testLineMsg()">📤 ทดสอบส่ง (เจ้าของ)</button>
-            <button class="btn btn-primary" onclick="sendDueReminders()">🔔 ส่งแจ้งเตือนครบกำหนดทั้งหมด</button>
-          </div>
-          <div id="notify-log" style="margin-top:16px;font-size:13px;color:var(--muted);line-height:1.9;max-height:240px;overflow-y:auto;border-top:1px solid var(--border);padding-top:12px;"></div>
-        </div>
-
-      </div>
-    </div>
 
 
     <!-- NOTIFY PAGE: LINE + TELEGRAM -->
@@ -1206,29 +1140,6 @@ var LINE_BASE='https://api.line.me/v2/bot';
 
 function getLineToken(){return(db.notify||{}).channelToken||'';}
 
-function saveNotifySettings(){
-  // Telegram
-  db.notify=Object.assign(db.notify||{},{
-    botToken:(document.getElementById('nb-token')||{value:''}).value.trim(),
-    ownerChatId:(document.getElementById('nb-owner')||{value:''}).value.trim(),
-    daysBefore:parseInt((document.getElementById('nb-days')||{value:5}).value)||5,
-    auto:(document.getElementById('nb-auto')||{value:'on'}).value
-  });
-  db.tenants.forEach(function(t){var el=document.getElementById('tenant-chatid-'+t.id);if(el)t.tgChatId=el.value.trim();});
-  // LINE
-  db.lineNotify=Object.assign(db.lineNotify||{},{
-    workerUrl:(document.getElementById('line-worker-url')||{value:''}).value.trim(),
-    token:(document.getElementById('line-token')||{value:''}).value.trim(),
-    ownerUid:(document.getElementById('line-owner-uid')||{value:''}).value.trim(),
-    daysBefore:parseInt((document.getElementById('line-days')||{value:5}).value)||5,
-    auto:(document.getElementById('line-auto')||{value:'on'}).value,
-    tmplOwner:(document.getElementById('line-tmpl-owner')||{value:LINE_DEFAULTS.owner}).value,
-    tmplTenant:(document.getElementById('line-tmpl-tenant')||{value:LINE_DEFAULTS.tenant}).value,
-    tmplExpire:(document.getElementById('line-tmpl-expire')||{value:LINE_DEFAULTS.expire}).value
-  });
-  db.tenants.forEach(function(t){var el=document.getElementById('line-uid-'+t.id);if(el)t.lineUid=el.value.trim();});
-  save();nbRenderTenants();lineRenderTenants();alert('บันทึกเรียบร้อย ✅');
-}
 
 
 // ===== NUM TO THAI WORDS (supports up to 9,999,999) =====
