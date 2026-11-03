@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ระบบจัดการค่าเช่า</title>
+<title>RentPro — โกดังให้เช่า | ค่าเช่า ค่าน้ำ ค่าไฟ</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -191,6 +191,16 @@
   .tab:hover{color:var(--text);}
   .tab.active{color:var(--accent);border-bottom:2px solid var(--accent);}
 </style>
+<style>
+:root{--bg:#f4f6f5;--surface:#fff;--surface2:#f0f4f2;--border:#dde5e1;--accent:#176951;--accent2:#206a85;--warn:#986400;--danger:#b63d38;--text:#182f2b;--muted:#667a73;--radius:12px}
+body{font-size:14px;color:var(--text)}.sidebar{width:214px}.main{margin-left:214px}.logo h1{color:#163d30}.logo p{font-size:12px}.nav-item{color:#64756d}.nav-item.active{background:#e5f1eb;color:#145c42}.btn-primary{background:#176951!important;color:white!important}.btn-danger{background:#fff0ee;color:#a5342d}.btn-secondary{background:#f0f4f2;color:#243b31}.btn-warn{background:#fff3d8;color:#775000}.green{color:#176951!important}.cyan{color:#206a85!important}.warn{color:#986400!important}input,select,textarea{background:#fff!important;color:#18362b!important;border-color:#ccd9d2!important}th{color:#61766b;background:#f6f8f6}td{color:#24392d}.card{box-shadow:none}.topbar{background:#fff}.rp-shell{padding:30px 34px;max-width:1500px;margin:auto}.rp-header{display:flex;gap:16px;align-items:center;justify-content:space-between;margin-bottom:25px}.rp-eyebrow{font-size:12px;color:#667a73;margin-bottom:6px}.rp-header h2{font-size:27px;letter-spacing:-.6px}.rp-tools{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.rp-tools input,.rp-tools select{width:auto;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font:inherit}.rp-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin:20px 0}.rp-metric{background:white;border:1px solid var(--border);border-radius:12px;padding:18px}.rp-metric strong{display:block;font-size:27px;margin:8px 0 4px;font-family:'IBM Plex Mono',monospace}.rp-metric small,.rp-muted{color:var(--muted);font-size:12px}.rp-panel{background:white;border:1px solid var(--border);border-radius:12px;margin:18px 0;overflow:hidden}.rp-panel-head{display:flex;align-items:center;justify-content:space-between;padding:17px 21px;border-bottom:1px solid var(--border);gap:12px}.rp-panel-body{padding:20px}.rp-scroll{overflow-x:auto}.rp-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.rp-fields{display:grid;grid-template-columns:1fr 1fr;gap:13px}.rp-field{display:flex;flex-direction:column;gap:6px;font-size:12px;color:#526b5e}.rp-field input,.rp-field textarea,.rp-field select{padding:10px;border:1px solid var(--border);border-radius:7px;font:inherit;font-size:14px;width:100%;min-width:0}.rp-field.wide{grid-column:1/-1}.rp-notice{padding:12px 16px;border:1px solid #d5e6dc;background:#edf6f0;border-radius:8px;font-size:13px;line-height:1.7;margin:15px 0}.rp-notice.warn{background:#fff8e8;border-color:#efddb0}.rp-notice.error{background:#fff0ef;border-color:#eebdb7;color:#933f35}.rp-tag{display:inline-flex;align-items:center;border-radius:20px;background:#edf3ef;padding:4px 10px;font-size:11px;white-space:nowrap}.rp-tag.paid{background:#e1f2e9;color:#17624b}.rp-tag.overdue{background:#ffebe8;color:#aa352e}.rp-tag.draft{background:#f0f0ee;color:#6b7169}.rp-tabs{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap}.rp-tabs button{border:1px solid var(--border);background:white;padding:9px 17px;border-radius:8px;font:inherit;color:#566a5c;cursor:pointer}.rp-tabs button.active{background:#183f31;color:white;border-color:#183f31}.rp-steps{display:flex;gap:12px;margin:20px 0;color:#718276;font-size:12px;flex-wrap:wrap}.rp-steps b{color:#176951}.rp-row-input{width:105px!important;min-width:90px;padding:9px!important;font:inherit;border-radius:6px;border:1px solid var(--border)}.rp-total{padding:18px 20px;display:flex;justify-content:space-between;align-items:center;background:#f3f8f4;font-weight:600}.rp-total strong{font-size:22px;font-family:'IBM Plex Mono',monospace}.rp-room-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.rp-room{border:1px solid var(--border);border-radius:10px;background:white;padding:19px}.rp-room h3{margin:13px 0 5px}.rp-room strong{font-size:22px;display:block;margin-top:16px}.rp-empty{padding:35px;text-align:center;color:#6b7a70;line-height:2}.rp-sync{margin-top:12px;font-size:11px;line-height:1.6}.rp-overlay{position:fixed;inset:0;z-index:1000;background:#12221bb3;display:flex;align-items:center;justify-content:center;padding:18px}.rp-dialog{background:white;border-radius:14px;padding:25px;width:min(620px,100%);max-height:90vh;overflow:auto;box-shadow:0 24px 80px #0003}.rp-dialog h2{font-size:21px;margin-bottom:16px}.rp-dialog .rp-tools{justify-content:flex-end;margin-top:20px}.rp-link{background:none;border:0;color:#176951;font:inherit;text-decoration:underline;cursor:pointer}.rp-ledger td{padding:13px 16px}.rp-detail{line-height:1.9}.rp-toast{position:fixed;bottom:22px;right:22px;background:#173f31;color:white;padding:14px 20px;border-radius:10px;z-index:2000;max-width:90vw}.rp-only-print{display:none}.rp-field input[readonly]{background:#f5f7f5!important}.rp-version{font-size:10px;background:#e6f1eb;padding:2px 6px;border-radius:4px;margin-left:5px}.rp-file{padding:8px!important;font-size:11px!important}.rp-minor{font-size:12px;margin-top:8px;color:#68796e;line-height:1.8}
+@media(max-width:1050px){.rp-shell{padding:22px}.rp-metrics{grid-template-columns:1fr 1fr}.rp-room-grid{grid-template-columns:1fr 1fr}.rp-grid{grid-template-columns:1fr}}
+@media(max-width:700px){.app{display:block}.sidebar{position:relative;width:100%;height:auto;overflow:visible;border-right:0;border-bottom:1px solid var(--border)}.logo{padding:14px 18px}.sidebar nav{display:flex;overflow-x:auto;padding:8px;gap:4px}.nav-item{white-space:nowrap;width:auto;min-width:max-content;margin:0;padding:8px 11px}.sidebar-footer{display:none}.main{margin-left:0!important;width:100%;padding:0!important}.rp-shell{padding:18px 12px}.rp-header{align-items:flex-start;flex-direction:column;gap:12px}.rp-header h2{font-size:24px}.rp-metrics{gap:9px}.rp-metric{padding:13px}.rp-metric strong{font-size:22px}.rp-panel-body{padding:14px}.rp-panel-head{padding:13px}.rp-fields{gap:10px}.rp-room-grid{gap:9px}.rp-room{padding:13px}.rp-room strong{font-size:19px}.rp-grid{gap:0}.rp-dialog{padding:20px}.content{padding:15px!important}.topbar{padding:15px!important}.modal{max-width:96vw}.form-grid{grid-template-columns:1fr!important}}
+@media print{.rp-only-print{display:block!important;background:white;color:#111;font-size:14px}.rp-overlay,.rp-toast{display:none!important}.rp-only-print h1{font-size:24px;margin-bottom:10px}.rp-only-print table{width:100%;margin:20px 0;border-collapse:collapse}.rp-only-print td,.rp-only-print th{border-bottom:1px solid #ccc;padding:10px;color:#111}.rp-only-print .rp-detail{line-height:1.8}.rp-only-print footer{margin-top:35px;font-size:12px;color:#555}@page{size:A4 portrait;margin:16mm}}
+
+@media print{body.rp-printing .contract-print{display:none!important}body:not(.rp-printing) .rp-only-print{display:none!important}}
+
+</style>
 </head>
 <body>
 <div class="app">
@@ -228,7 +238,7 @@
       <div class="content">
         <div id="owner-warning" class="owner-setup" style="display:none">
           <span>⚠️ ยังไม่ได้กรอกข้อมูลผู้ให้เช่า — จำเป็นสำหรับการพิมพ์สัญญา</span>
-          <button class="btn btn-warn btn-sm" onclick="showPage('owner',document.querySelectorAll('.nav-item')[1])">ตั้งค่าเลย</button>
+          <button class="btn btn-warn btn-sm" onclick="showPage('owner',document.querySelector('button[onclick*="owner"]'))">ตั้งค่าเลย</button>
         </div>
         <div class="stats-grid">
           <div class="stat-card"><div class="stat-label">ห้องทั้งหมด</div><div class="stat-value cyan" id="stat-rooms">0</div><div class="stat-sub" id="stat-rooms-sub">ว่าง 0 ห้อง</div></div>
@@ -751,10 +761,22 @@ export default {
 </div>
 
 <script>
+/* IndexedDB keeps bills and images beyond localStorage's small quota. */
+var rpStore=(function(){
+ const memory=new Map(),removed=new Set();let database=null,failure=null,pending=[];
+ function announce(error){failure=error;window.dispatchEvent(new CustomEvent('rentpro-storage-error',{detail:error.message||String(error)}));}
+ const ready=new Promise((resolve,reject)=>{let request=indexedDB.open('RentProData',1);request.onupgradeneeded=()=>request.result.createObjectStore('values');request.onerror=()=>reject(request.error);request.onsuccess=()=>{database=request.result;let tx=database.transaction('values','readonly'),req=tx.objectStore('values').openCursor();req.onsuccess=()=>{let cur=req.result;if(cur){if(!memory.has(cur.key)&&!removed.has(cur.key))memory.set(cur.key,cur.value);cur.continue();}};tx.oncomplete=()=>{for(let j=0;j<localStorage.length;j++){let key=localStorage.key(j);if((key.startsWith('rentpro_')||key.startsWith('nb_'))&&!memory.has(key)&&!removed.has(key))memory.set(key,localStorage.getItem(key));}let migration=database.transaction('values','readwrite');memory.forEach((v,k)=>migration.objectStore('values').put(v,k));migration.oncomplete=()=>resolve();migration.onerror=()=>reject(migration.error);};tx.onerror=()=>reject(tx.error);};});
+ function write(key,value,remove){if(!database){return;}let p=new Promise((resolve,reject)=>{let tx=database.transaction('values','readwrite');if(remove)tx.objectStore('values').delete(key);else tx.objectStore('values').put(value,key);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||Error('บันทึกถูกยกเลิก'));});pending.push(p);p.catch(announce);}
+ return {ready,getItem(key){if(removed.has(key))return null;return memory.has(key)?memory.get(key):localStorage.getItem(key);},setItem(key,value){if(failure)throw failure;memory.set(key,String(value));removed.delete(key);write(key,String(value),false);},removeItem(key){memory.delete(key);removed.add(key);write(key,null,true);},async flush(){await ready;let batch=pending;pending=[];await Promise.all(batch);if(failure)throw failure;}};
+})();
+
+
+function rpEscape(v){return String(v==null?"":v).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});}
+
 var db={rooms:[],tenants:[],contracts:[],payments:[],owner:{}};
-function load(){try{var s=localStorage.getItem('rentpro_v2');if(s)db=JSON.parse(s);}catch(e){}}
+function load(){try{var s=rpStore.getItem('rentpro_v2');if(s)db=JSON.parse(s);}catch(e){}}
 function save(){
-  localStorage.setItem('rentpro_v2',JSON.stringify(db));
+  rpStore.setItem('rentpro_v2',JSON.stringify(db));
   if((db.gsync||{}).url&&(db.gsync||{}).auto==='on') gsPushSilent();
   if((db.fbcfg||{}).projectId&&(db.fbcfg||{}).auto!=='off') fbPushSilent();
   if((db.lineNotify||{}).workerUrl&&(db.lineNotify||{}).auto==='on') { /* auto sync triggers on scheduler */ }
@@ -842,19 +864,19 @@ function deleteRoom(id){if(!confirm('ลบห้องนี้?'))return;db.ro
 function updateRoomStatuses(){
   var today=new Date();
   db.rooms.forEach(function(r){
-    var a=db.contracts.find(function(c){return c.roomId===r.id&&c.status==='active'&&new Date(c.startDate)<=today&&new Date(c.endDate)>=today;});
+    var a=db.contracts.find(function(c){return !c.archived&&c.roomId===r.id&&c.status==='active'&&new Date(c.startDate)<=today&&new Date(c.endDate)>=today;});
     r.status=a?'occupied':'vacant';r.currentTenantId=a?a.tenantId:null;
   });
 }
 function renderRooms(){
   var q=(document.getElementById('room-search').value||'').toLowerCase();
   updateRoomStatuses();
-  var list=db.rooms.filter(function(r){return r.name.toLowerCase().includes(q)||(r.type||'').toLowerCase().includes(q);});
+  var list=db.rooms.filter(function(r){return !r.archived&&(r.name.toLowerCase().includes(q)||(r.type||'').toLowerCase().includes(q));});
   var tbody=document.getElementById('rooms-table');
   if(!list.length){tbody.innerHTML='<tr><td colspan="6"><div class="empty"><div class="empty-icon">🚪</div><p>ยังไม่มีห้อง</p></div></td></tr>';return;}
   tbody.innerHTML=list.map(function(r){
     var t=r.currentTenantId?db.tenants.find(function(x){return x.id===r.currentTenantId;}):null;
-    return '<tr><td><strong>'+r.name+'</strong>'+(r.floor?'<br><small style="color:var(--muted)">'+r.floor+'</small>':'')+'</td><td>'+r.type+'</td><td class="mono green">฿'+r.rent.toLocaleString()+'</td><td><span class="badge '+(r.status==='occupied'?'badge-active':'badge-expired')+'">'+(r.status==='occupied'?'มีผู้เช่า':'ว่าง')+'</span></td><td>'+(t?(t.prefix||'')+t.fname+' '+t.lname:'<span style="color:var(--muted)">-</span>')+'</td><td><div class="actions"><button class="btn btn-secondary btn-sm" onclick="openRoomModal(\''+r.id+'\')">แก้ไข</button><button class="btn btn-danger btn-sm" onclick="deleteRoom(\''+r.id+'\')">ลบ</button></div></td></tr>';
+    return '<tr><td><strong>'+rpEscape(r.name)+'</strong>'+(r.floor?'<br><small style="color:var(--muted)">'+r.floor+'</small>':'')+'</td><td>'+r.type+'</td><td class="mono green">฿'+r.rent.toLocaleString()+'</td><td><span class="badge '+(r.status==='occupied'?'badge-active':'badge-expired')+'">'+(r.status==='occupied'?'มีผู้เช่า':'ว่าง')+'</span></td><td>'+(t?(t.prefix||'')+rpEscape(t.fname)+' '+t.lname:'<span style="color:var(--muted)">-</span>')+'</td><td><div class="actions"><button class="btn btn-secondary btn-sm" onclick="openRoomModal(\''+r.id+'\')">แก้ไข</button><button class="btn btn-danger btn-sm" onclick="deleteRoom(\''+r.id+'\')">ปิดใช้งาน</button></div></td></tr>';
   }).join('');
 }
 
@@ -894,12 +916,12 @@ function deleteTenant(id){if(!confirm('ลบผู้เช่า?'))return;db.
 function renderTenants(){
   updateRoomStatuses();
   var q=(document.getElementById('tenant-search').value||'').toLowerCase();
-  var list=db.tenants.filter(function(t){return(t.fname+t.lname).toLowerCase().includes(q)||(t.phone||'').includes(q);});
+  var list=db.tenants.filter(function(t){if(t.archived)return false;return(t.fname+t.lname).toLowerCase().includes(q)||(t.phone||'').includes(q);});
   var tbody=document.getElementById('tenants-table');
   if(!list.length){tbody.innerHTML='<tr><td colspan="6"><div class="empty"><div class="empty-icon">👤</div><p>ยังไม่มีผู้เช่า</p></div></td></tr>';return;}
   tbody.innerHTML=list.map(function(t){
     var room=db.rooms.find(function(r){return r.currentTenantId===t.id;});
-    return '<tr><td><strong>'+(t.prefix||'')+t.fname+' '+t.lname+'</strong></td><td>'+(t.phone||'-')+'</td><td class="mono" style="font-size:12px">'+(t.idcard||'-')+'</td><td>'+(t.job||'-')+'</td><td>'+(room?'<span class="badge badge-active">'+room.name+'</span>':'<span style="color:var(--muted)">-</span>')+'</td><td><div class="actions"><button class="btn btn-secondary btn-sm" onclick="openTenantModal(\''+t.id+'\')">แก้ไข</button><button class="btn btn-danger btn-sm" onclick="deleteTenant(\''+t.id+'\')">ลบ</button></div></td></tr>';
+    return '<tr><td><strong>'+(t.prefix||'')+rpEscape(t.fname)+' '+rpEscape(t.lname)+'</strong></td><td>'+(t.phone||'-')+'</td><td class="mono" style="font-size:12px">'+(t.idcard||'-')+'</td><td>'+(t.job||'-')+'</td><td>'+(room?'<span class="badge badge-active">'+room.name+'</span>':'<span style="color:var(--muted)">-</span>')+'</td><td><div class="actions"><button class="btn btn-secondary btn-sm" onclick="openTenantModal(\''+t.id+'\')">แก้ไข</button><button class="btn btn-danger btn-sm" onclick="deleteTenant(\''+t.id+'\')">ปิดใช้งาน</button></div></td></tr>';
   }).join('');
 }
 
@@ -910,9 +932,9 @@ function openContractModal(id){
   document.getElementById('contract-id').value=id||'';
   document.getElementById('contract-modal-title').textContent=id?'แก้ไขสัญญา':'สร้างสัญญาเช่า';
   var ts=document.getElementById('contract-tenant');
-  ts.innerHTML=db.tenants.map(function(t){return'<option value="'+t.id+'">'+(t.prefix||'')+t.fname+' '+t.lname+'</option>';}).join('')||'<option>ไม่มีผู้เช่า</option>';
+  ts.innerHTML=db.tenants.filter(function(t){return !t.archived;}).map(function(t){return'<option value="'+t.id+'">'+(t.prefix||'')+rpEscape(t.fname)+' '+rpEscape(t.lname)+'</option>';}).join('')||'<option>ไม่มีผู้เช่า</option>';
   var rs=document.getElementById('contract-room');
-  rs.innerHTML=db.rooms.map(function(r){return'<option value="'+r.id+'">'+r.name+' (฿'+r.rent.toLocaleString()+')</option>';}).join('')||'<option>ไม่มีห้อง</option>';
+  rs.innerHTML=db.rooms.filter(function(r){return !r.archived;}).map(function(r){return'<option value="'+r.id+'">'+rpEscape(r.name)+' (฿'+r.rent.toLocaleString()+')</option>';}).join('')||'<option>ไม่มีห้อง</option>';
   var c=id?db.contracts.find(function(x){return x.id===id;}):null;
   if(c){
     document.getElementById('contract-tenant').value=c.tenantId;
@@ -965,7 +987,7 @@ function saveContract(){
 function deleteContract(id){if(!confirm('ลบสัญญา?'))return;db.contracts=db.contracts.filter(function(c){return c.id!==id;});updateRoomStatuses();save();renderContracts();}
 function renderContracts(){
   var today=new Date();
-  var list=db.contracts.map(function(c){c.status=new Date(c.endDate)>=today?'active':'expired';return c;});
+  var list=db.contracts.filter(function(c){return !c.archived;}).map(function(c){c.status=new Date(c.startDate)>today?'upcoming':new Date(c.endDate)>=today?'active':'expired';return c;});
   if(contractFilter!=='all')list=list.filter(function(c){return c.status===contractFilter;});
   var tbody=document.getElementById('contracts-table');
   if(!list.length){tbody.innerHTML='<tr><td colspan="8"><div class="empty"><div class="empty-icon">📄</div><p>ไม่มีสัญญา</p></div></td></tr>';return;}
@@ -973,7 +995,7 @@ function renderContracts(){
     var t=db.tenants.find(function(x){return x.id===c.tenantId;});
     var r=db.rooms.find(function(x){return x.id===c.roomId;});
     var d=Math.ceil((new Date(c.endDate)-today)/864e5);
-    return '<tr class="'+(d<=30&&d>0?'highlight-row':'')+'"><td>'+(t?(t.prefix||'')+t.fname+' '+t.lname:'?')+'</td><td>'+(r?r.name:'?')+'</td><td class="mono" style="font-size:12px">'+c.startDate+'</td><td class="mono" style="font-size:12px">'+c.endDate+'</td><td class="mono green">฿'+c.rent.toLocaleString()+'</td><td class="mono warn">฿'+c.deposit.toLocaleString()+'</td><td><span class="badge '+(c.status==='active'?'badge-active':'badge-expired')+'">'+(c.status==='active'?'ใช้งาน':'หมดอายุ')+'</span></td><td><div class="actions"><button class="btn btn-warn btn-sm" onclick="printContract(\''+c.id+'\')">🖨 พิมพ์</button><button class="btn btn-secondary btn-sm" onclick="openContractModal(\''+c.id+'\')">แก้ไข</button><button class="btn btn-danger btn-sm" onclick="deleteContract(\''+c.id+'\')">ลบ</button></div></td></tr>';
+    return '<tr class="'+(d<=30&&d>0?'highlight-row':'')+'"><td>'+(t?(t.prefix||'')+rpEscape(t.fname)+' '+t.lname:'?')+'</td><td>'+(r?r.name:'?')+'</td><td class="mono" style="font-size:12px">'+c.startDate+'</td><td class="mono" style="font-size:12px">'+c.endDate+'</td><td class="mono green">฿'+c.rent.toLocaleString()+'</td><td class="mono warn">฿'+c.deposit.toLocaleString()+'</td><td><span class="badge '+(c.status==='active'?'badge-active':'badge-expired')+'">'+(c.status==='active'?'ใช้งาน':'หมดอายุ')+'</span></td><td><div class="actions"><button class="btn btn-warn btn-sm" onclick="printContract(\''+c.id+'\')">🖨 พิมพ์</button><button class="btn btn-secondary btn-sm" onclick="openContractModal(\''+c.id+'\')">แก้ไข</button><button class="btn btn-danger btn-sm" onclick="deleteContract(\''+c.id+'\')">ปิดใช้งาน</button></div></td></tr>';
   }).join('');
 }
 
@@ -982,7 +1004,7 @@ var paymentFilter='all';
 function filterPayments(f,el){paymentFilter=f;document.querySelectorAll('#page-payments .tab').forEach(function(t){t.classList.remove('active');});el.classList.add('active');renderPayments();}
 function openPaymentModal(){
   var ts=document.getElementById('pay-tenant');
-  ts.innerHTML=db.tenants.map(function(t){return'<option value="'+t.id+'">'+(t.prefix||'')+t.fname+' '+t.lname+'</option>';}).join('')||'<option>ไม่มีผู้เช่า</option>';
+  ts.innerHTML=db.tenants.filter(function(t){return !t.archived;}).map(function(t){return'<option value="'+t.id+'">'+(t.prefix||'')+rpEscape(t.fname)+' '+rpEscape(t.lname)+'</option>';}).join('')||'<option>ไม่มีผู้เช่า</option>';
   var now=new Date();
   document.getElementById('pay-month').value=now.getMonth()+1;
   document.getElementById('pay-year').value=now.getFullYear()+543;
@@ -1000,7 +1022,7 @@ function savePayment(){
   var id=document.getElementById('pay-id').value;
   var tenantId=document.getElementById('pay-tenant').value;
   if(!tenantId)return alert('กรุณาเลือกผู้เช่า');
-  var c=db.contracts.find(function(x){return x.tenantId===tenantId;});
+  var c=db.contracts.find(function(x){return x.tenantId===tenantId&&!x.archived&&x.status==='active';});
   var rent=parseFloat(document.getElementById('pay-rent').value)||0;
   var water=parseFloat(document.getElementById('pay-water').value)||0;
   var electric=parseFloat(document.getElementById('pay-electric').value)||0;
@@ -1023,7 +1045,7 @@ function renderPayments(){
     var r=db.rooms.find(function(x){return x.id===p.roomId;});
     var badge=p.status==='paid'?'badge-paid':p.status==='overdue'?'badge-overdue':'badge-pending';
     var label=p.status==='paid'?'ชำระแล้ว':p.status==='overdue'?'เกินกำหนด':'รอชำระ';
-    return '<tr><td>'+(t?(t.prefix||'')+t.fname+' '+t.lname:'?')+'</td><td>'+(r?r.name:'-')+'</td><td class="mono">'+MN[p.month]+' '+p.year+'</td><td class="mono">฿'+p.rent.toLocaleString()+'</td><td class="mono">฿'+p.water.toLocaleString()+'</td><td class="mono">฿'+p.electric.toLocaleString()+'</td><td class="mono green"><strong>฿'+p.total.toLocaleString()+'</strong></td><td><span class="badge '+badge+'">'+label+'</span></td><td><div class="actions">'+(p.status!=='paid'?'<button class="btn btn-primary btn-sm" onclick="markPaid(\''+p.id+'\')">✓ รับ</button>':'')+'<button class="btn btn-danger btn-sm" onclick="deletePayment(\''+p.id+'\')">ลบ</button></div></td></tr>';
+    return '<tr><td>'+(t?(t.prefix||'')+rpEscape(t.fname)+' '+t.lname:'?')+'</td><td>'+(r?r.name:'-')+'</td><td class="mono">'+MN[p.month]+' '+p.year+'</td><td class="mono">฿'+p.rent.toLocaleString()+'</td><td class="mono">฿'+p.water.toLocaleString()+'</td><td class="mono">฿'+p.electric.toLocaleString()+'</td><td class="mono green"><strong>฿'+p.total.toLocaleString()+'</strong></td><td><span class="badge '+badge+'">'+label+'</span></td><td><div class="actions">'+(p.status!=='paid'?'<button class="btn btn-primary btn-sm" onclick="markPaid(\''+p.id+'\')">✓ รับ</button>':'')+'<button class="btn btn-danger btn-sm" onclick="deletePayment(\''+p.id+'\')">ปิดใช้งาน</button></div></td></tr>';
   }).join('');
 }
 
@@ -1045,11 +1067,11 @@ function renderDashboard(){
   var rp=document.getElementById('recent-payments');
   var rec=[].concat(db.payments).sort(function(a,b){return new Date(b.date||0)-new Date(a.date||0);}).slice(0,6);
   if(!rec.length)rp.innerHTML='<tr><td colspan="5"><div class="empty"><div class="empty-icon">💳</div><p>ยังไม่มีรายการ</p></div></td></tr>';
-  else rp.innerHTML=rec.map(function(p){var t=db.tenants.find(function(x){return x.id===p.tenantId;});var r=db.rooms.find(function(x){return x.id===p.roomId;});var b=p.status==='paid'?'badge-paid':p.status==='overdue'?'badge-overdue':'badge-pending';return'<tr><td>'+(t?(t.prefix||'')+t.fname+' '+t.lname:'?')+'</td><td>'+(r?r.name:'-')+'</td><td>'+MN[p.month]+' '+p.year+'</td><td class="mono green">฿'+p.total.toLocaleString()+'</td><td><span class="badge '+b+'">'+(p.status==='paid'?'ชำระแล้ว':p.status==='overdue'?'เกินกำหนด':'รอชำระ')+'</span></td></tr>';}).join('');
+  else rp.innerHTML=rec.map(function(p){var t=db.tenants.find(function(x){return x.id===p.tenantId;});var r=db.rooms.find(function(x){return x.id===p.roomId;});var b=p.status==='paid'?'badge-paid':p.status==='overdue'?'badge-overdue':'badge-pending';return'<tr><td>'+(t?(t.prefix||'')+rpEscape(t.fname)+' '+t.lname:'?')+'</td><td>'+(r?r.name:'-')+'</td><td>'+MN[p.month]+' '+p.year+'</td><td class="mono green">฿'+p.total.toLocaleString()+'</td><td><span class="badge '+b+'">'+(p.status==='paid'?'ชำระแล้ว':p.status==='overdue'?'เกินกำหนด':'รอชำระ')+'</span></td></tr>';}).join('');
   var ec=document.getElementById('expiring-contracts');
   var exp=db.contracts.filter(function(c){var d=Math.ceil((new Date(c.endDate)-today)/864e5);return d<=60&&d>=0&&c.status==='active';});
   if(!exp.length)ec.innerHTML='<tr><td colspan="5"><div class="empty"><div class="empty-icon">✅</div><p>ไม่มีสัญญาใกล้หมดอายุ</p></div></td></tr>';
-  else ec.innerHTML=exp.map(function(c){var t=db.tenants.find(function(x){return x.id===c.tenantId;});var r=db.rooms.find(function(x){return x.id===c.roomId;});var d=Math.ceil((new Date(c.endDate)-today)/864e5);return'<tr><td>'+(t?(t.prefix||'')+t.fname+' '+t.lname:'?')+'</td><td>'+(r?r.name:'?')+'</td><td class="mono">'+c.endDate+'</td><td><span class="warn">'+d+' วัน</span></td><td><button class="btn btn-warn btn-sm" onclick="openContractModal(\''+c.id+'\')">ต่อสัญญา</button></td></tr>';}).join('');
+  else ec.innerHTML=exp.map(function(c){var t=db.tenants.find(function(x){return x.id===c.tenantId;});var r=db.rooms.find(function(x){return x.id===c.roomId;});var d=Math.ceil((new Date(c.endDate)-today)/864e5);return'<tr><td>'+(t?(t.prefix||'')+rpEscape(t.fname)+' '+t.lname:'?')+'</td><td>'+(r?r.name:'?')+'</td><td class="mono">'+c.endDate+'</td><td><span class="warn">'+d+' วัน</span></td><td><button class="btn btn-warn btn-sm" onclick="openContractModal(\''+c.id+'\')">ต่อสัญญา</button></td></tr>';}).join('');
   updateSidebarOwner();
 }
 
@@ -1060,7 +1082,7 @@ function printContract(id){
   var t=db.tenants.find(function(x){return x.id===c.tenantId;});
   var r=db.rooms.find(function(x){return x.id===c.roomId;});
   var o=db.owner||{};
-  if(!o.name){alert('กรุณากรอกข้อมูลผู้ให้เช่าก่อนพิมพ์สัญญา');showPage('owner',document.querySelectorAll('.nav-item')[1]);return;}
+  if(!o.name){alert('กรุณากรอกข้อมูลผู้ให้เช่าก่อนพิมพ์สัญญา');showPage('owner',document.querySelector('button[onclick*="owner"]'));return;}
   function fmtD(d){return fmtDateTH(d);}
   function p(txt){return '<p>'+txt+'</p>';}
   function clause(num,title,body){return '<div class="cp-clause-group"><div class="cp-clause-title">'+num+' '+title+'</div><div class="cp-clause-body">'+body+'</div></div>';}
@@ -1071,7 +1093,7 @@ function printContract(id){
   var subleaseTxt=c.sublease==='written'?'ต้องได้รับอนุญาตเป็นลายลักษณ์อักษรจากผู้ให้เช่าก่อน':'ห้ามมิให้ผู้เช่านำทรัพย์สินที่เช่าออกให้ผู้อื่นเช่าช่วง หรือทำนิติกรรมใดๆ กับผู้อื่น ไม่ว่าโดยตรงหรือโดยปริยาย';
   var depositMax=c.rent*2;
   var roomDetails=[r&&r.size?'ขนาด '+r.size+' ตร.ม.':'',r&&r.direction?'ทิศ'+r.direction:'',r&&r.facilities||'',r&&r.desc||''].filter(Boolean).join('  |  ');
-  var tenantName=t?(t.prefix||'')+t.fname+' '+t.lname:'...............';
+  var tenantName=t?(t.prefix||'')+rpEscape(t.fname)+' '+t.lname:'...............';
   var ownerName=o.name||'...............';
   var html='';
   // Header
@@ -1081,19 +1103,19 @@ function printContract(id){
   html+='<div class="parties-wrap">';
   html+='<div class="party-box"><div class="party-box-header">▌ ผู้ให้เช่า (Lessor)</div><table>';
   html+='<tr><td>ชื่อ-นามสกุล</td><td><strong>'+ownerName+'</strong></td></tr>';
-  if(o.idcard)html+='<tr><td>เลขบัตร</td><td>'+o.idcard+'</td></tr>';
+  if(o.idcard)html+='<tr><td>เลขบัตร</td><td>'+rpEscape(o.idcard)+'</td></tr>';
   html+='<tr><td>ที่อยู่</td><td>'+(o.address||'—')+'</td></tr>';
-  if(o.phone)html+='<tr><td>โทรศัพท์</td><td>'+o.phone+'</td></tr>';
-  if(o.building)html+='<tr><td>อาคาร</td><td>'+o.building+'</td></tr>';
+  if(o.phone)html+='<tr><td>โทรศัพท์</td><td>'+rpEscape(o.phone)+'</td></tr>';
+  if(o.building)html+='<tr><td>อาคาร</td><td>'+rpEscape(o.building)+'</td></tr>';
   html+='</table></div>';
   html+='<div class="party-box"><div class="party-box-header green">▌ ผู้เช่า (Lessee)</div><table>';
   html+='<tr><td>ชื่อ-นามสกุล</td><td><strong>'+tenantName+'</strong></td></tr>';
-  if(t&&t.idcard)html+='<tr><td>เลขบัตร</td><td>'+t.idcard+'</td></tr>';
+  if(t&&t.idcard)html+='<tr><td>เลขบัตร</td><td>'+rpEscape(t.idcard)+'</td></tr>';
   if(t&&t.dob)html+='<tr><td>วันเกิด</td><td>'+fmtD(t.dob)+'</td></tr>';
   if(t&&t.nationality)html+='<tr><td>สัญชาติ</td><td>'+t.nationality+'</td></tr>';
   html+='<tr><td>ที่อยู่</td><td>'+tenantAddr+'</td></tr>';
-  if(t&&t.phone)html+='<tr><td>โทรศัพท์</td><td>'+t.phone+'</td></tr>';
-  if(t&&t.job)html+='<tr><td>อาชีพ</td><td>'+t.job+(t.workplace?'  /  '+t.workplace:'')+'</td></tr>';
+  if(t&&t.phone)html+='<tr><td>โทรศัพท์</td><td>'+rpEscape(t.phone)+'</td></tr>';
+  if(t&&t.job)html+='<tr><td>อาชีพ</td><td>'+rpEscape(t.job)+(t.workplace?'  /  '+t.workplace:'')+'</td></tr>';
   if(t&&t.emergency)html+='<tr><td>ผู้ติดต่อฉุกเฉิน</td><td>'+t.emergency+'</td></tr>';
   html+='</table></div></div>';
   html+='<div class="clause-intro">คู่สัญญาทั้งสองฝ่ายได้ตกลงกันโดยสมัครใจ มีข้อความดังต่อไปนี้</div>';
@@ -1108,7 +1130,7 @@ function printContract(id){
     p('หากประสงค์จะเช่าต่อต้องแจ้งเป็นลายลักษณ์อักษรล่วงหน้าไม่น้อยกว่า <strong>๓๐ วัน</strong>')
   );
   html+=clause('ข้อ ๓.','ค่าเช่าและการชำระ',
-    p('อัตราค่าเช่าเดือนละ <strong>'+c.rent.toLocaleString()+' บาท</strong> ('+numTH(c.rent)+') ชำระทุกวันที่ <strong>'+c.dueDay+'</strong> ของทุกเดือน'+(o.bank?' โอนเข้าบัญชี <strong>'+o.bank+'</strong>':''))+
+    p('อัตราค่าเช่าเดือนละ <strong>'+c.rent.toLocaleString()+' บาท</strong> ('+numTH(c.rent)+') ชำระทุกวันที่ <strong>'+c.dueDay+'</strong> ของทุกเดือน'+(o.bank?' โอนเข้าบัญชี <strong>'+rpEscape(o.bank)+'</strong>':''))+
     p('ผู้ให้เช่าส่งใบแจ้งหนี้ล่วงหน้าไม่น้อยกว่า ๓ วัน และต้องออกใบเสร็จรับเงินทุกครั้งที่รับชำระ')+
     p('อัตราค่าเช่าจะไม่เปลี่ยนแปลงตลอดระยะเวลาสัญญา')
   );
@@ -1252,7 +1274,7 @@ function lineRenderTenants(){
   if(!db.tenants.length){el.innerHTML='<p style="color:var(--muted);font-size:13px">ยังไม่มีผู้เช่า</p>';return;}
   el.innerHTML='<div class="form-grid">'+db.tenants.map(function(t){
     var ok=!!t.lineUid;var badge=ok?'<span style="color:var(--accent);font-size:11px;margin-left:6px">✅ มี ID</span>':'<span style="color:var(--muted);font-size:11px;margin-left:6px">⏳ รอ</span>';
-    return '<div class="form-group"><label>'+(t.prefix||'')+t.fname+' '+t.lname+badge+'</label><input type="text" id="line-uid-'+t.id+'" value="'+(t.lineUid||'')+'" placeholder="Uxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"></div>';
+    return '<div class="form-group"><label>'+(t.prefix||'')+rpEscape(t.fname)+' '+rpEscape(t.lname)+badge+'</label><input type="text" id="line-uid-'+t.id+'" value="'+(t.lineUid||'')+'" placeholder="Uxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"></div>';
   }).join('')+'</div>';
 }
 function lineResetTemplates(){document.getElementById('line-tmpl-owner').value=LINE_DEFAULTS.owner;document.getElementById('line-tmpl-tenant').value=LINE_DEFAULTS.tenant;document.getElementById('line-tmpl-expire').value=LINE_DEFAULTS.expire;}
@@ -1295,7 +1317,7 @@ async function lineSendAll(){
   db.contracts.forEach(function(c){
     if(c.status!=='active')return;
     var t=db.tenants.find(function(x){return x.id===c.tenantId;});var r=db.rooms.find(function(x){return x.id===c.roomId;});if(!t||!r)return;
-    var tname=(t.prefix||'')+t.fname+' '+t.lname,bank=(db.owner||{}).bank||'',building=(db.owner||{}).building||'';
+    var tname=(t.prefix||'')+rpEscape(t.fname)+' '+t.lname,bank=(db.owner||{}).bank||'',building=(db.owner||{}).building||'';
     var hasPaid=!!db.payments.find(function(p){return p.tenantId===c.tenantId&&p.month===cm&&p.year===cy&&p.status==='paid';});
     var ed=new Date(c.endDate);var dl=Math.ceil((ed-today)/864e5);
     if(dl<=30&&dl>=0&&n.ownerUid){var ev={room:r.name,tenant:tname,date:ed.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'}),diff:String(dl),rent:c.rent.toLocaleString(),bank:bank,building:building};ps.push((function(uid,msg,lbl){return lineSendMsg(uid,msg).then(function(res){lineLog((res.ok?'✅':'❌')+' สัญญาหมด — '+lbl,res.ok?'ok':'err');});})(n.ownerUid,lineApply(n.tmplExpire||LINE_DEFAULTS.expire,ev),r.name));}
@@ -1317,7 +1339,7 @@ async function lineScheduler(){
   db.contracts.forEach(function(c){
     if(c.status!=='active')return;
     var t=db.tenants.find(function(x){return x.id===c.tenantId;});var r=db.rooms.find(function(x){return x.id===c.roomId;});if(!t||!r)return;
-    var tname=(t.prefix||'')+t.fname+' '+t.lname,bank=(db.owner||{}).bank||'',building=(db.owner||{}).building||'';
+    var tname=(t.prefix||'')+rpEscape(t.fname)+' '+t.lname,bank=(db.owner||{}).bank||'',building=(db.owner||{}).building||'';
     var hasPaid=!!db.payments.find(function(p){return p.tenantId===c.tenantId&&p.month===cm&&p.year===cy&&p.status==='paid';});
     var ed=new Date(c.endDate);var dl=Math.ceil((ed-today)/864e5);
     if(dl<=30&&dl>=0&&!nbSentToday('ln_exp_'+c.id)&&n.ownerUid){var ev={room:r.name,tenant:tname,date:ed.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'}),diff:String(dl),rent:c.rent.toLocaleString(),bank:bank,building:building};ps.push(lineSendMsg(n.ownerUid,lineApply(n.tmplExpire||LINE_DEFAULTS.expire,ev)));nbMarkSent('ln_exp_'+c.id);}
@@ -1327,7 +1349,7 @@ async function lineScheduler(){
     if(diff===days&&!nbSentToday('ln_adv_'+c.id)){var v={room:r.name,tenant:tname,date:dueStr,diff:'อีก '+diff+' วัน',rent:c.rent.toLocaleString(),bank:bank,building:building};if(n.ownerUid){ps.push(lineSendMsg(n.ownerUid,lineApply(n.tmplOwner||LINE_DEFAULTS.owner,v)));nbMarkSent('ln_adv_'+c.id);}if(t.lineUid)ps.push(lineSendMsg(t.lineUid,lineApply(n.tmplTenant||LINE_DEFAULTS.tenant,v)));}
     if(diff===0&&!nbSentToday('ln_due_'+c.id)){var v2={room:r.name,tenant:tname,date:dueStr,diff:'⚠️ ครบกำหนดวันนี้!',rent:c.rent.toLocaleString(),bank:bank,building:building};if(n.ownerUid){ps.push(lineSendMsg(n.ownerUid,lineApply(n.tmplOwner||LINE_DEFAULTS.owner,v2)));nbMarkSent('ln_due_'+c.id);}if(t.lineUid)ps.push(lineSendMsg(t.lineUid,lineApply(n.tmplTenant||LINE_DEFAULTS.tenant,v2)));}
     var dtm=new Date(today.getFullYear(),today.getMonth(),c.dueDay);
-    if(today>dtm&&!nbSentToday('ln_ovd_'+c.id)){var od=Math.ceil((today-dtm)/864e5);var msgO='⏰ ค้างชำระ\n🚪 '+r.name+'\n👤 '+tname+'\n⚠️ เกินกำหนด '+od+' วัน\n💰 ฿'+c.rent.toLocaleString();var msgT='⏰ ค้างชำระ\nเรียน คุณ'+tname+'\nค่าเช่า '+r.name+' เกินกำหนด '+od+' วัน\n💰 ฿'+c.rent.toLocaleString()+(bank?'\n🏦 '+bank:'');if(n.ownerUid){ps.push(lineSendMsg(n.ownerUid,msgO));nbMarkSent('ln_ovd_'+c.id);}if(t.lineUid)ps.push(lineSendMsg(t.lineUid,msgT));}
+    if(today>dtm&&!nbSentToday('ln_ovd_'+c.id)){var od=Math.ceil((today-dtm)/864e5);var msgO='⏰ ค้างชำระ\n🚪 '+rpEscape(r.name)+'\n👤 '+tname+'\n⚠️ เกินกำหนด '+od+' วัน\n💰 ฿'+c.rent.toLocaleString();var msgT='⏰ ค้างชำระ\nเรียน คุณ'+tname+'\nค่าเช่า '+rpEscape(r.name)+' เกินกำหนด '+od+' วัน\n💰 ฿'+c.rent.toLocaleString()+(bank?'\n🏦 '+bank:'');if(n.ownerUid){ps.push(lineSendMsg(n.ownerUid,msgO));nbMarkSent('ln_ovd_'+c.id);}if(t.lineUid)ps.push(lineSendMsg(t.lineUid,msgT));}
   });
   if(ps.length)await Promise.all(ps);
 }
@@ -1393,7 +1415,7 @@ function nbRenderTenants(){
   el.innerHTML='<div class="form-grid">'+db.tenants.map(function(t){
     var ok=!!t.tgChatId;
     var badge=ok?'<span style="color:var(--accent);font-size:11px;margin-left:6px">✅ ผูกแล้ว</span>':'<span style="color:var(--muted);font-size:11px;margin-left:6px">⏳ รอ</span>';
-    return '<div class="form-group"><label>'+(t.prefix||'')+t.fname+' '+t.lname+badge+'</label>'
+    return '<div class="form-group"><label>'+(t.prefix||'')+rpEscape(t.fname)+' '+rpEscape(t.lname)+badge+'</label>'
       +'<div style="display:flex;gap:6px"><input type="text" id="nb-cid-'+t.id+'" value="'+(t.tgChatId||'')+'" placeholder="Chat ID" style="flex:1">'
       +(ok?'<button class="btn btn-danger btn-sm" onclick="nbClearTenant(\''+t.id+'\')">ล้าง</button>':'')
       +'</div></div>';
@@ -1443,8 +1465,8 @@ async function nbAutoMatch(){
       var phoneOk=phone&&phone.length>=9&&txt.includes(phone);
       if(nameOk||phoneOk){
         t.tgChatId=m.chatId;matched++;
-        nbLog('✅ จับคู่: '+t.fname+' '+t.lname+' → '+m.chatId,'ok');
-        nbSend(m.chatId,'✅ ลงทะเบียนสำเร็จ!\nสวัสดีคุณ'+(t.prefix||'')+t.fname+' '+t.lname+'\nระบบจะส่งแจ้งเตือนค่าเช่ามาที่นี่ 🏠');
+        nbLog('✅ จับคู่: '+rpEscape(t.fname)+' '+rpEscape(t.lname)+' → '+m.chatId,'ok');
+        nbSend(m.chatId,'✅ ลงทะเบียนสำเร็จ!\nสวัสดีคุณ'+(t.prefix||'')+rpEscape(t.fname)+' '+rpEscape(t.lname)+'\nระบบจะส่งแจ้งเตือนค่าเช่ามาที่นี่ 🏠');
         break;
       }
     }
@@ -1476,7 +1498,7 @@ async function nbSendAll(){
     var t=db.tenants.find(function(x){return x.id===c.tenantId;});
     var r=db.rooms.find(function(x){return x.id===c.roomId;});
     if(!t||!r)return;
-    var tname=(t.prefix||'')+t.fname+' '+t.lname;
+    var tname=(t.prefix||'')+rpEscape(t.fname)+' '+t.lname;
     var bank=(db.owner||{}).bank||'',building=(db.owner||{}).building||'';
     var hasPaid=!!db.payments.find(function(p){return p.tenantId===c.tenantId&&p.month===cm&&p.year===cy&&p.status==='paid';});
     // สัญญาหมดอายุ ไม่เกี่ยวกับการชำระ
@@ -1501,11 +1523,11 @@ async function nbSendAll(){
 }
 // ===== SMART SCHEDULER (วันละ 1 ครั้ง) =====
 function nbTodayKey(){var d=new Date();return d.getFullYear()+'_'+(d.getMonth()+1)+'_'+d.getDate();}
-function nbSentToday(key){return localStorage.getItem('nb_'+key+'_'+nbTodayKey())==='1';}
-function nbMarkSent(key){localStorage.setItem('nb_'+key+'_'+nbTodayKey(),'1');}
+function nbSentToday(key){return rpStore.getItem('nb_'+key+'_'+nbTodayKey())==='1';}
+function nbMarkSent(key){rpStore.setItem('nb_'+key+'_'+nbTodayKey(),'1');}
 function nbClearFlags(contractId){
   Object.keys(localStorage).forEach(function(k){
-    if(k.indexOf('nb_')===0&&k.indexOf(contractId)>-1)localStorage.removeItem(k);
+    if(k.indexOf('nb_')===0&&k.indexOf(contractId)>-1)rpStore.removeItem(k);
   });
 }
 async function nbScheduler(){
@@ -1520,7 +1542,7 @@ async function nbScheduler(){
     var t=db.tenants.find(function(x){return x.id===c.tenantId;});
     var r=db.rooms.find(function(x){return x.id===c.roomId;});
     if(!t||!r)return;
-    var tname=(t.prefix||'')+t.fname+' '+t.lname;
+    var tname=(t.prefix||'')+rpEscape(t.fname)+' '+t.lname;
     var bank=(db.owner||{}).bank||'',building=(db.owner||{}).building||'';
     var hasPaid=!!db.payments.find(function(p){return p.tenantId===c.tenantId&&p.month===cm&&p.year===cy&&p.status==='paid';});
     // สัญญาหมดอายุ
@@ -1552,8 +1574,8 @@ async function nbScheduler(){
     if(today>dtm&&!nbSentToday('ovd_'+c.id)){
       var od=Math.ceil((today-dtm)/864e5);
       var odStr=dtm.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
-      var msgO='⏰ ค้างชำระค่าเช่า\n────────────────\n🚪 ห้อง: '+r.name+'\n👤 ผู้เช่า: '+tname+'\n📅 ครบกำหนด: '+odStr+'\n⚠️ เกินกำหนด: '+od+' วัน\n💰 ฿'+c.rent.toLocaleString();
-      var msgT='⏰ แจ้งเตือนค้างชำระ\n────────────────\nเรียน คุณ'+tname+'\nค่าเช่าห้อง '+r.name+' เกินกำหนด '+od+' วัน\n💰 ฿'+c.rent.toLocaleString()+(bank?'\n🏦 โอนมาที่: '+bank:'')+'\nกรุณาชำระโดยด่วน ขอบคุณครับ/ค่ะ';
+      var msgO='⏰ ค้างชำระค่าเช่า\n────────────────\n🚪 ห้อง: '+rpEscape(r.name)+'\n👤 ผู้เช่า: '+tname+'\n📅 ครบกำหนด: '+odStr+'\n⚠️ เกินกำหนด: '+od+' วัน\n💰 ฿'+c.rent.toLocaleString();
+      var msgT='⏰ แจ้งเตือนค้างชำระ\n────────────────\nเรียน คุณ'+tname+'\nค่าเช่าห้อง '+rpEscape(r.name)+' เกินกำหนด '+od+' วัน\n💰 ฿'+c.rent.toLocaleString()+(bank?'\n🏦 โอนมาที่: '+bank:'')+'\nกรุณาชำระโดยด่วน ขอบคุณครับ/ค่ะ';
       if(n.ownerChatId){ps.push(nbSend(n.ownerChatId,msgO));nbMarkSent('ovd_'+c.id);}
       if(t.tgChatId)ps.push(nbSend(t.tgChatId,msgT));
     }
@@ -1589,7 +1611,7 @@ function fbSaveConfig(){
     projectId:document.getElementById('fb-projectid').value.trim(),
     auto:document.getElementById('fb-auto').value
   };
-  localStorage.setItem('rentpro_v2',JSON.stringify(db));
+  rpStore.setItem('rentpro_v2',JSON.stringify(db));
   alert('บันทึกการตั้งค่า Firebase เรียบร้อย ✅');
 }
 
@@ -1701,7 +1723,7 @@ async function fbPull(){
     remote.gsync=db.gsync;
     remote.notify=db.notify;
     db=remote;
-    localStorage.setItem('rentpro_v2',JSON.stringify(db));
+    rpStore.setItem('rentpro_v2',JSON.stringify(db));
     fbLog('✅ โหลดสำเร็จ! (อัปเดต: '+doc.data().updatedAt+')','ok');
     fbStatus('✅ โหลดแล้ว '+new Date().toLocaleTimeString('th-TH'),true);
     renderDashboard();
@@ -1728,7 +1750,7 @@ async function fbSubscribe(){
       remote.gsync=db.gsync;
       remote.notify=db.notify;
       db=remote;
-      localStorage.setItem('rentpro_v2',JSON.stringify(db));
+      rpStore.setItem('rentpro_v2',JSON.stringify(db));
       fbStatus('🔄 Realtime sync '+new Date().toLocaleTimeString('th-TH'),true);
       renderDashboard();
     }catch(e){}
@@ -1756,7 +1778,7 @@ async function fbAutoInit(){
           remote.gsync=db.gsync;
           remote.notify=db.notify;
           db=remote;
-          localStorage.setItem('rentpro_v2',JSON.stringify(db));
+          rpStore.setItem('rentpro_v2',JSON.stringify(db));
           renderDashboard();
           console.log('[RentPro] Firebase auto-loaded');
         }
@@ -1856,7 +1878,7 @@ function gsSave() {
     url: document.getElementById('gs-url').value.trim(),
     auto: document.getElementById('gs-auto').value
   };
-  localStorage.setItem('rentpro_v2', JSON.stringify(db));
+  rpStore.setItem('rentpro_v2', JSON.stringify(db));
   alert('บันทึกการตั้งค่าเรียบร้อย ✅');
 }
 
@@ -1943,7 +1965,7 @@ async function gsPull() {
       // Merge gsync settings from local (don't overwrite)
       remote.gsync = db.gsync;
       db = remote;
-      localStorage.setItem('rentpro_v2', JSON.stringify(db));
+      rpStore.setItem('rentpro_v2', JSON.stringify(db));
       gsLog('✅ โหลดข้อมูลสำเร็จ! (อัปเดตล่าสุด: ' + (r.updated||'?') + ')', 'ok');
       gsStatus('✅ โหลดแล้ว ' + new Date().toLocaleTimeString('th-TH'), true);
       // Re-render all pages
@@ -1975,23 +1997,170 @@ async function gsAutoLoad() {
       if (remoteSize > localSize) {
         remote.gsync = db.gsync;
         db = remote;
-        localStorage.setItem('rentpro_v2', JSON.stringify(db));
+        rpStore.setItem('rentpro_v2', JSON.stringify(db));
         console.log('[RentPro] Auto-loaded from Sheets (' + (remoteSize/1024).toFixed(1) + ' KB)');
       }
     }
   } catch(e) { /* silent */ }
 }
 
-setTimeout(function(){nbScheduler();lineScheduler();},1500);
-gsAutoLoad();
-fbAutoInit();
+// Automated delivery remains off until explicitly triggered by the owner.
+// V3 starts one conflict-aware cloud connection after migration.
 initDateInputs();
-// auto notify on startup
-setTimeout(function(){
-  if((db.notify||{}).auto==='startup'&&(db.notify||{}).channelToken&&(db.notify||{}).ownerUid){
-    sendDueReminders();
+</script>
+<script>
+/* RentPro 3.0 — deterministic accounting and compatible migration. */
+var RP = (function(){
+  'use strict';
+  var clone=x=>JSON.parse(JSON.stringify(x));
+  var money=x=>Math.round((Number(x)+Number.EPSILON)*100)/100;
+  var same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+  function migrate(d){
+    ['rooms','tenants','contracts','payments'].forEach(k=>{if(!Array.isArray(d[k]))d[k]=[];});
+    d.owner=d.owner||{};
+    d.rp3=d.rp3||{cycles:[],invoices:[],receipts:[],audit:[]};
+    ['cycles','invoices','receipts','audit'].forEach(k=>{if(!Array.isArray(d.rp3[k]))d.rp3[k]=[];});
+    d.payments.forEach(p=>{
+      if(d.rp3.invoices.some(i=>i.legacyId===p.id||i.id===p.id))return;
+      var y=Number(p.year);if(y>2400)y-=543;
+      var i={id:p.id,legacyId:p.id,number:'เดิม-'+p.id.slice(-6),period:y+'-'+String(p.month).padStart(2,'0'),roomId:p.roomId,tenantId:p.tenantId,contractId:p.contractId||'',rent:Number(p.rent)||0,water:Number(p.water)||0,electric:Number(p.electric)||0,other:Number(p.other)||0,total:money(p.total||0),state:'issued',due:p.date||'',note:p.note||'',createdAt:p.date||'',legacy:true,tenantName:tenantName(d,p.tenantId),roomName:(d.rooms.find(r=>r.id===p.roomId)||{}).name||'ไม่ระบุห้อง',owner:clone(d.owner)};
+      d.rp3.invoices.push(i);
+      if(p.status==='paid')d.rp3.receipts.push({id:'legacy-'+p.id,invoiceId:i.id,amount:i.total,date:p.date||'',method:'ข้อมูลเดิม',note:'ยอดชำระจากระบบเดิม',number:'เดิม-'+p.id.slice(-6)});
+    });
+    d.schemaVersion=3;return d;
   }
-},2000);
+  function tenantName(d,id){var t=d.tenants.find(t=>t.id===id);return t?((t.prefix||'')+(t.fname||'')+' '+(t.lname||'')).trim():'ไม่ระบุผู้เช่า';}
+  function balance(d,i){return money(i.total-d.rp3.receipts.filter(r=>r.invoiceId===i.id&&!r.voided).reduce((s,r)=>s+Number(r.amount),0));}
+  function status(d,i,today){if(i.state==='void')return'ยกเลิก';if(i.state==='draft')return'ร่าง';var b=balance(d,i);if(b<=0)return'ชำระแล้ว';if(i.due&&i.due<today)return'เกินกำหนด';if(b<i.total)return'ชำระบางส่วน';return'รอชำระ';}
+  function calcUtility(b,rows,key){
+    if(!b||!Number.isFinite(Number(b.units))||Number(b.units)<0)throw Error('หน่วยในบิลหลักต้องเป็นตัวเลขตั้งแต่ 0 ขึ้นไป');
+    ['usage','service','tax'].forEach(k=>{if(!Number.isFinite(Number(b[k]))||Number(b[k])<0)throw Error('ยอดในบิลต้องเป็นตัวเลขตั้งแต่ 0 ขึ้นไป');});
+    var total=money(Number(b.usage)+Number(b.service)+Number(b.tax)),units=Number(b.units),rate=units?total/units:0;
+    var out=rows.map(r=>{var p=r[key+'Prev'],c=r[key+'Now'];if(p===''||c===''||p==null||c==null)throw Error('กรอกเลขมิเตอร์ให้ครบทุกห้อง');p=Number(p);c=Number(c);if(!Number.isFinite(p)||!Number.isFinite(c)||p<0||c<p)throw Error('เลขมิเตอร์ปัจจุบันต้องไม่น้อยกว่าครั้งก่อน');return {roomId:r.roomId,units:Math.round((c-p)*1000000)/1000000,amount:money((c-p)*rate)};});
+    var sum=out.reduce((s,r)=>s+r.units,0);if(sum>units+0.000001)throw Error('ผลรวมมิเตอร์ย่อยเกินหน่วยในบิลหลัก กรุณาตรวจรอบวันที่และเลขมิเตอร์');
+    return {total,units,rate,rows:out,differenceUnits:Math.max(0,units-sum),ownerAmount:units?money((units-sum)*rate):total,rounding:money(total-out.reduce((s,r)=>s+r.amount,0)-money((units-sum)*rate))};
+  }
+  function validate(d){
+    var seen=new Map();(d.rp3.invoices||[]).forEach(i=>{if(i.state==='void')return;var key=i.period+'/'+i.roomId,other=seen.get(key);if(other&&(!other.legacy||!i.legacy))throw Error('มีใบแจ้งหนี้ซ้ำห้องและเดือนจากอีกเครื่อง กรุณาตรวจรายการก่อนซิงค์');seen.set(key,i);if(!Number.isFinite(i.total)||i.total<0)throw Error('ยอดใบแจ้งหนี้ไม่ถูกต้อง');if(balance(d,i)<0)throw Error('ยอดรับชำระรวมเกินใบแจ้งหนี้ อาจมีการรับเงินพร้อมกันจากอีกเครื่อง กรุณาตรวจรายการ');});
+    (d.rp3.receipts||[]).forEach(r=>{if(!d.rp3.invoices.some(i=>i.id===r.invoiceId))throw Error('พบรายการรับเงินที่ไม่มีใบแจ้งหนี้อ้างอิง');});return d;
+  }
+  function merge(base,local,remote){
+    var out=clone(remote),conflicts=[];
+    function field(b,l,r,path){if(same(l,b))return clone(r===undefined?null:r);if(same(r,b)||same(l,r))return clone(l===undefined?null:l);conflicts.push(path);return clone(r===undefined?null:r);}
+    function rows(b,l,r,path){var bm=new Map((b||[]).map(x=>[x.id,x])),lm=new Map((l||[]).map(x=>[x.id,x])),rm=new Map((r||[]).map(x=>[x.id,x]));var result=[];new Set([...bm.keys(),...lm.keys(),...rm.keys()]).forEach(id=>{var v=field(bm.get(id),lm.get(id),rm.get(id),path+'/'+id);if(v)result.push(v);});return result;}
+    ['rooms','tenants','contracts','payments'].forEach(k=>out[k]=rows(base[k],local[k],remote[k],k));
+    out.rp3=out.rp3||{};['cycles','invoices','receipts','audit'].forEach(k=>out.rp3[k]=rows((base.rp3||{})[k],(local.rp3||{})[k],(remote.rp3||{})[k],'rp3/'+k));
+    new Set([...Object.keys(base),...Object.keys(local),...Object.keys(remote)]).forEach(k=>{if(['rooms','tenants','contracts','payments','rp3','fbcfg','gsync','notify','lineNotify','updatedAt'].includes(k))return;out[k]=field(base[k],local[k],remote[k],k);});
+    ['fbcfg','gsync','notify','lineNotify'].forEach(k=>{if(local[k])out[k]=clone(local[k]);});
+    if(conflicts.length)throw Error('ข้อมูลถูกแก้จากอีกเครื่อง: '+conflicts.join(', ')+' — เก็บข้อมูลในเครื่องไว้แล้ว กรุณาสำรองก่อนโหลดจากคลาวด์');
+    return validate(out);
+  }
+  return {clone,money,migrate,tenantName,balance,status,calcUtility,merge,validate};
+})();
+
+/* One Firestore document per entity; global manifest serializes financial updates. */
+var RPCloud = (function(){
+  const groups=['rooms','tenants','contracts','payments','cycles','invoices','receipts','audit'];
+  const privateKeys=['fbcfg','gsync','notify','lineNotify'];
+  function records(d){const out=new Map();groups.forEach(k=>(['rooms','tenants','contracts','payments'].includes(k)?d[k]:d.rp3[k]).forEach(row=>out.set('v3_'+k+'_'+encodeURIComponent(row.id),{kind:k,json:JSON.stringify(row)})));let settings={};Object.keys(d).forEach(k=>{if(!groups.includes(k)&&k!=='rp3'&&!privateKeys.includes(k))settings[k]=d[k];});out.set('v3_settings',{kind:'settings',json:JSON.stringify(settings)});return out;}
+  function decode(docs){let out={rooms:[],tenants:[],contracts:[],payments:[],rp3:{cycles:[],invoices:[],receipts:[],audit:[]}};docs.forEach(doc=>{let d=doc.data();if(d.deleted||!d.json)return;let value=JSON.parse(d.json);if(d.kind==='settings')Object.assign(out,value);else if(groups.includes(d.kind))(['rooms','tenants','contracts','payments'].includes(d.kind)?out[d.kind]:out.rp3[d.kind]).push(value);});return RP.migrate(out);}
+  async function read(fb){let collection=fb.collection('rentpro'),meta=await collection.doc('v3_manifest').get();if(!meta.exists){let old=await collection.doc('main').get();return {data:old.exists&&old.data().data?RP.migrate(JSON.parse(old.data().data)):null,revision:0,legacy:true};}let docs=await collection.where('rpVersion','==',3).get();return {data:decode(docs),revision:Number(meta.data().revision)||0,legacy:false};}
+  async function commit(fb,readState,data){let col=fb.collection('rentpro'),meta=col.doc('v3_manifest'),old=readState.legacy?new Map():records(readState.data),next=records(data),writes=[];next.forEach((value,id)=>{if(!old.has(id)||JSON.stringify(old.get(id))!==JSON.stringify(value))writes.push([id,value]);});old.forEach((_,id)=>{if(!next.has(id))writes.push([id,{deleted:true}]);});if(writes.length>430)throw Error('ข้อมูลนำเข้ามีมากกว่า 430 รายการ ต้องย้ายข้อมูลเป็นชุดก่อนเปิดคลาวด์');
+    await fb.runTransaction(async tx=>{let live=await tx.get(meta),revision=live.exists?Number(live.data().revision)||0:0;if(revision!==readState.revision||live.exists===readState.legacy){let e=Error('CLOUD_REVISION_CHANGED');e.retryable=true;throw e;}if(readState.legacy){let legacy=await tx.get(col.doc('main'));let liveData=legacy.exists&&legacy.data().data?RP.migrate(JSON.parse(legacy.data().data)):null;if(JSON.stringify(liveData)!==JSON.stringify(readState.data))throw Error('ข้อมูลระบบเก่าเปลี่ยนระหว่างย้าย กรุณาปิดแท็บรุ่นเก่าแล้วซิงค์ใหม่');}let updatedAt=new Date().toISOString();writes.forEach(([id,value])=>tx.set(col.doc(id),{...value,rpVersion:3,updatedAt}));tx.set(meta,{revision:revision+1,schemaVersion:3,updatedAt});});return writes.length;
+  }
+  return {records,decode,read,commit};
+})();
+
+(async function(){
+'use strict';
+try{await rpStore.ready;let saved=rpStore.getItem('rentpro_v2');if(saved)db=JSON.parse(saved);}catch(e){alert('เปิดฐานข้อมูลในเครื่องไม่ได้: '+e.message+' กรุณาเปิดในเบราว์เซอร์ปกติ ข้อมูลเดิมยังไม่ถูกลบ');return;}
+const $=id=>document.getElementById(id),esc=x=>String(x==null?'':x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),fmt=x=>Number(x||0).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2});
+const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Bangkok',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+let period=today().slice(0,7),tab='overview',base,dirty=false,syncing=false,syncTimer,cloudReady=false,cloudError='',working=null;
+const state=()=>db.rp3,copy=RP.clone,stamp=()=>new Date().toISOString();
+function backup(reason){try{rpStore.setItem('rentpro_backup_'+reason,JSON.stringify({at:stamp(),data:db}));}catch(e){throw Error('พื้นที่สำรองในเครื่องไม่พอ กรุณาดาวน์โหลดสำรองข้อมูลก่อน');}}
+if(!rpStore.getItem('rentpro_backup_before_v3'))backup('before_v3');
+RP.migrate(db);base=copy(db);
+let knownCloudBase=false;try{let confirmed=JSON.parse(rpStore.getItem('rentpro_v3_confirmed_base')||'null');if(confirmed){base=RP.migrate(confirmed);knownCloudBase=true;}}catch(e){}let pending=rpStore.getItem('rentpro_v3_pending');if(pending){dirty=true;try{let saved=JSON.parse(rpStore.getItem('rentpro_v3_sync_base')||'null');if(saved&&knownCloudBase){base=RP.migrate(saved);}}catch(e){}}
+const oldShow=showPage,oldSaveContract=saveContract,oldSaveRoom=saveRoom,oldSaveTenant=saveTenant;
+const archive=(arr,id,label)=>{const r=arr.find(x=>x.id===id);if(!r)return;if(!confirm('ปิดใช้งาน'+label+'นี้? ประวัติเดิมยังคงอยู่'))return;r.archived=true;persist('ปิดใช้งาน'+label,id);refresh();};
+function persist(action,id){state().audit.push({id:uid(),at:stamp(),action,ref:id||'',device:navigator.userAgent.slice(0,100)});db.updatedAt=stamp();rpStore.setItem('rentpro_v2',JSON.stringify(db));rpStore.setItem('rentpro_v3_sync_base',JSON.stringify(base));dirty=true;rpStore.setItem('rentpro_v3_pending','1');renderSync();clearTimeout(syncTimer);if((db.fbcfg||{}).projectId&&(db.fbcfg||{}).auto!=='off')syncTimer=setTimeout(()=>syncCloud().catch(()=>{}),700);}
+window.save=function(){persist('แก้ไขข้อมูลเดิม');};
+window.deleteRoom=id=>archive(db.rooms,id,'ห้อง');window.deleteTenant=id=>archive(db.tenants,id,'ผู้เช่า');
+window.deleteContract=id=>{const c=db.contracts.find(x=>x.id===id);if(!c)return;if(confirm('ยุติสัญญานี้? ประวัติและบิลเดิมยังอยู่')){c.archived=true;c.status='terminated';persist('ยุติสัญญา',id);renderContracts();}};
+window.saveContract=function(){let id=$('contract-id').value,rid=$('contract-room').value,start=parseDate($('contract-start').value),end=parseDate($('contract-end').value);if(!db.tenants.some(t=>t.id===$('contract-tenant').value&&!t.archived)||!db.rooms.some(r=>r.id===rid&&!r.archived))return alert('เลือกห้องและผู้เช่าที่ใช้งานอยู่ก่อน');if(!/^\d{4}-\d{2}-\d{2}$/.test(start)||!/^\d{4}-\d{2}-\d{2}$/.test(end))return alert('กรอกวันเริ่มและวันสิ้นสุดให้ถูกต้อง');if(Number($('contract-rent').value)<0||Number($('contract-deposit').value)<0)return alert('ค่าเช่าและเงินมัดจำต้องไม่ติดลบ');if(end<start)return alert('วันสิ้นสุดต้องไม่น้อยกว่าวันเริ่ม');if(db.contracts.some(c=>c.id!==id&&!c.archived&&c.roomId===rid&&c.startDate<=end&&c.endDate>=start))return alert('ห้องนี้มีสัญญาทับช่วงเวลาอยู่แล้ว');let before=db.contracts.find(c=>c.id===id);if(before)state().audit.push({id:uid(),at:stamp(),action:'เก็บสัญญาก่อนแก้ไข',ref:id,before:copy(before)});oldSaveContract();};
+window.saveTenant=function(){let id=$('tenant-id').value;let old=copy(db.tenants.find(x=>x.id===id)||{});oldSaveTenant();if(id){let t=db.tenants.find(x=>x.id===id);if(t){db.tenants[db.tenants.indexOf(t)]=Object.assign(old,t);rpStore.setItem('rentpro_v2',JSON.stringify(db));}}};
+window.renderDashboard=function(){updateRoomStatuses();updateSidebarOwner();if($('page-rp3')&&$('page-rp3').style.display!=='none'&&!working)refresh();};window.openPaymentModal=()=>{tab='invoices';openApp();toast('สร้างใบแจ้งหนี้จากหน้ารอบบิลรายเดือน เพื่อเชื่อมสัญญาและป้องกันบิลซ้ำ');};
+window.markPaid=id=>openReceive(id);window.deletePayment=id=>voidInvoice(id);
+window.showPage=function(page,el){working=null;if(page==='dashboard'||page==='payments'){tab=page==='payments'?'invoices':'overview';openApp();return;}oldShow(page,el);document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));if(el)el.classList.add('active');};
+function renderSync(){let el=$('rp-sync');if(el)el.textContent=syncing?'กำลังซิงค์ข้อมูล…':cloudError?'ซิงค์ไม่สำเร็จ • ข้อมูลยังอยู่ในเครื่อง':cloudReady?(dirty?'มีข้อมูลรอซิงค์':'เชื่อมต่อคลาวด์แล้ว'):(db.fbcfg||{}).projectId?'ยังไม่เชื่อมต่อคลาวด์':'บันทึกในเครื่อง • ยังไม่ได้เชื่อมต่อคลาวด์';}
+function download(name,obj){let a=document.createElement('a'),u=URL.createObjectURL(new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}));a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),2000);}
+function exportData(){download('RentPro-backup-'+today()+'.json',{format:'rentpro-v3',exportedAt:stamp(),data:db});}
+function toast(s){let el=document.createElement('div');el.className='rp-toast';el.textContent=s;document.body.appendChild(el);setTimeout(()=>el.remove(),4500);}
+function activeContracts(p){let a=p+'-01',b=p+'-31';return db.contracts.filter(c=>!c.archived&&c.startDate<=b&&c.endDate>=a);}
+function contractFor(rid,p){return activeContracts(p).filter(c=>c.roomId===rid);}
+function newCycle(p){let prev=state().cycles.filter(c=>c.period<p&&c.state==='issued').sort((a,b)=>b.period.localeCompare(a.period))[0];let b=()=>({units:'',usage:'',service:0,tax:0,from:'',to:'',reference:'',attachment:null});return {id:uid(),period:p,state:'draft',water:b(),electric:b(),due:'',rows:db.rooms.filter(r=>!r.archived).map(r=>{let old=prev&&prev.rows.find(x=>x.roomId===r.id);return {roomId:r.id,waterPrev:old?old.waterNow:'',waterNow:'',electricPrev:old?old.electricNow:'',electricNow:''};}),note:''};}
+function currentCycle(){return state().cycles.find(c=>c.period===period&&c.state!=='void');}
+function field(label,id,value,type='number',extra=''){return '<label class="rp-field">'+label+'<input id="'+id+'" type="'+type+'" '+(type==='number'?'min="0" step="any" ':'')+'value="'+esc(value)+'" '+extra+'></label>';}
+function panel(title,body,tools=''){return '<section class="rp-panel"><div class="rp-panel-head"><h3>'+title+'</h3>'+tools+'</div>'+body+'</section>';}
+function metric(title,value,sub){return '<div class="rp-metric"><span class="rp-muted">'+title+'</span><strong>'+value+'</strong><small>'+sub+'</small></div>';}
+function invoiceStatus(i){return RP.status(db,i,today());}
+function badge(i){let s=invoiceStatus(i);return '<span class="rp-tag '+(s==='ชำระแล้ว'?'paid':s==='เกินกำหนด'?'overdue':s==='ร่าง'||s==='ยกเลิก'?'draft':'')+'">'+s+'</span>';}
+function header(){return '<div class="rp-header"><div><div class="rp-eyebrow">RENTPRO / จัดการโกดังให้เช่า</div><h2>'+({overview:'ภาพรวมโกดัง',billing:'บิลรายเดือน',invoices:'ใบแจ้งหนี้และรับชำระ',history:'ประวัติและข้อมูล'}[tab])+'</h2></div><div class="rp-tools"><input aria-label="เดือนที่จัดการ" id="rp-period" type="month" value="'+period+'"><button class="btn btn-secondary" data-action="export">สำรองข้อมูล</button></div></div><div class="rp-tabs">'+[['overview','ภาพรวม'],['billing','จดมิเตอร์ / ออกบิล'],['invoices','รับชำระ'],['history','ประวัติ / ข้อมูล']].map(([k,v])=>'<button class="'+(tab===k?'active':'')+'" data-tab="'+k+'">'+v+'</button>').join('')+'</div>'+(cloudError?'<div class="rp-notice error">'+esc(cloudError)+' <button class="rp-link" data-action="sync">ลองซิงค์อีกครั้ง</button></div>':'')+(!cloudReady?'<div class="rp-notice">'+((db.fbcfg||{}).projectId?'ข้อมูลในเครื่องพร้อมใช้งาน กำลังตรวจการเชื่อมต่อคลาวด์':'ข้อมูลบันทึกในเบราว์เซอร์เครื่องนี้ หากต้องใช้หลายเครื่อง ให้เชื่อมต่อ Firebase เดิมก่อนเริ่มงาน')+' <button class="rp-link" data-action="settings">ตั้งค่าคลาวด์</button></div>':'');}
+function overview(){let list=state().invoices.filter(i=>i.period===period&&i.state==='issued'),rent=list.reduce((s,i)=>s+i.rent,0),utility=list.reduce((s,i)=>s+i.water+i.electric,0),received=state().receipts.filter(r=>!r.voided&&r.date&&r.date.slice(0,7)===period).reduce((s,r)=>s+r.amount,0),remaining=state().invoices.filter(i=>i.state==='issued').reduce((s,i)=>s+Math.max(0,RP.balance(db,i)),0);return '<div class="rp-metrics">'+metric('ค่าเช่าที่เรียกเก็บ',fmt(rent),'เฉพาะรอบบิลที่เลือก')+metric('ค่าน้ำ + ค่าไฟ',fmt(utility),'เก็บคืนตามต้นทุนบิลจริง')+metric('รับเงินจริง',fmt(received),'ตามวันที่รับเงินในเดือนนี้')+metric('ยอดค้างทั้งหมด',fmt(remaining),'รวมบิลค้างจากเดือนก่อน')+'</div><div class="rp-panel-head" style="border:0;padding:10px 0 18px"><h3>โกดังของคุณ</h3><button class="btn btn-primary" data-tab="billing">เริ่มทำบิลเดือนนี้ →</button></div><div class="rp-room-grid">'+db.rooms.filter(r=>!r.archived).map(r=>{let cs=contractFor(r.id,period),t=cs.length===1?RP.tenantName(db,cs[0].tenantId):cs.length>1?'มีการเปลี่ยนผู้เช่าในเดือนนี้':'ยังไม่มีสัญญา',invs=list.filter(i=>i.roomId===r.id),i=invs[0];return '<div class="rp-room"><span class="rp-tag '+(cs.length?'paid':'')+'">'+(cs.length?'มีสัญญา':'ว่าง')+'</span><h3>'+esc(r.name)+'</h3><div class="rp-muted">'+esc(t)+'</div><strong>฿'+fmt(invs.reduce((s,x)=>s+x.total,0))+'</strong><div class="rp-minor">'+(i?badge(i):'ยังไม่ได้ออกบิลรอบนี้')+'</div></div>';}).join('')+'</div>'+panel('รายการเรียกเก็บรอบนี้',invoiceTable(list))+'<div class="rp-minor">ค่าเช่าและค่าน้ำ–ไฟแสดงแยกกัน เพื่อไม่ให้เงินเก็บคืนค่าสาธารณูปโภคปนกับรายได้ค่าเช่า</div>';}
+function utilityForm(k,title,b,locked){let ro=locked?'disabled':'';return panel(title,'<div class="rp-panel-body"><div class="rp-fields">'+field('วันที่เริ่มรอบ',k+'-from',b.from,'date',ro)+field('วันที่สิ้นสุดรอบ',k+'-to',b.to,'date',ro)+field('หน่วยใช้ตามบิลหลัก',k+'-units',b.units,'number',ro)+field('ค่าการใช้ตามบิล (บาท)',k+'-usage',b.usage,'number',ro)+field('ค่าบริการ (บาท)',k+'-service',b.service,'number',ro)+field('ภาษีตามบิล (บาท)',k+'-tax',b.tax,'number',ro)+field('เลขอ้างอิงบิล',k+'-reference',b.reference,'text',ro)+'<label class="rp-field">ภาพบิลหลัก (ไม่เกิน 200 KB)<input class="rp-file" type="file" accept="image/png,image/jpeg,image/webp" data-bill-file="'+k+'" '+ro+'></label></div><div class="rp-minor">'+(b.attachment?'<button class="rp-link" data-view-bill="'+k+'">ดูภาพบิลที่แนบไว้</button>':'ยังไม่ได้แนบภาพบิล')+' · แยกกรอกตามบิลเพื่อไม่คิดภาษีซ้ำ<br>ไม่นำยอดค้างเก่า ค่าปรับ หรือเงินประกันมารวม</div></div>');}
+function billing(){let c=currentCycle();working=working&&working.period===period?working:copy(c||newCycle(period));if(!c||c.state!=='issued'){try{let cached=JSON.parse(rpStore.getItem('rentpro_draft_'+period)||'null');if(cached&&cached.period===period&&cached.state==='draft'&&!working._loaded){working=cached;working._loaded=true;}}catch(e){}}let w=working,locked=w.state==='issued',ro=locked?'disabled':'';return '<div class="rp-steps"><b>01 ใส่บิลหลัก</b><span>→</span><b>02 จดมิเตอร์ทุกห้อง</b><span>→</span><b>03 ตรวจยอดและออกบิล</b></div><div class="rp-grid">'+utilityForm('water','ค่าน้ำ · บิลหลัก',w.water,locked)+utilityForm('electric','ค่าไฟ · บิลหลัก',w.electric,locked)+'</div>'+panel('มิเตอร์ย่อย · '+w.rows.length+' ห้อง','<div class="rp-scroll"><table><thead><tr><th>ห้อง / ผู้เช่า</th><th>น้ำครั้งก่อน</th><th>น้ำครั้งนี้</th><th>ไฟครั้งก่อน</th><th>ไฟครั้งนี้</th></tr></thead><tbody>'+w.rows.map(r=>{let room=db.rooms.find(x=>x.id===r.roomId)||{},cs=contractFor(r.roomId,period);return '<tr><td><b>'+esc(room.name||'ห้องเดิม')+'</b><br><small class="rp-muted">'+esc(cs.length===1?RP.tenantName(db,cs[0].tenantId):cs.length>1?'ต้องแยกบิลเปลี่ยนผู้เช่า':'ไม่มีสัญญา · เจ้าของรับผิดชอบ')+'</small></td>'+['waterPrev','waterNow','electricPrev','electricNow'].map(k=>'<td><input aria-label="'+esc(room.name)+' '+k+'" class="rp-row-input" type="number" min="0" step="any" value="'+esc(r[k])+'" data-reading="'+k+'" data-room="'+esc(r.roomId)+'" '+ro+'></td>').join('')+'</tr>';}).join('')+'</tbody></table></div><div class="rp-panel-body"><div class="rp-fields">'+field('กำหนดชำระร่วม (เว้นว่างใช้วันในสัญญา)','cycle-due',w.due,'date',ro)+field('หมายเหตุรอบบิล','cycle-note',w.note,'text',ro)+'</div></div>','<span class="rp-tag">'+(locked?'ออกบิลแล้ว · ล็อกข้อมูล':'ร่าง')+'</span>')+'<div class="rp-notice">ส่วนต่างมิเตอร์และหน่วยใช้ของห้องว่างเป็นต้นทุนเจ้าของ ไม่เฉลี่ยเพิ่มให้ผู้เช่า • จดมิเตอร์ย่อยให้ตรงรอบบิลหลัก • ค่าเช่าเดือนเข้า/ออกยังไม่เฉลี่ยวันอัตโนมัติ</div><div id="rp-calculation">'+(locked?calculationHTML(w.calculation):'')+'</div><div class="rp-tools">'+(locked?'<button class="btn btn-primary" data-tab="invoices">ดูใบแจ้งหนี้ / รับชำระ</button><button class="btn btn-danger" data-action="cancel-cycle">ยกเลิกรอบบิลเพื่อแก้ไข</button>':'<button class="btn btn-secondary" data-action="save-cycle">บันทึกร่าง</button><button class="btn btn-secondary" data-action="calculate">ตรวจการคำนวณ</button><button class="btn btn-primary" data-action="issue">ตรวจและออกใบแจ้งหนี้</button>')+'</div>';}
+function readForm(){let w=working;['water','electric'].forEach(k=>{['units','usage','service','tax','from','to','reference'].forEach(x=>{w[k][x]=$(k+'-'+x).value;});});document.querySelectorAll('[data-reading]').forEach(el=>{w.rows.find(r=>r.roomId===el.dataset.room)[el.dataset.reading]=el.value;});w.due=$('cycle-due').value;w.note=$('cycle-note').value;return w;}
+function calculate(w){['water','electric'].forEach(k=>{if(!w[k].from||!w[k].to||w[k].from>w[k].to)throw Error('กรอกช่วงวันที่บิลน้ำและไฟให้ถูกต้อง');});if(!w.rows.length)throw Error('เพิ่มห้องก่อนทำบิล');let result={water:RP.calcUtility(w.water,w.rows,'water'),electric:RP.calcUtility(w.electric,w.rows,'electric')};['water','electric'].forEach(k=>{let b=result[k];b.vacantAmount=RP.money(b.rows.filter(r=>!contractFor(r.roomId,w.period).length).reduce((s,r)=>s+r.amount,0));b.ownerTotal=RP.money(b.ownerAmount+b.vacantAmount+b.rounding);});result.warnings=[];let prev=state().cycles.filter(c=>c.period<w.period&&c.state==='issued').sort((a,b)=>b.period.localeCompare(a.period))[0];if(prev){w.rows.forEach(r=>{let pr=prev.rows.find(p=>p.roomId===r.roomId);if(!pr)return;['water','electric'].forEach(k=>{let old=Number(pr[k+'Now'])-Number(pr[k+'Prev']),now=Number(r[k+'Now'])-Number(r[k+'Prev']);if(old>0&&now>old*2)result.warnings.push((db.rooms.find(x=>x.id===r.roomId)||{}).name+': ใช้'+(k==='water'?'น้ำ':'ไฟ')+'มากกว่า 2 เท่าของรอบก่อน กรุณาตรวจเลขมิเตอร์และจำนวนวัน');});});}return result;}
+function calculationHTML(c){if(!c)return'';return (c.warnings||[]).map(x=>'<div class="rp-notice warn">'+esc(x)+'</div>').join('')+'<div class="rp-grid">'+['water','electric'].map(k=>{let b=c[k];return panel(k==='water'?'สรุปค่าน้ำ':'สรุปค่าไฟ','<div class="rp-panel-body rp-detail">ต้นทุนรวม <b>'+fmt(b.total)+'</b> บาท / '+b.units+' หน่วย<br>ต้นทุนต่อหน่วย <b>'+b.rate.toFixed(6)+'</b> บาท<br>หน่วยส่วนต่าง <b>'+Number(b.differenceUnits.toFixed(6))+'</b> หน่วย = '+fmt(b.ownerAmount)+' บาท<br>หน่วยใช้ห้องว่าง '+fmt(b.vacantAmount||0)+' บาท<br><b>ต้นทุนเจ้าของรวม '+fmt(b.ownerTotal==null?b.ownerAmount:b.ownerTotal)+' บาท</b><br><span class="rp-muted">เศษปัดทศนิยม '+fmt(b.rounding)+' บาท แยกเป็นส่วนของเจ้าของ</span></div>');}).join('')+'</div>';}
+function saveCycle(){let w=copy(readForm()),i=state().cycles.findIndex(c=>c.id===w.id);if(i>=0)state().cycles[i]=w;else state().cycles.push(w);persist('บันทึกร่างมิเตอร์',w.id);toast('บันทึกร่างแล้ว');}
+function issue(){let w=readForm(),cal=calculate(w);let generated=[];for(const row of w.rows){let cs=contractFor(row.roomId,period);if(cs.length>1)throw Error('ห้องที่เปลี่ยนผู้เช่าระหว่างเดือนต้องแยกรอบมิเตอร์ก่อน ยังไม่ออกบิลอัตโนมัติ');if(!cs.length)continue;let c=cs[0];if(['water','electric'].some(k=>c.startDate>w[k].from||c.endDate<w[k].to))throw Error('สัญญาห้องนี้ไม่ครอบคลุมรอบมิเตอร์ทั้งหมด กรุณาแยกหน่วยช่วงเข้า/ออกก่อนออกบิล');if(state().invoices.some(i=>i.state!=='void'&&i.period===period&&i.contractId===c.id)||state().invoices.some(i=>i.state!=='void'&&i.period===period&&i.roomId===c.roomId))throw Error('มีบิลห้องนี้ในเดือนที่เลือกแล้ว กรุณาตรวจใบแจ้งหนี้เดิม');let r=db.rooms.find(r=>r.id===row.roomId),water=cal.water.rows.find(x=>x.roomId===row.roomId),electric=cal.electric.rows.find(x=>x.roomId===row.roomId);generated.push({id:uid(),number:'INV-'+period.replace('-','')+'-'+String(state().invoices.length+generated.length+1).padStart(4,'0'),period,cycleId:w.id,contractId:c.id,roomId:c.roomId,tenantId:c.tenantId,tenantName:RP.tenantName(db,c.tenantId),roomName:r.name,owner:copy(db.owner),rent:Number(c.rent)||0,water:water.amount,electric:electric.amount,other:0,total:RP.money((Number(c.rent)||0)+water.amount+electric.amount),due:w.due||(period+'-'+String(Math.min(Math.max(1,Number(c.dueDay)||1),new Date(Number(period.slice(0,4)),Number(period.slice(5)),0).getDate())).padStart(2,'0')),note:w.note,state:'issued',createdAt:stamp(),snapshot:{version:1,method:'actual-main-bill',water:{bill:Object.assign({},copy(w.water),{attachment:null}),previous:Number(row.waterPrev),current:Number(row.waterNow),units:water.units,rate:cal.water.rate},electric:{bill:Object.assign({},copy(w.electric),{attachment:null}),previous:Number(row.electricPrev),current:Number(row.electricNow),units:electric.units,rate:cal.electric.rate}}});}
+if(!generated.length)throw Error('ยังไม่มีสัญญาที่ใช้งานในเดือนนี้ กรุณาเพิ่มผู้เช่าและสัญญาก่อน');$('rp-calculation').innerHTML=calculationHTML(cal);if(!confirm('ออกใบแจ้งหนี้ '+generated.length+' ห้อง รวม '+fmt(generated.reduce((s,i)=>s+i.total,0))+' บาท?\nบิลที่ออกจะล็อกเลขมิเตอร์และวิธีคำนวณไว้'))return;w.state='issued';w.calculation=cal;w.issuedAt=stamp();let ix=state().cycles.findIndex(c=>c.id===w.id);if(ix>=0)state().cycles[ix]=copy(w);else state().cycles.push(copy(w));state().invoices.push(...generated);syncLegacy();persist('ออกใบแจ้งหนี้',w.id);rpStore.removeItem('rentpro_draft_'+period);working=null;refresh();toast('ออกใบแจ้งหนี้แล้ว');}
+function syncLegacy(){state().invoices.forEach(i=>{let p=db.payments.find(p=>p.id===i.id);if(i.state==='void'){if(p)db.payments=db.payments.filter(x=>x.id!==i.id);return;}let st=invoiceStatus(i),v={id:i.id,contractId:i.contractId,tenantId:i.tenantId,roomId:i.roomId,month:Number(i.period.slice(5)),year:Number(i.period.slice(0,4))+543,rent:i.rent,water:i.water,electric:i.electric,other:i.other,total:i.total,status:st==='ชำระแล้ว'?'paid':st==='เกินกำหนด'?'overdue':'pending',date:i.due,note:i.note||''};if(p)Object.assign(p,v);else db.payments.push(v);});}
+function invoiceTable(list){if(!list.length)return '<div class="rp-empty">ยังไม่มีใบแจ้งหนี้รอบนี้<br>เริ่มจากจดมิเตอร์และออกบิลรายเดือน</div>';return '<div class="rp-scroll"><table class="rp-ledger"><thead><tr><th>เลขที่ / ห้อง</th><th>ผู้เช่า</th><th>ยอดบิล</th><th>คงเหลือ</th><th>สถานะ</th><th>จัดการ</th></tr></thead><tbody>'+list.map(i=>'<tr><td><b>'+esc(i.roomName)+'</b><br><small class="rp-muted">'+esc(i.number)+'</small></td><td>'+esc(i.tenantName)+'<br><small class="rp-muted">ครบกำหนด '+esc(i.due||'ไม่ระบุ')+'</small></td><td>'+fmt(i.total)+'</td><td><b>'+fmt(i.state==='void'?0:RP.balance(db,i))+'</b></td><td>'+badge(i)+'</td><td><div class="rp-tools"><button class="btn btn-secondary btn-sm" data-detail="'+i.id+'">รายละเอียด</button>'+(i.state==='issued'&&RP.balance(db,i)>0?'<button class="btn btn-primary btn-sm" data-receive="'+i.id+'">รับชำระ</button>':'')+'</div></td></tr>').join('')+'</tbody></table></div>';}
+function invoices(){let list=state().invoices.filter(i=>i.period===period);return panel('ใบแจ้งหนี้ · '+period,invoiceTable(list),'<button class="btn btn-secondary btn-sm" data-action="csv">ส่งออก CSV</button>')+panel('ยอดค้างจากรอบก่อน',invoiceTable(state().invoices.filter(i=>i.period<period&&i.state==='issued'&&RP.balance(db,i)>0)));}
+function dialog(html){let ov=document.createElement('div');ov.id='rp-overlay';ov.className='rp-overlay';ov.innerHTML='<div class="rp-dialog" role="dialog" aria-modal="true">'+html+'</div>';document.body.appendChild(ov);ov.querySelector('input,button')?.focus();}
+function closeDialog(){document.getElementById('rp-overlay')?.remove();}
+function openReceive(id){let i=state().invoices.find(i=>i.id===id);if(!i||i.state!=='issued')return;let b=RP.balance(db,i);if(b<=0)return;dialog('<h2>รับชำระ · '+esc(i.roomName)+'</h2><div class="rp-notice">'+esc(i.tenantName)+' · ยอดคงเหลือ <b>'+fmt(b)+'</b> บาท</div><div class="rp-fields">'+field('จำนวนเงินที่รับ','receive-amount',b)+field('วันที่รับเงินจริง','receive-date',today(),'date')+'<label class="rp-field">ช่องทางชำระ<select id="receive-method"><option>โอนเงิน</option><option>เงินสด</option><option>อื่น ๆ</option></select></label>'+field('เลขอ้างอิง / หมายเหตุ','receive-note','','text')+'</div><div class="rp-tools"><button class="btn btn-secondary" data-action="close">ยกเลิก</button><button class="btn btn-primary" data-confirm-receive="'+id+'">บันทึกรับเงิน</button></div>');}
+function receive(id){let i=state().invoices.find(i=>i.id===id);if(!i||i.state!=='issued')throw Error('ใบแจ้งหนี้นี้ไม่เปิดรับชำระ');let amount=Number($('receive-amount').value),date=$('receive-date').value;if(!Number.isFinite(amount)||amount<=0||RP.money(amount)>RP.balance(db,i))throw Error('จำนวนเงินต้องมากกว่า 0 และไม่เกินยอดคงเหลือ');if(!date||date>today())throw Error('วันที่รับเงินต้องไม่เกินวันนี้');let r={id:uid(),invoiceId:id,amount:RP.money(amount),date,method:$('receive-method').value,note:$('receive-note').value,createdAt:stamp(),number:'RC-'+date.replaceAll('-','')+'-'+uid().slice(-5).toUpperCase()};state().receipts.push(r);syncLegacy();persist('รับชำระ',r.id);closeDialog();refresh();toast('บันทึกรับเงิน '+fmt(amount)+' บาทแล้ว');}
+function detail(id){let i=state().invoices.find(i=>i.id===id);if(!i)return;let rs=state().receipts.filter(r=>r.invoiceId===id);dialog('<h2>'+esc(i.number)+'</h2><div class="rp-detail"><b>'+esc(i.roomName)+' · '+esc(i.tenantName)+'</b><br>รอบ '+i.period+' / กำหนดชำระ '+esc(i.due)+'<br>ค่าเช่า '+fmt(i.rent)+' · ค่าน้ำ '+fmt(i.water)+' · ค่าไฟ '+fmt(i.electric)+(i.other?' · อื่น ๆ '+fmt(i.other):'')+'<br><b>รวม '+fmt(i.total)+' บาท · คงเหลือ '+fmt(i.state==='void'?0:RP.balance(db,i))+' บาท</b><br>'+badge(i)+(i.snapshot?['water','electric'].map(k=>{let s=i.snapshot[k];return '<div class="rp-notice">'+(k==='water'?'น้ำ':'ไฟ')+' '+s.previous+' → '+s.current+' = '+s.units+' หน่วย × '+s.rate.toFixed(6)+' บาท<br>รอบบิลหลัก '+esc(s.bill.from)+' ถึง '+esc(s.bill.to)+'</div>';}).join(''):'<p class="rp-minor">ข้อมูลย้ายจากระบบเดิม ไม่มีประวัติเลขมิเตอร์</p>')+'</div><h3 style="margin-top:15px">ประวัติรับเงิน</h3>'+rs.map(r=>'<div class="rp-notice">'+esc(r.date)+' · '+fmt(r.amount)+' บาท · '+esc(r.method)+(r.voided?' <b>ยกเลิกแล้ว</b>':' <button class="rp-link" data-print-receipt="'+r.id+'">ใบเสร็จ</button> <button class="rp-link" data-void-receipt="'+r.id+'">ยกเลิกการรับ</button>')+'</div>').join('')+'<div class="rp-tools"><button class="btn btn-secondary" data-action="close">ปิด</button><button class="btn btn-secondary" data-print-invoice="'+id+'">พิมพ์ใบแจ้งหนี้</button>'+(i.state!=='void'?'<button class="btn btn-danger" data-void-invoice="'+id+'">ยกเลิกบิล</button>':'')+'</div>');}
+function voidInvoice(id){let i=state().invoices.find(i=>i.id===id);if(!i)return;if(state().receipts.some(r=>r.invoiceId===id&&!r.voided))throw Error('มีการรับเงินแล้ว ต้องยกเลิกรายการรับเงินก่อนยกเลิกบิล');let note=prompt('ระบุเหตุผลการยกเลิกบิล');if(!note?.trim())return;i.state='void';i.voidReason=note;i.voidedAt=stamp();syncLegacy();persist('ยกเลิกใบแจ้งหนี้: '+note,id);closeDialog();refresh();}
+function cancelCycle(){let c=currentCycle();if(!c)return;let inv=state().invoices.filter(i=>i.cycleId===c.id&&i.state!=='void');if(inv.some(i=>state().receipts.some(r=>r.invoiceId===i.id&&!r.voided)))throw Error('มีการรับเงินในรอบนี้แล้ว ต้องยกเลิกการรับเงินก่อน');let reason=prompt('ระบุเหตุผลยกเลิกรอบบิล เพื่อจดใหม่');if(!reason?.trim())return;inv.forEach(i=>{i.state='void';i.voidReason=reason;});c.state='void';c.voidReason=reason;syncLegacy();persist('ยกเลิกรอบบิล: '+reason,c.id);working=null;refresh();}
+function voidReceipt(id){let r=state().receipts.find(r=>r.id===id);if(!r||r.voided)return;let reason=prompt('ระบุเหตุผลยกเลิกรับเงิน');if(!reason?.trim())return;r.voided=true;r.voidReason=reason;r.voidedAt=stamp();syncLegacy();persist('ยกเลิกรับชำระ: '+reason,id);closeDialog();refresh();}
+function printDoc(id,receipt){let r=receipt?state().receipts.find(r=>r.id===id):null,i=state().invoices.find(i=>i.id===(r?r.invoiceId:id));if(!i||r?.voided)return;let o=i.owner||db.owner;let area=$('rp-print');if(!area){area=document.createElement('div');area.id='rp-print';area.className='rp-only-print';document.body.appendChild(area);}let type=receipt?'ใบเสร็จรับเงิน':i.state==='void'?'ใบแจ้งหนี้ (ยกเลิก)':'ใบแจ้งหนี้';area.innerHTML='<h1>'+type+'</h1><div class="rp-detail"><b>'+esc(o.building||'โกดังให้เช่า')+'</b><br>'+esc(o.name||'')+'<br>'+esc(o.address||'')+'<br>โทร '+esc(o.phone||'—')+'<hr style="margin:15px 0">เลขที่ '+esc(receipt?r.number:i.number)+' · วันที่ '+esc(receipt?r.date:i.createdAt.slice(0,10))+'<br>ผู้เช่า '+esc(i.tenantName)+' · ห้อง '+esc(i.roomName)+'<br>รอบบิล '+i.period+' · กำหนดชำระ '+esc(i.due)+'</div><table><thead><tr><th style="text-align:left">รายการ</th><th style="text-align:right">จำนวนเงิน (บาท)</th></tr></thead><tbody>'+[['ค่าเช่า',i.rent],['ค่าน้ำ',i.water],['ค่าไฟ',i.electric],['อื่น ๆ',i.other]].filter(x=>x[1]||x[0]==='ค่าเช่า').map(([k,v])=>'<tr><td>'+k+'</td><td style="text-align:right">'+fmt(v)+'</td></tr>').join('')+'<tr><td><b>รวมยอดใบแจ้งหนี้</b></td><td style="text-align:right"><b>'+fmt(i.total)+'</b></td></tr>'+(receipt?'<tr><td><b>รับเงินครั้งนี้ ('+esc(r.method)+')</b></td><td style="text-align:right"><b>'+fmt(r.amount)+'</b></td></tr>':'')+'</tbody></table><div class="rp-detail">'+(i.snapshot?['water','electric'].map(k=>{let s=i.snapshot[k];return(k==='water'?'น้ำ':'ไฟ')+': มิเตอร์ '+s.previous+' → '+s.current+' / '+s.units+' หน่วย × '+s.rate.toFixed(6)+' บาท<br>';}).join(''):'')+'ยอดคงเหลือปัจจุบัน '+fmt(i.state==='void'?0:RP.balance(db,i))+' บาท<br>'+(!receipt?'บัญชีรับชำระ '+esc(o.bank||'—'):'')+'<br>'+esc(receipt?r.note:i.note||'')+'</div><footer>ค่าน้ำ–ค่าไฟคิดตามต้นทุนบิลจริง ไม่มีบวกเพิ่ม<br>เอกสารนี้'+(receipt?'เป็นหลักฐานการรับเงิน':'เป็นใบแจ้งหนี้')+' ไม่ใช่ใบกำกับภาษี</footer>';document.body.classList.add('rp-printing');window.print();}
+function history(){return panel('สำรองและกู้คืนข้อมูล','<div class="rp-panel-body"><div class="rp-notice">สำรองข้อมูลเดิมก่อนอัปเกรดไว้ในเครื่องแล้ว ดาวน์โหลดไฟล์เก็บไว้ก่อนย้ายเครื่องหรือปรับการซิงค์</div><div class="rp-tools"><button class="btn btn-primary" data-action="export">ดาวน์โหลดข้อมูลปัจจุบัน</button><button class="btn btn-secondary" data-action="old-backup">ดาวน์โหลดก่อนอัปเกรด</button><label class="btn btn-secondary" style="cursor:pointer">นำเข้าไฟล์สำรอง<input id="rp-import" type="file" accept="application/json,.json" hidden></label><button class="btn btn-secondary" data-action="sync">ซิงค์คลาวด์</button></div><p class="rp-minor">ไฟล์สำรองมีข้อมูลส่วนบุคคลและการตั้งค่าการเชื่อมต่อ เก็บไว้ในที่ส่วนตัว<br>นำเข้าจะตรวจข้อมูลที่ขัดกันก่อน ไม่มีการทับรายการเดิมโดยอัตโนมัติ</p></div>')+panel('ประวัติการทำรายการ','<div class="rp-scroll"><table><thead><tr><th>เวลา</th><th>รายการ</th><th>อ้างอิง</th></tr></thead><tbody>'+state().audit.slice().reverse().slice(0,100).map(a=>'<tr><td>'+esc(new Date(a.at).toLocaleString('th-TH'))+'</td><td>'+esc(a.action)+'</td><td class="rp-muted">'+esc(a.ref)+'</td></tr>').join('')+'</tbody></table></div>');}
+function refresh(){if($('page-rp3').style.display!=='none')openApp();renderSync();}
+function openApp(){document.querySelectorAll('[id^="page-"]').forEach(x=>x.style.display='none');$('page-rp3').style.display='block';document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));$('rp-nav').classList.add('active');$('page-rp3').innerHTML='<div class="rp-shell">'+header()+({overview,invoices,billing,history}[tab])()+'</div>';renderSync();}
+function importData(file){let rd=new FileReader();rd.onload=()=>{try{let parsed=JSON.parse(rd.result),d=parsed.data||parsed;if(!Array.isArray(d.rooms)||!Array.isArray(d.tenants)||!Array.isArray(d.contracts)||!Array.isArray(d.payments))throw Error('ไฟล์นี้ไม่ใช่ข้อมูล RentPro');RP.migrate(d);let merged=RP.merge({rooms:[],tenants:[],contracts:[],payments:[],rp3:{cycles:[],invoices:[],receipts:[],audit:[]}},db,d);if(!confirm('นำเข้าข้อมูลจากไฟล์สำรอง? ระบบจะเก็บสำรองข้อมูลปัจจุบันก่อน'))return;backup('before_import');db=merged;persist('นำเข้าข้อมูลสำรอง');working=null;refresh();toast('นำเข้าข้อมูลแล้ว');}catch(e){alert('นำเข้าไม่สำเร็จ: '+e.message);}};rd.readAsText(file);}
+async function syncCloud(){if(syncing)throw Error('กำลังซิงค์ กรุณารอสักครู่');if(!(db.fbcfg||{}).projectId)throw Error('ยังไม่ได้ตั้งค่า Firebase');syncing=true;cloudError='';renderSync();try{await rpStore.flush();if(!await fbInit())throw Error('เชื่อมต่อ Firebase ไม่สำเร็จ');let local=copy(db),captured=copy(db),startBase=copy(base),merged;
+for(let attempt=0;attempt<3;attempt++){
+  let reading=await RPCloud.read(fbDb),remote=reading.data||copy(startBase);
+  if(!knownCloudBase&&reading.data){let blank={rooms:[],tenants:[],contracts:[],payments:[],owner:{},schemaVersion:3,rp3:{cycles:[],invoices:[],receipts:[],audit:[]}};if(remote.rooms.length&&!local.tenants.length&&!local.contracts.length&&!local.payments.length&&local.rooms.every(r=>/^warehouse-[1-4]$/.test(r.id)&&r.name==='โกดัง '+r.id.slice(-1)&&!r.rent))local.rooms=[];merged=RP.merge(blank,local,remote);}else merged=RP.merge(startBase,local,remote);
+  merged.updatedAt=stamp();
+  try{await RPCloud.commit(fbDb,reading,merged);break;}catch(e){if(e.retryable&&attempt<2)continue;throw e;}
+}
+base=copy(merged);knownCloudBase=true;rpStore.setItem('rentpro_v3_confirmed_base',JSON.stringify(base));rpStore.setItem('rentpro_v3_sync_base',JSON.stringify(base));if(JSON.stringify(db)===JSON.stringify(captured)){db=merged;dirty=false;rpStore.removeItem('rentpro_v3_pending');}else{db=RP.merge(captured,db,merged);dirty=true;}syncLegacy();rpStore.setItem('rentpro_v2',JSON.stringify(db));cloudReady=true;cloudError='';fbStatus('เชื่อมต่อและตรวจข้อมูลแล้ว',true);if($('page-rp3').style.display!=='none'&&!working)refresh();}catch(e){cloudError=e.message;fbStatus('ซิงค์ไม่สำเร็จ: '+e.message,false);throw e;}finally{syncing=false;renderSync();}}
+window.fbPush=()=>syncCloud().then(()=>toast('ซิงค์ข้อมูลแล้ว')).catch(e=>alert(e.message));window.fbPushSilent=()=>syncCloud().catch(()=>{});window.fbSubscribe=()=>syncCloud().catch(()=>{});window.fbAutoInit=()=>syncCloud().catch(()=>{});
+window.fbPull=async()=>{if(!confirm('โหลดข้อมูลจากคลาวด์มาแทนข้อมูลเครื่องนี้? ระบบจะสำรองข้อมูลปัจจุบันก่อน หากมีข้อมูลรอซิงค์ให้ดาวน์โหลดสำรองเก็บไว้ด้วย'))return;try{backup('before_cloud_pull');if(!await fbInit())throw Error('เชื่อมต่อไม่ได้');let reading=await RPCloud.read(fbDb);if(!reading.data)throw Error('ไม่พบข้อมูลคลาวด์');let remote=RP.validate(reading.data);['fbcfg','gsync','notify','lineNotify'].forEach(k=>{if(db[k])remote[k]=db[k];});db=remote;base=copy(db);knownCloudBase=true;rpStore.setItem('rentpro_v3_confirmed_base',JSON.stringify(base));dirty=false;cloudReady=true;cloudError='';rpStore.removeItem('rentpro_v3_pending');rpStore.setItem('rentpro_v2',JSON.stringify(db));working=null;refresh();toast('โหลดข้อมูลจากคลาวด์แล้ว');}catch(e){alert(e.message);}};
+window.gsPushSilent=()=>{};window.gsAutoLoad=()=>{};
+window.gsPush=()=>alert('Google Sheets ใช้เป็นสำรองข้อมูลเดิมเท่านั้น รุ่นนี้ให้ Firebase เป็นคลาวด์หลักเพื่อป้องกันข้อมูลสองแหล่งทับกัน');
+window.gsPull=()=>alert('กรุณาใช้เครื่องที่มีข้อมูลเดิม ดาวน์โหลดสำรองจากหน้า ประวัติ / ข้อมูล แล้วนำเข้าเครื่องนี้ เพื่อรักษาข้อมูลก่อนรวม');
+function csv(){let rows=[['เลขที่','เดือน','ห้อง','ผู้เช่า','ค่าเช่า','ค่าน้ำ','ค่าไฟ','รวม','คงเหลือ','สถานะ'],...state().invoices.filter(i=>i.period===period).map(i=>[i.number,i.period,i.roomName,i.tenantName,i.rent,i.water,i.electric,i.total,i.state==='void'?0:RP.balance(db,i),invoiceStatus(i)])];let text='\ufeff'+rows.map(r=>r.map(v=>'"'+String(v).replace(/^[=+@-]/,"'$&").replaceAll('"','""')+'"').join(',')).join('\r\n');let a=document.createElement('a'),url=URL.createObjectURL(new Blob([text],{type:'text/csv;charset=utf-8'}));a.href=url;a.download='RentPro-'+period+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+let page=document.createElement('div');page.id='page-rp3';document.querySelector('.main').prepend(page);let nav=document.createElement('button');nav.id='rp-nav';nav.className='nav-item';nav.innerHTML='<span class="nav-icon">▦</span> บิลรายเดือน';nav.onclick=()=>{tab='billing';working=null;openApp();};document.querySelector('nav').prepend(nav);
+let logo=document.querySelector('.logo p');logo.textContent='โกดังให้เช่า · ค่าเช่า / น้ำ / ไฟ';let ver=document.createElement('span');ver.className='rp-version';ver.textContent='3.0';document.querySelector('.logo h1').appendChild(ver);
+let footer=document.querySelector('.sidebar-footer');footer.lastElementChild.remove();let sync=document.createElement('div');sync.id='rp-sync';sync.className='rp-sync';footer.appendChild(sync);
+document.addEventListener('click',async e=>{let b=e.target.closest('button');if(!b)return;try{if(b.dataset.tab){working=null;tab=b.dataset.tab;openApp();}if(b.dataset.receive)openReceive(b.dataset.receive);if(b.dataset.confirmReceive)receive(b.dataset.confirmReceive);if(b.dataset.detail)detail(b.dataset.detail);if(b.dataset.voidInvoice)voidInvoice(b.dataset.voidInvoice);if(b.dataset.voidReceipt)voidReceipt(b.dataset.voidReceipt);if(b.dataset.printInvoice)printDoc(b.dataset.printInvoice,false);if(b.dataset.printReceipt)printDoc(b.dataset.printReceipt,true);if(b.dataset.viewBill){let data=working[b.dataset.viewBill].attachment;if(data&&!/^data:image\/(png|jpeg|webp);base64,/.test(data.data))throw Error('ชนิดภาพไม่ถูกต้อง');dialog('<h2>ภาพบิลหลัก</h2><img style="max-width:100%" alt="ภาพบิล" src="'+esc(data.data)+'"><div class="rp-tools"><button class="btn btn-secondary" data-action="close">ปิด</button></div>');}switch(b.dataset.action){case'export':exportData();break;case'close':closeDialog();break;case'save-cycle':saveCycle();break;case'calculate':$('rp-calculation').innerHTML=calculationHTML(calculate(readForm()));break;case'issue':issue();break;case'cancel-cycle':cancelCycle();break;case'old-backup':{let s=rpStore.getItem('rentpro_backup_before_v3');if(s)download('RentPro-before-v3.json',JSON.parse(s));break;}case'settings':showPage('firebase',Array.from(document.querySelectorAll('.nav-item')).find(x=>x.textContent.includes('Firebase')));break;case'sync':await syncCloud();toast('ซิงค์ข้อมูลแล้ว');refresh();break;case'csv':csv();break;}}catch(err){alert(err.message);}});
+document.addEventListener('input',e=>{if(e.target.closest('#page-rp3')&&working&&working.state==='draft'&&e.target.id!=='rp-period'){try{rpStore.setItem('rentpro_draft_'+period,JSON.stringify(readForm()));}catch(err){toast('เก็บร่างอัตโนมัติไม่ได้: '+err.message);}}});document.addEventListener('change',e=>{if(e.target.id==='rp-period'){period=e.target.value||today().slice(0,7);working=null;openApp();}if(e.target.id==='rp-import'&&e.target.files[0])importData(e.target.files[0]);if(e.target.dataset.billFile&&e.target.files[0]){let f=e.target.files[0],k=e.target.dataset.billFile;if(f.size>200*1024||!['image/png','image/jpeg','image/webp'].includes(f.type)){alert('ใช้ภาพ PNG/JPEG/WebP ขนาดไม่เกิน 200 KB');e.target.value='';return;}readForm();let rd=new FileReader();rd.onload=()=>{working[k].attachment={name:f.name,data:rd.result};openApp();};rd.readAsDataURL(f);}});
+window.addEventListener('storage',e=>{if(e.key==='rentpro_v2'&&e.newValue){try{let remote=RP.migrate(JSON.parse(e.newValue));db=RP.merge(base,db,remote);base=copy(remote);if(!working)refresh();}catch(err){cloudError=err.message;renderSync();}}});
+window.addEventListener('rentpro-storage-error',e=>{cloudError='บันทึกในเครื่องไม่สำเร็จ: '+e.detail;renderSync();alert(cloudError+' กรุณาดาวน์โหลดสำรองทันที');});async function refreshCloud(){if(!cloudReady||dirty||syncing||working||document.visibilityState==='hidden')return;try{let reading=await RPCloud.read(fbDb);if(!reading.data)return;let next=RP.merge(base,db,reading.data);db=next;base=copy(next);rpStore.setItem('rentpro_v3_confirmed_base',JSON.stringify(base));rpStore.setItem('rentpro_v2',JSON.stringify(db));refresh();}catch(e){cloudError=e.message;renderSync();}}
+setInterval(refreshCloud,60000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshCloud();});
+window.addEventListener('afterprint',()=>document.body.classList.remove('rp-printing'));window.addEventListener('online',()=>{if((db.fbcfg||{}).projectId)syncCloud().catch(()=>{});});
+window.addEventListener('beforeunload',e=>{if(working&&working.state!=='issued'){e.preventDefault();e.returnValue='';}});
+if(!db.rooms.length&&!(db.fbcfg||{}).projectId&&!(db.gsync||{}).url){db.rooms=[1,2,3,4].map(n=>({id:'warehouse-'+n,name:'โกดัง '+n,type:'โกดัง',rent:0}));}
+rpStore.setItem('rentpro_v2',JSON.stringify(db));if(!dirty&&!knownCloudBase)base=copy(db);openApp();if((db.fbcfg||{}).projectId)syncCloud().catch(()=>{});
+})();
+
 </script>
 </body>
 </html>
+
