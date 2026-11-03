@@ -2033,7 +2033,8 @@ var RP = (function(){
   function balance(d,i){return money(i.total-d.rp3.receipts.filter(r=>r.invoiceId===i.id&&!r.voided).reduce((s,r)=>s+Number(r.amount),0));}
   function status(d,i,today){if(i.state==='void')return'ยกเลิก';if(i.state==='draft')return'ร่าง';var b=balance(d,i);if(b<=0)return'ชำระแล้ว';if(i.due&&i.due<today)return'เกินกำหนด';if(b<i.total)return'ชำระบางส่วน';return'รอชำระ';}
   function calcUtility(b,rows,key){
-    if(!b||!Number.isFinite(Number(b.units))||Number(b.units)<0)throw Error('หน่วยในบิลหลักต้องเป็นตัวเลขตั้งแต่ 0 ขึ้นไป');
+    if(!b||b.units===''||b.units==null||!Number.isFinite(Number(b.units))||Number(b.units)<0)throw Error('หน่วยในบิลหลักต้องเป็นตัวเลขตั้งแต่ 0 ขึ้นไป');
+    if(b.usage===''||b.usage==null)throw Error('กรอกค่าการใช้ตามบิลหลัก หากไม่มีค่าใช้ให้กรอก 0');
     ['usage','service','tax'].forEach(k=>{if(!Number.isFinite(Number(b[k]))||Number(b[k])<0)throw Error('ยอดในบิลต้องเป็นตัวเลขตั้งแต่ 0 ขึ้นไป');});
     var total=money(Number(b.usage)+Number(b.service)+Number(b.tax)),units=Number(b.units),rate=units?total/units:0;
     var out=rows.map(r=>{var p=r[key+'Prev'],c=r[key+'Now'];if(p===''||c===''||p==null||c==null)throw Error('กรอกเลขมิเตอร์ให้ครบทุกห้อง');p=Number(p);c=Number(c);if(!Number.isFinite(p)||!Number.isFinite(c)||p<0||c<p)throw Error('เลขมิเตอร์ปัจจุบันต้องไม่น้อยกว่าครั้งก่อน');return {roomId:r.roomId,units:Math.round((c-p)*1000000)/1000000,amount:money((c-p)*rate)};});
