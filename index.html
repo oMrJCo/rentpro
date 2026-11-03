@@ -1646,10 +1646,10 @@ async function fbInit(){
         projectId:cfg.projectId
       };
       // Check if already initialized
-      if(window.firebase.apps&&window.firebase.apps.length>0){
-        fbApp=window.firebase.apps[0];
+      if(window.firebase.apps&&window.firebase.apps.some(function(a){return a.options.projectId===cfg.projectId;})){
+        fbApp=window.firebase.apps.find(function(a){return a.options.projectId===cfg.projectId;});
       } else {
-        fbApp=window.firebase.initializeApp(firebaseConfig);
+        fbApp=window.firebase.initializeApp(firebaseConfig,'rentpro-'+cfg.projectId);
       }
       fbDb=window.firebase.firestore(fbApp);
     }
@@ -2140,6 +2140,7 @@ for(let attempt=0;attempt<3;attempt++){
   try{await RPCloud.commit(fbDb,reading,merged);break;}catch(e){if(e.retryable&&attempt<2)continue;throw e;}
 }
 base=copy(merged);knownCloudBase=true;rpStore.setItem('rentpro_v3_confirmed_base',JSON.stringify(base));rpStore.setItem('rentpro_v3_sync_base',JSON.stringify(base));if(JSON.stringify(db)===JSON.stringify(captured)){db=merged;dirty=false;rpStore.removeItem('rentpro_v3_pending');}else{db=RP.merge(captured,db,merged);dirty=true;}syncLegacy();rpStore.setItem('rentpro_v2',JSON.stringify(db));cloudReady=true;cloudError='';fbStatus('เชื่อมต่อและตรวจข้อมูลแล้ว',true);if($('page-rp3').style.display!=='none'&&!working)refresh();}catch(e){cloudError=e.message;fbStatus('ซิงค์ไม่สำเร็จ: '+e.message,false);throw e;}finally{syncing=false;renderSync();}}
+const oldFbSaveConfig=fbSaveConfig;window.fbSaveConfig=function(){let previous=(db.fbcfg||{}).projectId;oldFbSaveConfig();if(previous!==(db.fbcfg||{}).projectId){fbApp=null;fbDb=null;knownCloudBase=false;cloudReady=false;cloudError='';rpStore.removeItem('rentpro_v3_confirmed_base');rpStore.removeItem('rentpro_v3_sync_base');base=copy(db);renderSync();}};
 window.fbPush=()=>syncCloud().then(()=>toast('ซิงค์ข้อมูลแล้ว')).catch(e=>alert(e.message));window.fbPushSilent=()=>syncCloud().catch(()=>{});window.fbSubscribe=()=>syncCloud().catch(()=>{});window.fbAutoInit=()=>syncCloud().catch(()=>{});
 window.fbPull=async()=>{if(!confirm('โหลดข้อมูลจากคลาวด์มาแทนข้อมูลเครื่องนี้? ระบบจะสำรองข้อมูลปัจจุบันก่อน หากมีข้อมูลรอซิงค์ให้ดาวน์โหลดสำรองเก็บไว้ด้วย'))return;try{backup('before_cloud_pull');if(!await fbInit())throw Error('เชื่อมต่อไม่ได้');let reading=await RPCloud.read(fbDb);if(!reading.data)throw Error('ไม่พบข้อมูลคลาวด์');let remote=RP.validate(reading.data);['fbcfg','gsync','notify','lineNotify'].forEach(k=>{if(db[k])remote[k]=db[k];});db=remote;base=copy(db);knownCloudBase=true;rpStore.setItem('rentpro_v3_confirmed_base',JSON.stringify(base));dirty=false;cloudReady=true;cloudError='';rpStore.removeItem('rentpro_v3_pending');rpStore.setItem('rentpro_v2',JSON.stringify(db));working=null;refresh();toast('โหลดข้อมูลจากคลาวด์แล้ว');}catch(e){alert(e.message);}};
 window.gsPushSilent=()=>{};window.gsAutoLoad=()=>{};
@@ -2157,7 +2158,7 @@ setInterval(refreshCloud,60000);document.addEventListener('visibilitychange',()=
 window.addEventListener('afterprint',()=>document.body.classList.remove('rp-printing'));window.addEventListener('online',()=>{if((db.fbcfg||{}).projectId)syncCloud().catch(()=>{});});
 window.addEventListener('beforeunload',e=>{if(working&&working.state!=='issued'){e.preventDefault();e.returnValue='';}});
 if(!db.rooms.length&&!(db.fbcfg||{}).projectId&&!(db.gsync||{}).url){db.rooms=[1,2,3,4].map(n=>({id:'warehouse-'+n,name:'โกดัง '+n,type:'โกดัง',rent:0}));}
-rpStore.setItem('rentpro_v2',JSON.stringify(db));if(!dirty&&!knownCloudBase)base=copy(db);openApp();if((db.fbcfg||{}).projectId)syncCloud().catch(()=>{});
+rpStore.setItem('rentpro_v2',JSON.stringify(db));if(!dirty&&!knownCloudBase)base=copy(db);openApp();if((db.fbcfg||{}).projectId&&(db.fbcfg||{}).auto!=='off')syncCloud().catch(()=>{});
 })();
 
 </script>
