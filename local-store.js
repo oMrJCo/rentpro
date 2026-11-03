@@ -1,5 +1,11 @@
 /* IndexedDB keeps bills and images beyond localStorage's small quota. */
 var rpStore=(function(){
+ if(document.documentElement.dataset.rentproDemo==='true'){
+  const values=new Map(),prefix='rentpro_example_page_';
+  const safeKey=key=>key.startsWith('rentpro_demo')||key==='rentpro_v4_mode';
+  return {ready:Promise.resolve(),examplePage:true,keys(){return [...values.keys()];},getItem(key){if(!safeKey(key))return null;if(values.has(key))return values.get(key);try{return sessionStorage.getItem(prefix+key);}catch{return null;}},setItem(key,value){if(!safeKey(key))throw Error('หน้าตัวอย่างไม่บันทึกข้อมูลจริง');values.set(key,String(value));try{sessionStorage.setItem(prefix+key,String(value));}catch{}},removeItem(key){values.delete(key);try{sessionStorage.removeItem(prefix+key);}catch{}},async flush(){}};
+ }
+
  const memory=new Map(),removed=new Set();let database=null,failure=null,pending=[];
  function announce(error){failure=error;window.dispatchEvent(new CustomEvent('rentpro-storage-error',{detail:error.message||String(error)}));}
  const ready=new Promise((resolve,reject)=>{let request=indexedDB.open('RentProData',1);request.onupgradeneeded=()=>request.result.createObjectStore('values');request.onerror=()=>reject(request.error);request.onsuccess=()=>{database=request.result;let tx=database.transaction('values','readonly'),req=tx.objectStore('values').openCursor();req.onsuccess=()=>{let cur=req.result;if(cur){if(!memory.has(cur.key)&&!removed.has(cur.key))memory.set(cur.key,cur.value);cur.continue();}};tx.oncomplete=()=>{for(let j=0;j<localStorage.length;j++){let key=localStorage.key(j);if((key.startsWith('rentpro_')||key.startsWith('nb_'))&&!memory.has(key)&&!removed.has(key))memory.set(key,localStorage.getItem(key));}let migration=database.transaction('values','readwrite');memory.forEach((v,k)=>migration.objectStore('values').put(v,k));migration.oncomplete=()=>resolve();migration.onerror=()=>reject(migration.error);};tx.onerror=()=>reject(tx.error);};});

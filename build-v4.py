@@ -5,3 +5,7 @@ html=head+Path('v4.css').read_text()+'''</style></head><body><div id="root"><div
 Path('index.html').write_text(html)
 Path('dist').mkdir(exist_ok=True)
 Path('dist/index.html').write_text(html)
+
+example=html.replace('<html lang="th">','<html lang="th" data-rentpro-demo="true">').replace('<title>RentPro — จัดการโกดังให้เช่า</title>','<title>RentPro — ตัวอย่างครบ 4 หลัง</title>')
+Path('demo.html').write_text(example)
+Path('dist/demo.html').write_text(example)
