@@ -32,7 +32,7 @@ var RP = (function(){
     return {total,units,rate,rows:out,differenceUnits:Math.max(0,units-sum),ownerAmount:units?money((units-sum)*rate):total,rounding:money(total-out.reduce((s,r)=>s+r.amount,0)-money((units-sum)*rate))};
   }
   function validate(d){
-    var seen=new Map();(d.rp3.invoices||[]).forEach(i=>{if(i.state==='void')return;var key=i.period+'/'+i.roomId,other=seen.get(key);if(other&&(!other.legacy||!i.legacy))throw Error('มีใบแจ้งหนี้ซ้ำห้องและเดือนจากอีกเครื่อง กรุณาตรวจรายการก่อนซิงค์');seen.set(key,i);if(!Number.isFinite(i.total)||i.total<0)throw Error('ยอดใบแจ้งหนี้ไม่ถูกต้อง');if(balance(d,i)<0)throw Error('ยอดรับชำระรวมเกินใบแจ้งหนี้ อาจมีการรับเงินพร้อมกันจากอีกเครื่อง กรุณาตรวจรายการ');});
+    var leaseNumbers=new Set();(d.contracts||[]).forEach(c=>{if(!/^WH-\d{4}-\d{4,}$/.test(c.number||''))return;if(leaseNumbers.has(c.number))throw Error('เลขที่สัญญาซ้ำจากการสร้างพร้อมกัน กรุณาโหลดข้อมูลล่าสุดแล้วบันทึกใหม่');leaseNumbers.add(c.number);});var seen=new Map();(d.rp3.invoices||[]).forEach(i=>{if(i.state==='void')return;var key=i.period+'/'+i.roomId,other=seen.get(key);if(other&&(!other.legacy||!i.legacy))throw Error('มีใบแจ้งหนี้ซ้ำห้องและเดือนจากอีกเครื่อง กรุณาตรวจรายการก่อนซิงค์');seen.set(key,i);if(!Number.isFinite(i.total)||i.total<0)throw Error('ยอดใบแจ้งหนี้ไม่ถูกต้อง');if(balance(d,i)<0)throw Error('ยอดรับชำระรวมเกินใบแจ้งหนี้ อาจมีการรับเงินพร้อมกันจากอีกเครื่อง กรุณาตรวจรายการ');});
     (d.rp3.receipts||[]).forEach(r=>{if(!d.rp3.invoices.some(i=>i.id===r.invoiceId))throw Error('พบรายการรับเงินที่ไม่มีใบแจ้งหนี้อ้างอิง');});return d;
   }
   function merge(base,local,remote){

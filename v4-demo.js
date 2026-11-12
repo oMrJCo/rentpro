@@ -26,5 +26,7 @@ if(!c.terms||c.terms==='ข้อมูลสาธิตสำหรับท�
 '8. ติดต่อประสานงานผ่าน '+c.tenantContact+' ฝ่ายผู้เช่า และ '+c.ownerContact+' ฝ่ายผู้ให้เช่า',
 'หมายเหตุ: สัญญาและข้อมูลชุดนี้เป็นตัวอย่างสำหรับทดลองระบบ ไม่ใช่สัญญาสำหรับลงนาม'
 ].join('\n\n');
-});d._demoContractVersion=2;return d;
+});
+if(!d.owner.idcard)d.owner.idcard='เลขทะเบียนสมมติสำหรับทดลอง';if(!d.owner.signer)d.owner.signer='คุณผู้ให้เช่าตัวอย่าง';
+d.contracts.forEach(c=>{if(!/^sample-contract-[1-4]$/.test(c.id))return;let t=d.tenants.find(t=>t.id===c.tenantId);if(t){if(!t.idcard)t.idcard='เลขทะเบียนสมมติผู้เช่า '+c.id.slice(-1);if(!t.signer)t.signer=c.tenantContact;}if(!c.madeAt)c.madeAt='สำนักงานโครงการโกดังพร้อมใช้ (ตัวอย่าง)';if(!c.rentVatMode)c.rentVatMode='ไม่รวม';if(!c.advancePeriod)c.advancePeriod='ค่าเช่าเดือนแรกตามสัญญา';if(!c.witness1)c.witness1='คุณพยานหนึ่ง (ตัวอย่าง)';if(!c.witness2)c.witness2='คุณพยานสอง (ตัวอย่าง)';if(!c.termYears)c.termYears=LeaseFields.inferYears(c);if(c.number?.startsWith('LEASE-DEMO-'))c.number=LeaseFields.nextNumber(d,c.signedDate||c.startDate);});d._demoContractVersion=3;return d;
 }

@@ -1,0 +1,13 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const box={crypto:require('node:crypto').webcrypto};vm.runInNewContext(['upgrade-core.js','v4-model.js','lease-fields.js','lease-template.js','lease-document.js','v4-demo.js'].map(p=>fs.readFileSync(p,'utf8')).join('\n'),box);
+const {LeaseFields:F,WarehouseLease:L,WarehouseLeaseTemplate:T,RP}=box,d=box.rentDemo('2026-11-12');
+assert.equal(F.endDate('2026-11-15',1),'2027-11-14');assert.equal(F.endDate('2026-11-15',2),'2028-11-14');assert.equal(F.endDate('2026-11-15',3),'2029-11-14');assert.equal(F.endDate('2024-02-29',1),'2025-02-28');
+assert.equal(F.nextNumber({contracts:[{number:'WH-2569-0009',archived:true},{number:'WH-2568-0099'}]},'2026-11-12'),'WH-2569-0010');assert.equal(F.nextNumber({contracts:[]},'2027-01-01'),'WH-2570-0001');
+assert.equal(L.baht(12000),'หนึ่งหมื่นสองพันบาทถ้วน');assert.equal(L.baht(25181.49),'สองหมื่นห้าพันหนึ่งร้อยแปดสิบเอ็ดบาทสี่สิบเก้าสตางค์');
+assert.equal(T.paragraphs.length,119);assert.equal(T.paragraphs.filter(p=>/^ข้อ \d/.test(p.text)).length,17);
+const changed=new Set([2,3,5,7,10,14,19,24,25,30,31,91,92,103,105,107,109,114,115]);
+for(const c of d.contracts){const s=L.build(d,c,{demo:true});assert.deepEqual(Array.from(s.missing),[]);assert.equal(s.paragraphs.length,119);for(let p of T.paragraphs)if(!changed.has(p.index))assert.equal(s.paragraphs[p.index].text,p.text);for(let p of s.paragraphs)if(![102,104,106,108].includes(p.index))assert(!/\.{3,}/.test(p.text),'unfilled source paragraph '+p.index);assert.equal(s.appendices.length,1);assert(s.paragraphs[19].text.includes('3 ปี'));assert(s.paragraphs[24].text.includes(L.baht(c.rent)));}
+const c=d.contracts[0],s=L.build(d,c);d.owner.name='Changed after issuance';assert(!s.paragraphs[5].text.includes('Changed after issuance'));assert(L.build(d,c).paragraphs[5].text.includes('Changed after issuance'));d.owner.idcard='';c.witness2='';const missing=L.build(d,c).missing;assert(missing.includes('เลขประจำตัว / เลขทะเบียนผู้ให้เช่า'));assert(missing.includes('ชื่อพยานคนที่ 2'));
+const esc=x=>String(x).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');d.owner.name='<img src=x onerror=alert(1)>';assert(!L.blocks(L.build(d,c),esc).join('').includes('<img'));
+const duplicate=RP.clone(d);duplicate.contracts[1].number=duplicate.contracts[0].number;assert.throws(()=>RP.validate(duplicate),/เลขที่สัญญา/);
+console.log('PASS: complete source mapping for four leases, 17 unchanged clauses, missing-field gate, Thai amounts, safe rendering, immutable snapshots, annual numbering including archives, 1–3 year inclusive end dates and leap years');
