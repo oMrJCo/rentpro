@@ -1,0 +1,8 @@
+{
+  "name": "rentpro-upgrade-check",
+  "private": true,
+  "scripts": {
+    "test": "node test-core.cjs && node test-v4.cjs && node test-cloud.cjs && node test-v4-print.cjs && node test-lease.cjs && node test-demo-entry.cjs && node test-online.cjs"
+  },
+  "type": "commonjs"
+}
