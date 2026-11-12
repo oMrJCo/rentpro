@@ -16,3 +16,28 @@
 .contract-tenant{grid-column:1/-1;padding:18px;border:1px solid #d5e3df;border-radius:10px;background:#f8fbfa}.contract-tenant h3{margin:0 0 6px;font-size:15px;color:#246d5c}.contract-tenant>p{font-size:12px;margin:0 0 16px}.contract-tenant .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:600px){.contract-tenant .form-grid{grid-template-columns:1fr}}
 
 .auth-shell{min-height:100vh;display:grid;place-items:center;padding:28px;background:#f4f8f7}.auth-card{width:min(100%,520px);padding:36px;border:1px solid #dce8e3;border-radius:18px;background:white;box-shadow:0 12px 45px #163d2c0b}.auth-card h1{font-size:30px;margin:12px 0;color:#173d34}.auth-card>p{font-size:14px;line-height:1.8;color:#647d73}.auth-card .fields{grid-template-columns:1fr}.auth-actions{margin-top:20px}.auth-actions .button{flex:1}.auth-mark{width:45px;height:45px;padding:10px;background:#20755f;border-radius:12px;color:white}.auth-mark svg{width:100%;height:100%}.auth-note{font-size:12px!important}.auth-demo{display:block;font-size:13px;margin-top:20px}.account-email{font-size:11px;color:#607b73;max-width:190px;overflow:hidden;text-overflow:ellipsis}@media(max-width:600px){.auth-card{padding:24px}.account-email{display:none}}
+/* Clear emerald accents; theme preference is local to the device. */
+:root{--ink:#163a38;--muted:#607976;--border:#dbe6e3;--bg:#f3f7f6;--green:#087f69;--green-pale:#e0f3ed;--surface:#ffffff;--surface-alt:#edf5f2}
+.theme-toggle{font-weight:600;gap:7px;min-width:90px}.auth-theme{display:flex;justify-content:flex-end;margin-bottom:8px}.button.primary{box-shadow:0 3px 9px #087f6918}.button.primary:hover{background:#066b59;border-color:#066b59}.auth-card h1{color:var(--ink)}.auth-shell{background:var(--bg)}.side,.top,.panel,.metric,.room-card,.modal,.auth-card{background:var(--surface)}
+@media screen{
+html[data-theme="dark"]{color-scheme:dark;--ink:#e4f0ed;--muted:#a4bab5;--border:#334b48;--bg:#101c1c;--green:#53d3b2;--green-pale:#1d3e35;--surface:#1a2b2a;--surface-alt:#243a36;--red:#ffaba2;--amber:#f4cb81}
+html[data-theme="dark"] input,html[data-theme="dark"] select,html[data-theme="dark"] textarea{background:#132322;border-color:var(--border);color:var(--ink)}
+html[data-theme="dark"] input:disabled{background:#21332f;color:#b5c8c2}
+html[data-theme="dark"] .button,html[data-theme="dark"] .steps button,html[data-theme="dark"] .tabs button,html[data-theme="dark"] .room-list button{background:var(--surface-alt);color:var(--ink);border-color:var(--border)}
+html[data-theme="dark"] .button.primary,html[data-theme="dark"] .button.dark{background:#31bc98;border-color:#31bc98;color:#082c23;font-weight:600}
+html[data-theme="dark"] .button.primary:hover{background:#53d3b2}
+html[data-theme="dark"] .button.link{background:transparent;color:var(--green)}
+html[data-theme="dark"] .button.danger,html[data-theme="dark"] .notice.error{background:#402a29;color:#ffb7ae;border-color:#754b43}
+html[data-theme="dark"] .nav button,html[data-theme="dark"] .breadcrumb,html[data-theme="dark"] .account-email,html[data-theme="dark"] .auth-card>p,html[data-theme="dark"] .contract-meter small{color:var(--muted)}
+html[data-theme="dark"] .nav button:hover,html[data-theme="dark"] th,html[data-theme="dark"] .steps span,html[data-theme="dark"] .avatar,html[data-theme="dark"] .close,html[data-theme="dark"] .room-icon,html[data-theme="dark"] .metric-icon,html[data-theme="dark"] .task .circle,html[data-theme="dark"] .chip{background:var(--surface-alt);color:var(--muted);border-color:var(--border)}
+html[data-theme="dark"] td,html[data-theme="dark"] th,html[data-theme="dark"] .modal-header,html[data-theme="dark"] .modal-footer{border-color:var(--border)}
+html[data-theme="dark"] .nav button.on,html[data-theme="dark"] .tabs button.on,html[data-theme="dark"] .room-list button.on,html[data-theme="dark"] .steps button.on,html[data-theme="dark"] .notice,html[data-theme="dark"] .bill-total,html[data-theme="dark"] .invoice-total{background:#1d3e35;color:#b9f5df;border-color:#3c6556}
+html[data-theme="dark"] .demo-banner,html[data-theme="dark"] .demo-pill,html[data-theme="dark"] .notice.warn{background:#382f20;color:#f2d394;border-color:#615139}
+html[data-theme="dark"] .demo-banner .button{background:#443822;color:#f2d394;border-color:#75603c}
+html[data-theme="dark"] .tag{background:#2e4541;color:#ccdfd7}html[data-theme="dark"] .tag.green,html[data-theme="dark"] .nav .counter{background:#1e493b;color:#a7f4cd}html[data-theme="dark"] .tag.amber{background:#45371f;color:#ffdb95}html[data-theme="dark"] .tag.red{background:#4d2c28;color:#ffb7ae}html[data-theme="dark"] .tag.blue{background:#273f5a;color:#b6d8ff}
+html[data-theme="dark"] .contract-meter,html[data-theme="dark"] .contract-tenant{background:#152623;border-color:var(--border)}html[data-theme="dark"] .contract-meter legend,html[data-theme="dark"] .contract-tenant h3{color:#8ce8cb}
+html[data-theme="dark"] .meter-table .group{background:#203d32;color:#b8efce}html[data-theme="dark"] .meter-table .group.electric{background:#273d53;color:#b6d8ff}
+html[data-theme="dark"] .brandmark{background:#31bc98;color:#082c23}html[data-theme="dark"] .auth-mark{background:#31bc98;color:#082c23}
+html[data-theme="dark"] .toast{background:#d4f5e9;color:#163a2b}html[data-theme="dark"] .progress-line{background:#354c45}html[data-theme="dark"] .lease-preview{background:#10201d}
+}
+@media print{.theme-toggle,.auth-theme{display:none!important}}
