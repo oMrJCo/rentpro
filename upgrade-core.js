@@ -31,9 +31,21 @@ var RP = (function(){
     var sum=out.reduce((s,r)=>s+r.units,0);if(sum>units+0.000001)throw Error('ผลรวมมิเตอร์ย่อยเกินหน่วยในบิลหลัก กรุณาตรวจรอบวันที่และเลขมิเตอร์');
     return {total,units,rate,rows:out,differenceUnits:Math.max(0,units-sum),ownerAmount:units?money((units-sum)*rate):total,rounding:money(total-out.reduce((s,r)=>s+r.amount,0)-money((units-sum)*rate))};
   }
+  const chargeKeys=['rent','electric','water','other'];
+  function chargeTotals(i){let out=Object.fromEntries(chargeKeys.map(k=>[k,money(i[k]||0)]));let extra=money(Number(i.total)-chargeKeys.reduce((sum,k)=>sum+out[k],0));out.other=money(out.other+extra);return out;}
+  function receiptAllocations(d,i){
+    let totals=chargeTotals(i),historical={...totals},out=new Map();
+    for(let r of d.rp3.receipts.filter(r=>r.invoiceId===i.id)){
+      let parts=r.allocations;
+      if(!parts){let left=money(r.amount);parts={};for(let k of chargeKeys){parts[k]=money(Math.min(Math.max(0,historical[k]),left));left=money(left-parts[k]);}if(left>0)parts.other=money((parts.other||0)+left);}
+      out.set(r.id,parts);for(let k of chargeKeys)historical[k]=money(historical[k]-Number(parts[k]||0));
+    }
+    return out;
+  }
+  function remainingCharges(d,i){let out=chargeTotals(i),parts=receiptAllocations(d,i);for(let r of d.rp3.receipts.filter(r=>r.invoiceId===i.id&&!r.voided))for(let k of chargeKeys)out[k]=money(out[k]-Number(parts.get(r.id)[k]||0));return out;}
   function validate(d){
-    var leaseNumbers=new Set();(d.contracts||[]).forEach(c=>{if(!/^WH-\d{4}-\d{4,}$/.test(c.number||''))return;if(leaseNumbers.has(c.number))throw Error('เลขที่สัญญาซ้ำจากการสร้างพร้อมกัน กรุณาโหลดข้อมูลล่าสุดแล้วบันทึกใหม่');leaseNumbers.add(c.number);});var seen=new Map();(d.rp3.invoices||[]).forEach(i=>{if(i.state==='void')return;var key=i.period+'/'+i.roomId,other=seen.get(key);if(other&&(!other.legacy||!i.legacy))throw Error('มีใบแจ้งหนี้ซ้ำห้องและเดือนจากอีกเครื่อง กรุณาตรวจรายการก่อนซิงค์');seen.set(key,i);if(!Number.isFinite(i.total)||i.total<0)throw Error('ยอดใบแจ้งหนี้ไม่ถูกต้อง');if(balance(d,i)<0)throw Error('ยอดรับชำระรวมเกินใบแจ้งหนี้ อาจมีการรับเงินพร้อมกันจากอีกเครื่อง กรุณาตรวจรายการ');});
-    (d.rp3.receipts||[]).forEach(r=>{if(!d.rp3.invoices.some(i=>i.id===r.invoiceId))throw Error('พบรายการรับเงินที่ไม่มีใบแจ้งหนี้อ้างอิง');});return d;
+    var leaseNumbers=new Set();(d.contracts||[]).forEach(c=>{if(!/^WH-\d{4}-\d{4,}$/.test(c.number||''))return;if(leaseNumbers.has(c.number))throw Error('เลขที่สัญญาซ้ำจากการสร้างพร้อมกัน กรุณาโหลดข้อมูลล่าสุดแล้วบันทึกใหม่');leaseNumbers.add(c.number);});var seen=new Map();(d.rp3.invoices||[]).forEach(i=>{if(i.state==='void')return;var key=i.period+'/'+i.roomId,other=seen.get(key);if(other&&(!other.legacy||!i.legacy))throw Error('มีใบแจ้งหนี้ซ้ำห้องและเดือนจากอีกเครื่อง กรุณาตรวจรายการก่อนซิงค์');seen.set(key,i);if(!Number.isFinite(i.total)||i.total<0)throw Error('ยอดใบแจ้งหนี้ไม่ถูกต้อง');if(balance(d,i)<0)throw Error('ยอดรับชำระรวมเกินใบแจ้งหนี้ อาจมีการรับเงินพร้อมกันจากอีกเครื่อง กรุณาตรวจรายการ');if(Object.values(remainingCharges(d,i)).some(v=>v<0))throw Error('ยอดรับชำระรายประเภทเกินยอดเรียกเก็บ อาจมีการรับเงินพร้อมกันจากอีกเครื่อง');});
+    (d.rp3.receipts||[]).forEach(r=>{if(r.allocations){if(chargeKeys.some(k=>!Number.isFinite(Number(r.allocations[k]||0))||Number(r.allocations[k]||0)<0)||Math.abs(money(chargeKeys.reduce((sum,k)=>sum+Number(r.allocations[k]||0),0))-Number(r.amount))>0.001)throw Error('ยอดแยกประเภทใบเสร็จไม่ตรงกับยอดรับเงิน');}if(!d.rp3.invoices.some(i=>i.id===r.invoiceId))throw Error('พบรายการรับเงินที่ไม่มีใบแจ้งหนี้อ้างอิง');});return d;
   }
   function merge(base,local,remote){
     var out=clone(remote),conflicts=[];
@@ -46,5 +58,5 @@ var RP = (function(){
     if(conflicts.length)throw Error('ข้อมูลถูกแก้จากอีกเครื่อง: '+conflicts.join(', ')+' — เก็บข้อมูลในเครื่องไว้แล้ว กรุณาสำรองก่อนโหลดจากคลาวด์');
     return validate(out);
   }
-  return {clone,money,migrate,tenantName,balance,status,calcUtility,merge,validate};
+  return {clone,money,migrate,tenantName,balance,status,calcUtility,merge,validate,chargeKeys,chargeTotals,receiptAllocations,remainingCharges};
 })();
