@@ -75,7 +75,6 @@ html[data-theme="dark"] .toast{background:#d4f5e9;color:#163a2b}html[data-theme=
 .tax-rate-inline{display:flex;align-items:center;gap:5px;min-width:75px}.tax-rate-inline input{width:65px;padding:7px;font-size:12px}
 .issue-terms{display:flex;flex-direction:column;gap:5px;padding:15px 20px;background:var(--green-pale);color:var(--ink);font-size:12px;border-top:1px solid var(--border)}
 .issue-terms small{color:var(--muted);font-size:10px}.tax-summary-line{display:flex;justify-content:space-between;gap:18px;padding:4px 0}
-.invoice-tax-readonly{border:1px solid var(--border);border-radius:10px;padding:16px}.invoice-tax-readonly input[readonly]{background:var(--bg);font-weight:600}
 .billing-sheet .invoice-tax-totals{clear:both;border-top:1px solid #d7e2de;margin-top:16px;padding-top:10px;color:#193d32}
 .invoice-tax-totals>div{display:flex;justify-content:space-between;gap:20px;padding:7px 0;font-size:13px}
 .invoice-tax-totals .net-remittance{font-size:17px;font-weight:700;padding:12px 14px;background:#edf7f1;border:1px solid #cadfd1;border-radius:7px}
