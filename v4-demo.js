@@ -39,3 +39,5 @@ function rentSplitDemo(today){
  for(let category of ['rent','water','electric']){let c={...RP.clone(copy),id:'split-cycle-'+category+'-'+period,category,state:'draft',due:'',note:'ข้อมูลตัวอย่าง · ไม่มีการเรียกเก็บเงินจริง'};let result=SplitBilling.build(d,c,id,today);c.state='issued';c.calculation=result.calculation;d.rp3.cycles.push(c);d.rp3.invoices.push(...result.invoices);for(let i of result.invoices.filter(i=>i.roomId==='sample-room-1'))RentModel.receive(d,i.id,{amount:i.total,date:today,method:'โอนเงิน',note:'ชำระครบ (ตัวอย่าง)'},id(),today);}
  RentModel.syncPayments(d,today);d._splitDemo=true;return d;
 }
+
+function rentReadyDemo(today){let db=InvoiceTax.demo(rentSplitDemo(today),today);db._invoiceTaxDemo=true;return db;}
