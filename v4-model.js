@@ -15,7 +15,7 @@ let value=Number(bill[key]||0);if(key==='discount'&&!value)continue;let signed=k
 items.push({key,label,rate:signed/Number(bill.units),amount:round(signed*ratio*share)});
 }
 let adjustment=round(part.net-items.reduce((sum,row)=>sum+row.amount,0));if(adjustment)items.push({key:'rounding',label:'ส่วนต่างการปัดเศษและแยก VAT',rate:null,amount:adjustment});
-return {items,masterUnits:Number(bill.units),units:Number(snap.units),previous:snap.previous,current:snap.current,meterNo:snap.meterNo||'',reference:bill.reference||'',from:bill.from,to:bill.to,partial:paid<full,fullTotal:full,net:part.net,vat:part.vat,total:paid};
+return {items,masterUnits:Number(bill.units),units:Number(snap.units),previous:snap.previous,current:snap.current,meterNo:snap.meterNo||'',reference:bill.reference||'',from:snap.from||bill.from,to:snap.to||bill.to,partial:paid<full,fullTotal:full,net:part.net,vat:part.vat,total:paid};
 }
 function receive(db,invoiceId,value,id,today){
 let i=db.rp3.invoices.find(i=>i.id===invoiceId);if(!i||i.state!=='issued')throw Error('ใบแจ้งหนี้นี้ไม่เปิดรับชำระ');
