@@ -21,4 +21,9 @@ paymentDb.owner.bank='   ';assert(L.build(paymentDb,paymentContract).missing.som
 paymentDb.owner.bank='<img src=x onerror=alert(1)>';assert(!L.blocks(L.build(paymentDb,paymentContract),esc).join('').includes('<img'));
 paymentDb.owner.bank='เลขบัญชี ...123 $&';assert(L.build(paymentDb,paymentContract).paragraphs[25].text.includes('...123 $&'));
 const duplicate=RP.clone(d);duplicate.contracts[1].number=duplicate.contracts[0].number;assert.throws(()=>RP.validate(duplicate),/เลขที่สัญญา/);
+const photoDb=box.rentDemo('2026-11-12'),pc=photoDb.contracts[0];
+pc.handoverPhotos=['building','water','electric'].map((category,index)=>({id:'photo'+index,category,date:'2026-11-01',caption:'ทดสอบ <script>bad</script>',name:'test.png',assetId:'photo'+index,data:'data:image/png;base64,AAAA'}));
+const photos=L.build(photoDb,pc);assert.equal(photos.photoAppendices.length,3);assert(photos.paragraphs[112].text.startsWith('☑'));assert.equal(photos.photoAppendices[1].meterNo,pc.waterMeterNo);assert.equal(photos.photoAppendices[2].reading,pc.electricStart);let frozen=JSON.stringify(photos.photoAppendices);pc.handoverPhotos[0].caption='changed';pc.waterStart=999;assert.equal(JSON.stringify(photos.photoAppendices),frozen);
+const photoHtml=L.blocks(photos,esc).join('');assert.equal((photoHtml.match(/class="lease-photo-page"/g)||[]).length,3);assert(!photoHtml.includes('<script>'));assert(photoHtml.includes('วันที่ถ่ายภาพ'));assert(photoHtml.includes('เลขหน้าปัด ณ วันส่งมอบ'));
+pc.handoverPhotos[0].data='javascript:bad';assert(L.build(photoDb,pc).missing.some(x=>x.includes('ไฟล์ภาพแนบ')));assert(!L.blocks(L.build(photoDb,pc),esc).join('').includes('src="javascript:'));
 console.log('PASS: complete source mapping for four leases, 17 unchanged clauses, missing-field gate, Thai amounts, safe rendering, immutable snapshots, annual numbering including archives, 1–3 year inclusive end dates and leap years');
