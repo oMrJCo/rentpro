@@ -1,9 +1,12 @@
 /* RentPro 3.0 — deterministic accounting and compatible migration. */
 var RP = (function(){
   'use strict';
-  var clone=x=>JSON.parse(JSON.stringify(x));
+  // Copy metadata while reusing immutable strings, including large image bodies.
+  function clone(value){let active=new Set();function copy(v,key){if(v&&typeof v.toJSON==='function')v=v.toJSON(key);if(v===null)return null;if(typeof v==='number')return Number.isFinite(v)?v:null;if(typeof v==='bigint')throw TypeError('Cannot clone BigInt');if(typeof v!=='object')return ['undefined','function','symbol'].includes(typeof v)?undefined:v;if(active.has(v))throw TypeError('Cannot clone circular data');active.add(v);let out;if(Array.isArray(v))out=Array.from(v,(item,i)=>copy(item,String(i))??null);else{out={};for(let k of Object.keys(v)){let item=copy(v[k],k);if(item!==undefined)Object.defineProperty(out,k,{value:item,enumerable:true,writable:true,configurable:true});}}active.delete(v);return out;}let out=copy(value,'');if(out===undefined)throw SyntaxError('Value is not JSON data');return out;}
+
   var money=x=>Math.round((Number(x)+Number.EPSILON)*100)/100;
-  var same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+  function same(a,b){if(a===b)return true;if(a===null||b===null||typeof a!==typeof b)return false;if(typeof a==='number')return !Number.isFinite(a)&&!Number.isFinite(b);if(typeof a!=='object')return false;if(Array.isArray(a)!==Array.isArray(b))return false;if(Array.isArray(a))return a.length===b.length&&a.every((v,i)=>same(v,b[i]));let ak=Object.keys(a).filter(k=>a[k]!==undefined),bk=Object.keys(b).filter(k=>b[k]!==undefined);return ak.length===bk.length&&ak.every(k=>Object.prototype.hasOwnProperty.call(b,k)&&same(a[k],b[k]));}
+
   function migrate(d){
     ['rooms','tenants','contracts','payments'].forEach(k=>{if(!Array.isArray(d[k]))d[k]=[];});
     d.owner=d.owner||{};
@@ -65,5 +68,5 @@ var RP = (function(){
     if(conflicts.length)throw Error('ข้อมูลถูกแก้จากอีกเครื่อง: '+conflicts.join(', ')+' — เก็บข้อมูลในเครื่องไว้แล้ว กรุณาสำรองก่อนโหลดจากคลาวด์');
     return validate(out);
   }
-  return {clone,money,migrate,tenantName,balance,status,calcUtility,merge,validate,chargeKeys,chargeTotals,receiptAllocations,remainingCharges,invoiceOverlap};
+  return {clone,same,money,migrate,tenantName,balance,status,calcUtility,merge,validate,chargeKeys,chargeTotals,receiptAllocations,remainingCharges,invoiceOverlap};
 })();

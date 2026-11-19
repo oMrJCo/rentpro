@@ -2,7 +2,7 @@
   "name": "rentpro-upgrade-check",
   "private": true,
   "scripts": {
-    "test": "node test-core.cjs && node test-v4.cjs && node test-cloud.cjs && node test-v4-print.cjs && node test-lease.cjs && node test-demo-entry.cjs && node test-online.cjs && node test-users.cjs && node test-split.cjs && node test-late-tax.cjs && node test-invoice-tax.cjs && node test-deposit-proof.cjs"
+    "test": "node test-core.cjs && node test-local-storage.cjs && node test-v4.cjs && node test-cloud.cjs && node test-v4-print.cjs && node test-lease.cjs && node test-demo-entry.cjs && node test-online.cjs && node test-users.cjs && node test-split.cjs && node test-late-tax.cjs && node test-invoice-tax.cjs && node test-deposit-proof.cjs"
   },
   "type": "commonjs"
 }
