@@ -83,3 +83,5 @@ html[data-theme="dark"] .toast{background:#d4f5e9;color:#163a2b}html[data-theme=
 @media(max-width:500px){.billing-toolbar{align-items:stretch}.workspace-segments{width:100%}.workspace-segments button{flex:1}.billing-toolbar>.button.primary{width:100%}.status-segments{width:100%}.status-segments button{flex:1;padding:7px 8px}.collection-search{width:100%}}
 
 .tenant-tax-settings{grid-column:1/-1;min-width:0;margin:8px 0 0;padding:18px;border:1px solid var(--line);border-radius:10px}.tenant-tax-settings legend{font-weight:700;padding:0 7px}.tenant-tax-settings .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.tenant-tax-settings>small{display:block;margin-top:14px;line-height:1.7}@media(max-width:600px){.tenant-tax-settings .form-grid{grid-template-columns:1fr}}
+
+.lease-payment-account{margin:10px 0 12px;padding:0 0 0 14px;border-left:2px solid #cbd5d1}.lease-payment-account h3{font-size:10.5pt;font-weight:700;color:#111;line-height:1.65;margin:0 0 4px}.lease-payment-account .lease-paragraph{margin:0 0 2px}

@@ -13,6 +13,9 @@ const esc=x=>String(x).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll
 const paymentDb=box.rentDemo('2026-11-12'),paymentContract=paymentDb.contracts[0];
 paymentDb.owner.bank='ธนาคารทดสอบ ชื่อบัญชี บริษัททดสอบ เลขบัญชี 123-456-7890';
 for(const schedule of [undefined,'anniversary','calendar']){paymentContract.billingSchedule=schedule;const doc=L.build(paymentDb,paymentContract);assert(doc.paragraphs[25].text.includes(paymentDb.owner.bank));assert(!doc.paragraphs[25].text.includes('แจ้งเป็นหนังสือ'));assert(!doc.missing.some(x=>x.includes('ช่องทางชำระเงิน')));}
+const accountHtml=L.blocks(L.build(paymentDb,paymentContract),x=>x).join('');assert(accountHtml.includes('class="lease-payment-account"'));assert(accountHtml.includes('</div><p class="lease-paragraph" data-source-paragraph="25">รอบสุดท้าย'));
+// Existing issued text gets the same layout, without rewriting its stored contents.
+const oldLayout=L.build(paymentDb,paymentContract);oldLayout.paragraphs[25].text=oldLayout.paragraphs[25].text.replaceAll('\n',' ');const oldText=oldLayout.paragraphs[25].text;assert(L.blocks(oldLayout,x=>x).join('').includes('class="lease-payment-account"'));assert.equal(oldLayout.paragraphs[25].text,oldText);
 const issued=L.build(paymentDb,paymentContract);paymentDb.owner.bank='บัญชีใหม่';assert(issued.paragraphs[25].text.includes('123-456-7890'));assert(L.build(paymentDb,paymentContract).paragraphs[25].text.includes('บัญชีใหม่'));
 paymentDb.owner.bank='   ';assert(L.build(paymentDb,paymentContract).missing.some(x=>x.includes('ช่องทางชำระเงิน')));
 paymentDb.owner.bank='<img src=x onerror=alert(1)>';assert(!L.blocks(L.build(paymentDb,paymentContract),esc).join('').includes('<img'));
